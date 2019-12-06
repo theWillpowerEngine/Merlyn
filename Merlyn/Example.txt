@@ -1,0 +1,9 @@
+
+;Functions and Lambdas
+(defn hello-world () (print "Hello nurse!"))
+(hello-world)
+(defn say-hello (name) (print (str "Hello " $name)))
+(say-hello "Dhiraj")
+(fn? hello-world)		; T
+
+

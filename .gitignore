@@ -1,0 +1,17 @@
+/Merlyn/.vs/**
+/Merlyn/obj/**
+/Merlyn/bin/**
+/Merlyn/packages/**
+
+/Merp/.vs/**
+/Merp/obj/**
+/Merp/bin/**
+/.vs
+
+/Merwin/.vs/**
+/Merwin/obj/**
+/Merwin/bin/**
+
+/MSL/.vs/**
+/MSL/obj/**
+/MSL/bin/**
