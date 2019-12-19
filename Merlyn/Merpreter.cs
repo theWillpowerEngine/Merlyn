@@ -132,6 +132,12 @@ namespace Merlyn
                         work += stringDelim.ToString();
                         continue;
                     }
+                    else if (c == '%' && code[i + 1] == 's')
+                    {
+                        i += 1;
+                        work += " ";
+                        continue;
+                    }
                     else if (c == stringDelim)
                     {
                         stringDelim = '#';

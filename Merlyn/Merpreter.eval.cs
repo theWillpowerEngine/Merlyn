@@ -23,26 +23,26 @@ namespace Merlyn
             if (!string.IsNullOrEmpty(list[0].Name))
                 return new Token(list);
 
-			if (list[0].IsParent)
-			{
-				if (list.Count > 1)
-					Error("Sibling peered list passed for evaluation -- you are probably missing a 'do' keyword");
+            if (list[0].IsParent)
+            {
+                var evalled = list[0].Eval(this);
+                if (list.Count > 1 && !evalled.IsFunction)
+                    Error("Sibling peered list passed for evaluation -- you are probably missing a 'do' keyword");
+                else if (list.Count == 1)
+                    return evalled;
+                else
+                    list[0] = evalled;
+            }
 
-				Token retVal = Token.Nil;
-				foreach (var ele in list)
-					retVal = ele.Eval(this);
-				return retVal;
-			}
-
-			int i, j, k;
+            int i, j, k;
             long l;
-            Token lastVal = Token.Nil;
-            string s1 = "", s2 = "";
+            Token lastVal = Token.Nil, val = Token.Nil;
+            string s1 = "", s2 = "", name = "";
             List<string> ls = new List<string>();
             List<Token> ts = new List<Token>();
             Token toke = null, request = null;
 
-            switch (list[0].Toke.ToString().ToLower())
+            switch (list[0].Toke?.ToString()?.ToLower())
             {
                 #region IO and string manipulation
 
@@ -195,17 +195,17 @@ namespace Merlyn
                 case "map":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of arguments to keyword 'map', expected 2");
-                    s1 = list[1].Eval(this).ToString();
                     toke = list[2].Eval(this);
 
                     if (!toke.IsParent)
                         Error("Map can only operate on a list");
 
                     var mappedItems = new List<Token>();
+                    mappedItems.Add(new Token("quote"));
                     foreach (var t in toke.Children)
                     {
                         ts.Clear();
-                        ts.Add(new Token(s1));
+                        ts.Add(list[1]);
                         ts.Add(t);
 
                         mappedItems.Add(Eval(ts));
@@ -235,6 +235,80 @@ namespace Merlyn
                             toke = toke.Children.GetProperty(s1);
                     }
                     return toke;
+
+                case ".s":
+                case ".set":
+                    if (!list.ValidateParamCount(3, true))
+                        Error("Wrong number of arguments to keyword '.set', expected at least 3");
+
+                    if (list[1].IsParent)
+                        Error("First argument to '.set' must be a name, not simply a list or inline object");
+
+                    name = list[1].Toke.ToString();
+                    if (!Symbols.CanGet(name))
+                        Error("Can't find variable " + name + " for .set command");
+
+                    toke = Symbols.Get(name);
+
+                    for (i = 2; i < list.Count-1; i++)
+                    {
+                        var t2 = list[i].Eval(this);
+                        if (t2.IsParent)
+                            t2 = t2.Eval(this);
+                        s1 = t2.ToString();
+
+                        if (toke.Children == null || !toke.Children.HasProperty(s1))
+                            Error($"Cannot dereference property {s1} off {toke.ToString()}");
+                        else
+                        {
+                            if(i < list.Count - 2)
+                                toke = toke.Children.GetProperty(s1);
+                            //s1 will hold the name of the property we're working with
+                        }
+                    }
+
+                    val = list[list.Count - 1].Eval(this);
+                    if (!toke.Children.SetProperty(s1, val))
+                        Error("Could not find property " + name + " to set using .set.  Consider concat/pairing it, or using .sod instead.");
+
+                    return Symbols.Get(name);
+
+                case ".sod":
+                    if (!list.ValidateParamCount(3, true))
+                        Error("Wrong number of arguments to keyword '.set', expected at least 3");
+
+                    if (list[1].IsParent)
+                        Error("First argument to '.set' must be a name, not simply a list or inline object");
+
+                    name = list[1].Toke.ToString();
+                    if (!Symbols.CanGet(name))
+                        Error("Can't find variable " + name + " for .set command");
+
+                    toke = Symbols.Get(name);
+
+                    for (i = 2; i < list.Count - 1; i++)
+                    {
+                        var t2 = list[i].Eval(this);
+                        if (t2.IsParent)
+                            t2 = t2.Eval(this);
+                        s1 = t2.ToString();
+
+                        if (i < list.Count - 2)
+                        {
+                            if (toke.Children == null || !toke.Children.HasProperty(s1))
+                                Error($"Cannot dereference property {s1} off {toke.ToString()}");
+                            else
+                            {
+                                toke = toke.Children.GetProperty(s1);
+                            }
+                        }
+                    }
+
+                    val = list[list.Count - 1].Eval(this);
+                    if (!toke.Children.SetProperty(s1, val))
+                        toke.Children.AddProperty(s1, val);
+
+                    return Symbols.Get(name);
 
                 case ".?":
                     if (!list.ValidateParamCount(2, true))
@@ -479,6 +553,24 @@ namespace Merlyn
                     Symbols.AddFunc(s1, toke);
                     return Token.Nil;
 
+                case "=>":
+                case "lambda":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of arguments to keyword '=>', expected 2");
+                    if (!list[1].IsParent)
+                        Error("First param to => must be the parameter list of the lambda");
+                    if (!list[2].IsParent)
+                        Error("Second param to => must be the body of the lambda");
+
+                    Token lambda = new Token(list[2].Children);
+                    lambda.Params = list[1].Children.Select(e => {
+                        if (e.IsParent)
+                            Error("Parameter list in lambda can't have lists in it");
+
+                        return e.ToString();
+                    }).ToList();
+                    return lambda;
+
                 #endregion
 
                 #region Control Commands
@@ -692,9 +784,18 @@ namespace Merlyn
                 #endregion
 
                 default:
-                    if (Symbols.FuncExists(s1 = list[0].Toke.ToString()))
+                    if (list[0].IsFunction)
+                        return list[0].EvalLambda(this, list.Quote().ToArray());
+                    else if (Symbols.FuncExists(s1 = list[0].Toke.ToString()))
                         return Symbols.CallFunc(s1, this, list.Quote().ToArray());
-                    else
+                    else if(Symbols.CanGet(s1))
+                    {
+                        var hopefulLambda = Symbols.Get(s1);
+                        if (hopefulLambda.IsFunction)
+                            return hopefulLambda.EvalLambda(this, list.Quote().ToArray());
+                        else
+                            return hopefulLambda;
+                    } else 
                         Error("Unknown keyword/function: " + list[0].Toke);
                     break;
             }

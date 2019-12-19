@@ -72,6 +72,27 @@ namespace Merlyn
 
             return tokes.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
         }
+        public static bool SetProperty(this List<Token> tokes, string name, Token val)
+        {
+            if (!tokes.HasProperty(name))
+                return false;
+
+            if(val.IsParent)
+                tokes.First(t => t.Name != null && t.Name.ToLower() == name.ToLower()).Children = val.Children;
+            else
+                tokes.First(t => t.Name != null && t.Name.ToLower() == name.ToLower()).Toke = val.Toke;
+            return true;
+        }
+        public static void AddProperty(this List<Token> tokes, string name, Token val)
+        {
+            if (tokes.HasProperty(name))
+                throw new Exception("Token List AddProperty called when the property already exists.  Property was: " + name);
+
+            if (val.IsParent)
+                tokes.Add(new Token(name, val.Children));
+            else
+                tokes.Add(new Token(name, val.Toke));
+        }
 
         public static bool ValidateParamCount(this List<Token> tokes, int expected, bool orGreaterThan = false)
         {

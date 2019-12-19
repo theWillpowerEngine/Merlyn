@@ -93,5 +93,25 @@ namespace Merlyn
                
             return this;
         }
+
+        public Token EvalLambda(Merpreter merp, params Token[] args)
+        {
+            if (!IsFunction) { 
+                Merpreter.Error("Attempted to evaluate something as a lambda that's not a lambda.  It was: " + ToString());
+                return Nil;
+            }
+
+            Guid letId = Guid.NewGuid();
+            if (Params.Count != args.Length)
+                Merpreter.Error($"Incorrect number of params passed to lambda, expected {Params.Count}, found {args.Length} instead.  The best I can tell you about the lambda is that it might look something like this: {ToString()}");
+
+            int i = 0;
+            foreach (var pn in Params)
+                merp.Symbols.Let(pn, args[i++], letId);
+
+            var retVal = Eval(merp);
+            merp.Symbols.ClearLetId(letId);
+            return retVal;
+        }
     }
 }

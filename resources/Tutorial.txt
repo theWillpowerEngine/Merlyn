@@ -14,9 +14,9 @@ Code is Data, and We Learn from Data
 	; String concatenation is pretty easy
 	(print (str "Hello " 'Nurse'))    ; You can use either single or double quotes
 
-	(print "Strings can have
-	line breaks in them to print on multiple lines, and also
-	can include the 'other kind' of quote in them.  You can escape the
+	(print "Strings can have%s
+	line breaks in them to print on multiple lines, and also%s
+	can include the 'other kind' of quote in them.  You can escape the%s
 	quote you used for the string %"like this%"")
 
 
@@ -147,6 +147,8 @@ Code is Data, and We Learn from Data
 
 		(. $x name)							; Would look like $x.name in a more boring programming language
 		(. $x o f)							; ditto:  $x.o.f
+
+		(.s x name 'Peter')					; Would look like x.name = 'Peter' in a more boring programming language
 
 		(sod s (json $x))					; json returns the inline-object in question, JSON-serialized.
 		(sod obj (dejson $s))				; duh
@@ -300,6 +302,11 @@ keywords:
 	map
 	1st / rest
 	nth / range
+
+	=>					; (=> (args) (body))
+
+	.s[et]
+	.sod
 
 	telnet <port> <command handler> [<connect handler>]		;within command handler, 'input' contains the value of the last telnet command, and 'id' contains a guid-string of the connection id
 	send / sendTo <id> <msg> / sendAll						;only available for telnet connections
