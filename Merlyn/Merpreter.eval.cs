@@ -578,18 +578,20 @@ namespace Merlyn
                 case "fn":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '=>', expected 2");
-                    if (!list[1].IsParent)
-                        Error("First param to => must be the parameter list of the lambda");
                     if (!list[2].IsParent)
                         Error("Second param to => must be the body of the lambda");
 
                     Token lambda = new Token(list[2].Children);
-                    lambda.Params = list[1].Children.Select(e => {
-                        if (e.IsParent)
-                            Error("Parameter list in lambda can't have lists in it");
+                    if (list[1].IsParent)
+                        lambda.Params = list[1].Children.Select(e =>
+                        {
+                            if (e.IsParent)
+                                Error("Parameter list in lambda can't have lists in it");
 
-                        return e.ToString();
-                    }).ToList();
+                            return e.ToString();
+                        }).ToList();
+                    else
+                        lambda.Params = new List<string>(new string[] { list[1].Toke.ToString() });
                     return lambda;
 
                 #endregion

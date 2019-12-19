@@ -10,6 +10,8 @@ namespace Merlyn
 {
     public static class Extensions
     {
+        public static bool RunningAsCompiledCode = false;       //Yeah this should be somewhere else, w/e IDC
+
         public static string ToFlatString(this List<Token> tokes)
         {
             StringBuilder ret = new StringBuilder("");

@@ -178,6 +178,9 @@ Code is Data, and We Learn from Data
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Lambdas and Tigers and bears (oh my!)
 
+	;The most obscure way to calculate 2+2 in the world:
+	(=> (x y) (+ $x $y)) 2 2
+	
 	(map (=> (s) (print $s)) '("Dan" "Dhiraj" "Dave"))
 
 	(=> (s) (print $s)) 'hello world'
@@ -186,7 +189,7 @@ Code is Data, and We Learn from Data
 
 	; Notice the difference between:
 	(apply (=> (x) (+ $x 1)) '(1 2 3 4))		; results in '(1 2 3 4)
-	(map (=> (x) (+ $x 1)) '(1 2 3 4))			; results in `(2 3 4 5)
+				; results in `(2 3 4 5)
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Sometimes you have a thought in the shower like, "lisp would make a way better node.js than js"
