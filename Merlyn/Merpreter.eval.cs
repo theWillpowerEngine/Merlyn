@@ -575,7 +575,7 @@ namespace Merlyn
                     return Token.Nil;
 
                 case "=>":
-                case "lambda":
+                case "fn":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '=>', expected 2");
                     if (!list[1].IsParent)
