@@ -38,7 +38,7 @@ namespace Merlyn
         public static string ToJSON(this Token toke, Merpreter merp, bool evaluate = false)
         {
             if (!toke.IsParent)
-                return $"\"{toke.Toke}\"";
+                return $"\"{toke.ToString()}\"";
             if (string.IsNullOrEmpty(toke.Children[0].Name))
                 return toke.Children.ToJSONArray(merp);
                     

@@ -76,7 +76,7 @@ namespace Merlyn
         public List<string> Params = null;
 
         public bool IsParent => Children != null;
-        public bool IsNil => (Children == null && Toke == null);
+        public bool IsNil => (Children == null && (Toke == null || (Toke is Token && (Toke as Token).IsNil)));
         public bool IsNumeric => Toke is long || Toke is decimal;
         public bool IsDecimal => Toke is decimal;
         public bool IsFunction => Params != null;
@@ -93,6 +93,8 @@ namespace Merlyn
 
         public new string ToString()
         {
+            if (IsNil)
+                return "nil";
             if (Toke != null)
                 return Toke.ToString();
             if (IsParent)

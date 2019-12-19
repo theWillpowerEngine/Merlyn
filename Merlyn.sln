@@ -9,7 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Merp", "Merp\Merp.csproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Litterbox", "Litterbox", "{1935F89C-98AE-42E9-8543-879C328205AE}"
 	ProjectSection(SolutionItems) = preProject
-		resources\Example.txt = resources\Example.txt
 		resources\Tutorial.txt = resources\Tutorial.txt
 	EndProjectSection
 EndProject
