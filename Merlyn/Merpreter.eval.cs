@@ -173,7 +173,6 @@ namespace Merlyn
                 case "filter":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of arguments to keyword 'filter', expected 2");
-                    s1 = list[1].Eval(this).ToString();
                     toke = list[2].Eval(this);
 
                     if (!toke.IsParent)
@@ -183,7 +182,7 @@ namespace Merlyn
                     foreach (var t in toke.Children)
                     {
                         ts.Clear();
-                        ts.Add(new Token(s1));
+                        ts.Add(list[1]);
                         ts.Add(t);
 
                         Token filterCheck = Eval(ts);

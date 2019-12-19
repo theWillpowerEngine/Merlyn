@@ -165,6 +165,16 @@ Code is Data, and We Learn from Data
 	)
 
 
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	; Lambdas and Tigers and bears (oh my!)
+
+	(map (=> (s) (print $s)) '("Dan" "Dhiraj" "Dave"))
+
+	(=> (s) (print $s)) 'hello world'
+
+	(filter (=> (n) (> $n 5)) '(1 10 7 3 -4 154))
+
+
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Sometimes you have a thought in the shower like, "lisp would make a way better node.js than js"
 	;  and sometimes you actually go and do it.  But before we get into that, let's talk about
