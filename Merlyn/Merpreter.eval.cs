@@ -48,6 +48,12 @@ namespace Merlyn
 
                 case "print":
                     for (i = 1; i < list.Count; i++)
+                        Output((lastVal = list[i].Eval(this)).ToString() + Environment.NewLine);
+                    return lastVal;
+
+                case "printnb":
+                case "pnb":
+                    for (i = 1; i < list.Count; i++)
                         Output((lastVal = list[i].Eval(this)).ToString());
                     return lastVal;
 
@@ -64,19 +70,19 @@ namespace Merlyn
 
                 case "json":
                     if(!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'json', expected 1");
+                        Error("Wrong number of parameters to keyword 'json', expected 1");
                     toke = list[1].Eval(this);
                     return new Token(toke.ToJSON(this));
 
                 case "jsonv":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'jsonv', expected 1");
+                        Error("Wrong number of parameters to keyword 'jsonv', expected 1");
                     toke = list[1].Eval(this);
                     return new Token(toke.ToJSON(this, true));
 
                 case "dejson":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'dejson', expected 1");
+                        Error("Wrong number of parameters to keyword 'dejson', expected 1");
                     toke = ScanInlineObject(list[1].Eval(this).ToString(), true);
                     return toke;
                 #endregion
@@ -88,12 +94,12 @@ namespace Merlyn
 
                 case "eval":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'eval', expected 1");
+                        Error("Wrong number of parameters to keyword 'eval', expected 1");
                     return list[1].Eval(this).Eval(this);
 
                 case "skw":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'skw', expected 2");
+                        Error("Wrong number of parameters to keyword 'skw', expected 2");
                     lastVal = new Token(list[1].Eval(this));
                     if(list[2].IsParent)
                         lastVal.Children.AddRange(list[2].Eval(this).Children);
@@ -103,14 +109,14 @@ namespace Merlyn
 
                 case "1st":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword '1st', expected 1");
+                        Error("Wrong number of parameters to keyword '1st', expected 1");
                     lastVal = list[1].Eval(this);
                     if (lastVal.IsParent)
                         return lastVal.Children[0];
                     return lastVal;
                 case "rest":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'rest', expected 1");
+                        Error("Wrong number of parameters to keyword 'rest', expected 1");
                     lastVal = list[1].Eval(this);
                     if (lastVal.IsParent)
                         return new Token(lastVal.Children.Quote());
@@ -118,7 +124,7 @@ namespace Merlyn
 
 				case "nth":
 					if (!list.ValidateParamCount(2))
-						Error("Wrong number of arguments to keyword 'nth', expected 2");
+						Error("Wrong number of parameters to keyword 'nth', expected 2");
 					toke = list[1].Eval(this);
 					if (!toke.IsNumeric || toke.IsDecimal)
 						Error("The first parameter to 'nth' must be a number");
@@ -134,7 +140,7 @@ namespace Merlyn
 
 				case "range":
 					if (!list.ValidateParamCount(3))
-						Error("Wrong number of arguments to keyword 'range', expected 3");
+						Error("Wrong number of parameters to keyword 'range', expected 3");
 
 					toke = list[1].Eval(this);
 					if (!toke.IsNumeric || toke.IsDecimal)
@@ -172,7 +178,7 @@ namespace Merlyn
 
                 case "filter":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'filter', expected 2");
+                        Error("Wrong number of parameters to keyword 'filter', expected 2");
                     toke = list[2].Eval(this);
 
                     if (!toke.IsParent)
@@ -193,7 +199,7 @@ namespace Merlyn
 
                 case "map":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'map', expected 2");
+                        Error("Wrong number of parameters to keyword 'map', expected 2");
                     toke = list[2].Eval(this);
 
                     if (!toke.IsParent)
@@ -209,7 +215,23 @@ namespace Merlyn
 
                         mappedItems.Add(Eval(ts));
                     }
-                    return new Token(mappedItems.ToArray());
+                    return new Token(mappedItems);
+
+                case "apply":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'apply', expected 2");
+                    toke = list[2].Eval(this);
+
+                    if (!toke.IsParent)
+                        Error("Apply can only operate on a list");
+
+                    foreach (var t in toke.Children)
+                    {
+                        ts.Clear();
+                        ts.Add(list[1]);
+                        ts.Add(t);
+                    }
+                    return new Token(toke);
 
                 #endregion
 
@@ -217,7 +239,7 @@ namespace Merlyn
 
                 case ".":
                     if (!list.ValidateParamCount(2, true))
-                        Error("Wrong number of arguments to keyword '.', expected at least 2");
+                        Error("Wrong number of parameters to keyword '.', expected at least 2");
 
                     toke = list[1].Eval(this);
 
@@ -238,7 +260,7 @@ namespace Merlyn
                 case ".s":
                 case ".set":
                     if (!list.ValidateParamCount(3, true))
-                        Error("Wrong number of arguments to keyword '.set', expected at least 3");
+                        Error("Wrong number of parameters to keyword '.set', expected at least 3");
 
                     if (list[1].IsParent)
                         Error("First argument to '.set' must be a name, not simply a list or inline object");
@@ -274,7 +296,7 @@ namespace Merlyn
 
                 case ".sod":
                     if (!list.ValidateParamCount(3, true))
-                        Error("Wrong number of arguments to keyword '.set', expected at least 3");
+                        Error("Wrong number of parameters to keyword '.set', expected at least 3");
 
                     if (list[1].IsParent)
                         Error("First argument to '.set' must be a name, not simply a list or inline object");
@@ -311,7 +333,7 @@ namespace Merlyn
 
                 case ".?":
                     if (!list.ValidateParamCount(2, true))
-                        Error("Wrong number of arguments to keyword '.?', expected at least 2");
+                        Error("Wrong number of parameters to keyword '.?', expected at least 2");
 
                     toke = list[1].Eval(this);
 
@@ -331,7 +353,7 @@ namespace Merlyn
 
                 case "pair":
                     if(!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'pair', expected at least 2");
+                        Error("Wrong number of parameters to keyword 'pair', expected at least 2");
 
                     s1 = list[1].Eval(this).ToString();
                     toke = list[2].Eval(this);
@@ -345,7 +367,7 @@ namespace Merlyn
 
                 case "def":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'def', expected 2");
+                        Error("Wrong number of parameters to keyword 'def', expected 2");
                     if(list[1].IsParent)
                         Error("First argument to 'def' must be a name, not any kind of list");
                     s1 = list[1].Toke.ToString();
@@ -355,7 +377,7 @@ namespace Merlyn
                     return lastVal;
                 case "set":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'set', expected 2");
+                        Error("Wrong number of parameters to keyword 'set', expected 2");
                     if (list[1].IsParent)
                         Error("First argument to 'set' must be a name, not any kind of list");
                     s1 = list[1].Toke.ToString();
@@ -365,7 +387,7 @@ namespace Merlyn
                     return lastVal;
                 case "sod":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'sod', expected 2");
+                        Error("Wrong number of parameters to keyword 'sod', expected 2");
                     if (list[1].IsParent)
                         Error("First argument to 'sod' must be a name, not any kind of list");
                     s1 = list[1].Toke.ToString();
@@ -374,7 +396,7 @@ namespace Merlyn
 
                 case "v":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'v', expected 1");
+                        Error("Wrong number of parameters to keyword 'v', expected 1");
                     if (Symbols.CanGet(s1 = list[1].Toke.ToString()))
                         return Symbols.Get(s1);
                     else
@@ -383,7 +405,7 @@ namespace Merlyn
 
                 case "let":
                     if (!list.ValidateParamCount(1, true))
-                        Error("Wrong number of arguments to keyword 'let', expected at least 2");
+                        Error("Wrong number of parameters to keyword 'let', expected at least 2");
                     if (!list[1].IsParent)
                         Error("Let must include at least one parameter in the let-list");
                     if (list[1].Children.Count != 0 && list[1].Children.Count % 2 != 0)
@@ -410,53 +432,53 @@ namespace Merlyn
 
                 case "+":
                     if (!list.ValidateParamCount(2, true))
-                        Error("Wrong number of arguments to keyword '+', expected at least 2");
+                        Error("Wrong number of parameters to keyword '+', expected at least 2");
                     return MathHelper.Add(list.Quote().Select(t => t.Eval(this)).ToArray());
                 case "-":
                     if (!list.ValidateParamCount(2, true))
-                        Error("Wrong number of arguments to keyword '-', expected at least 2");
+                        Error("Wrong number of parameters to keyword '-', expected at least 2");
                     return MathHelper.Subtract(list.Quote().Select(t => t.Eval(this)).ToArray());
 
                 case "*":
                     if (!list.ValidateParamCount(2, true))
-                        Error("Wrong number of arguments to keyword '*', expected at least 2");
+                        Error("Wrong number of parameters to keyword '*', expected at least 2");
                     return MathHelper.Multiply(list.Quote().Select(t => t.Eval(this)).ToArray());
                 case "/":
                     if (!list.ValidateParamCount(2, true))
-                        Error("Wrong number of arguments to keyword '/', expected at least 2");
+                        Error("Wrong number of parameters to keyword '/', expected at least 2");
                     return MathHelper.Divide(list.Quote().Select(t => t.Eval(this)).ToArray());
 
                 case "=":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword '=', expected 2");
+                        Error("Wrong number of parameters to keyword '=', expected 2");
                     return MathHelper.Equals(list[1].Eval(this), list[2].Eval(this));
 
                 case "!":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword '!', expected 1");
+                        Error("Wrong number of parameters to keyword '!', expected 1");
                     return MathHelper.Not(list[1].Eval(this));
 
                 case "!=":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword '!=', expected 2");
+                        Error("Wrong number of parameters to keyword '!=', expected 2");
                     return MathHelper.Not(MathHelper.Equals(list[1].Eval(this), list[2].Eval(this)));
 
                 case ">":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword '>', expected 2");
+                        Error("Wrong number of parameters to keyword '>', expected 2");
                     return MathHelper.GreaterThan(list[1].Eval(this), list[2].Eval(this));
                 case "<":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword '<', expected 2");
+                        Error("Wrong number of parameters to keyword '<', expected 2");
                     return MathHelper.LessThan(list[1].Eval(this), list[2].Eval(this));
 
                 case ">=":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword '>=', expected 2");
+                        Error("Wrong number of parameters to keyword '>=', expected 2");
                     return MathHelper.Not(MathHelper.LessThan(list[1].Eval(this), list[2].Eval(this)));
                 case "<=":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword '<=', expected 2");
+                        Error("Wrong number of parameters to keyword '<=', expected 2");
                     return MathHelper.Not(MathHelper.GreaterThan(list[1].Eval(this), list[2].Eval(this)));
 
                 #endregion
@@ -465,7 +487,7 @@ namespace Merlyn
 
                 case "list?":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'list?', expected 1");
+                        Error("Wrong number of parameters to keyword 'list?', expected 1");
                     toke = list[1].Eval(this);
                     if (toke.Children != null)
                         return Token.True;
@@ -473,7 +495,7 @@ namespace Merlyn
 
                 case "fn?":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'fn?', expected 1");
+                        Error("Wrong number of parameters to keyword 'fn?', expected 1");
                     toke = list[1].Eval(this);
                     s1 = toke.ToString();
                     if (Symbols.FuncExists(s1))
@@ -482,7 +504,7 @@ namespace Merlyn
 
                 case "nil?":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'nil?', expected 1");
+                        Error("Wrong number of parameters to keyword 'nil?', expected 1");
                     toke = list[1].Eval(this);
                     if(toke.IsNil)
                         return Token.True;
@@ -490,7 +512,7 @@ namespace Merlyn
 
                 case "obj?":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'obj?', expected 1");
+                        Error("Wrong number of parameters to keyword 'obj?', expected 1");
                     toke = list[1].Eval(this);
                     if (toke.Children != null && toke.Children.Any(t => !string.IsNullOrEmpty(t.Name)))
                         return Token.True;
@@ -498,7 +520,7 @@ namespace Merlyn
 
                 case "num?":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'num?', expected 1");
+                        Error("Wrong number of parameters to keyword 'num?', expected 1");
                     toke = list[1].Eval(this);
                     if (toke.IsNumeric)
                         return Token.True;
@@ -506,7 +528,7 @@ namespace Merlyn
 
                 case "str?":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'str?', expected 1");
+                        Error("Wrong number of parameters to keyword 'str?', expected 1");
                     toke = list[1].Eval(this);
                     if (!toke.IsParent && !toke.IsNumeric)
                         return Token.True;
@@ -514,7 +536,7 @@ namespace Merlyn
 
                 case "def?":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'def?', expected 1");
+                        Error("Wrong number of parameters to keyword 'def?', expected 1");
                     toke = list[1].Eval(this);
                     s1 = toke.ToString();
                     if (Symbols.CanGet(s1))
@@ -529,7 +551,7 @@ namespace Merlyn
 
                 case "defn":
                     if (!list.ValidateParamCount(3))
-                        Error("Wrong number of arguments to keyword 'defn', expected 3");
+                        Error("Wrong number of parameters to keyword 'defn', expected 3");
                     s1 = list[1].Toke.ToString();
                     toke = new Token();
                     toke.Params = new List<string>();
@@ -555,7 +577,7 @@ namespace Merlyn
                 case "=>":
                 case "lambda":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword '=>', expected 2");
+                        Error("Wrong number of parameters to keyword '=>', expected 2");
                     if (!list[1].IsParent)
                         Error("First param to => must be the parameter list of the lambda");
                     if (!list[2].IsParent)
@@ -576,7 +598,7 @@ namespace Merlyn
 
                 case "if":
                     if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
-                        Error("Wrong number of arguments to keyword 'if', expected 2 or 3");
+                        Error("Wrong number of parameters to keyword 'if', expected 2 or 3");
                     bool hasElse = list.Count == 4;
                     toke = list[1].Eval(this);
                     if (MathHelper.Not(toke).Toke == Token.False.Toke)
@@ -596,6 +618,19 @@ namespace Merlyn
 					}
 					return lastVal;
 
+                case "while":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters of keywod 'while', expected 2");
+
+                    var condition = list[1];
+                    var action = list[2];
+
+                    while(condition.Eval(this).IsTrue)
+                    {
+                        lastVal = action.Eval(this);
+                    }
+                    return lastVal;
+
                 #endregion
 
                 #region Network
@@ -605,7 +640,7 @@ namespace Merlyn
                     if (!Server.Serving)
                         Error("Cannot use 'stop' keyword when we are not acting as a network server");
                     if (!list.ValidateParamCount(0) && !list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'stop', expected 0 or 1");
+                        Error("Wrong number of parameters to keyword 'stop', expected 0 or 1");
 
                     Server.Serving = false;
                     Thread.Sleep(150);
@@ -621,7 +656,7 @@ namespace Merlyn
 					if (Server.Serving)
 						Error("Can't start an HTTP server while already serving something");
 					if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'http', expected 2");
+                        Error("Wrong number of parameters to keyword 'http', expected 2");
                     toke = list[1].Eval(this);
                     if (!toke.IsNumeric)
                         Error("First argument to http command must be a port number");
@@ -645,7 +680,7 @@ namespace Merlyn
 
 				case "content":
 					if(!list.ValidateParamCount(2))
-						Error("Wrong number of arguments to keyword 'content', expected 2");
+						Error("Wrong number of parameters to keyword 'content', expected 2");
 					if (!Server.Serving || Server.ConType != ConnectionType.HTTP)
 						Error("Cannot use 'content' keyword if we are not currently in an http server context");
 					s1 = list[1].Eval(this).Toke.ToString();
@@ -654,7 +689,7 @@ namespace Merlyn
 					return list[2].Eval(this);
 				case "status":
 					if (!list.ValidateParamCount(2))
-						Error("Wrong number of arguments to keyword 'status', expected 2");
+						Error("Wrong number of parameters to keyword 'status', expected 2");
 					if (!Server.Serving || Server.ConType != ConnectionType.HTTP)
 						Error("Cannot use 'status' keyword if we are not currently in an http server context");
 
@@ -691,7 +726,7 @@ namespace Merlyn
 					if (Server.Serving)
 						Error("Can't start a telnet server while already serving something");
 					if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
-                        Error("Wrong number of arguments to keyword 'telnet', expected 2 or 3");
+                        Error("Wrong number of parameters to keyword 'telnet', expected 2 or 3");
                     toke = list[1].Eval(this);
                     if (!toke.IsNumeric)
                         Error("First argument to telnet command must be a port number");
@@ -726,7 +761,7 @@ namespace Merlyn
                     if (!Server.Serving)
                         Error("Cannot use 'send' keyword when we are not acting as a network server");
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'send', expected 1");
+                        Error("Wrong number of parameters to keyword 'send', expected 1");
 
                     s1 = list[1].Eval(this).ToString();
                     Server.SendTo(Guid.Parse(Symbols.Get(Symbols.AutoVars.ConnectionId).Toke.ToString()), s1);
@@ -738,7 +773,7 @@ namespace Merlyn
                     if (Server.ConType != ConnectionType.MUD)
                         Error("The 'sendAll' keyword can only be used in a telnet server context");
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of arguments to keyword 'sendAll', expected 1");
+                        Error("Wrong number of parameters to keyword 'sendAll', expected 1");
 
                     s1 = list[1].Eval(this).ToString();
                     Server.SendToAll(s1);
@@ -750,7 +785,7 @@ namespace Merlyn
                     if (Server.ConType != ConnectionType.MUD)
                         Error("The 'sendTo' keyword can only be used in a telnet server context");
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of arguments to keyword 'sendTo', expected 2");
+                        Error("Wrong number of parameters to keyword 'sendTo', expected 2");
 
                     s1 = list[1].Eval(this).ToString();
                     s2 = list[2].Eval(this).ToString();
@@ -768,7 +803,7 @@ namespace Merlyn
                 #region Misc
 
                 case "nop":
-                    Output("No Op encountered");
+                    Output("No Op encountered" + Environment.NewLine);
                     return Token.Nil;
 
                 case "qnop":
@@ -776,7 +811,7 @@ namespace Merlyn
 
 				case "import":
 					if (!list.ValidateParamCount(1))
-						Error("Wrong number of arguments to keyword 'import', expected 1");
+						Error("Wrong number of parameters to keyword 'import', expected 1");
 					Loader.LoadDLL(list[1].ToString());
 					return Token.Nil;
 
@@ -785,7 +820,7 @@ namespace Merlyn
                 default:
                     if (list[0].IsFunction)
                         return list[0].EvalLambda(this, list.Quote().ToArray());
-                    else if (Symbols.FuncExists(s1 = list[0].Toke.ToString()))
+                    else if (Symbols.FuncExists(s1 = list[0]?.Toke?.ToString()))
                         return Symbols.CallFunc(s1, this, list.Quote().ToArray());
                     else if(Symbols.CanGet(s1))
                     {

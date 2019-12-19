@@ -87,12 +87,15 @@ Code is Data, and We Learn from Data
 		(print (filter str? $x))							; Pull out the strings.  The first parameter to filter can be any keyword or function.
 
 		(defn say-hi (name) (print (str "Hello " $name)))	; By the way this is how you declare functions
-		(map say-hi '("Dan" "Dhiraj" "Dave"))				; map evaluates the first parameter individually against everything in the list in the second parameter,
-	
+		(map say-hi '("Dan" "Dhiraj" "Dave"))				; map evaluates the first parameter individually against everything in the list in the second parameter and returns the result list
+															;  of that evaluation
 		;the line above is equivalent to:
 		(say-hi "Dan")
 		(say-hi "Dhiraj")
 		(say-hi "Dave")
+
+		;You can also map to keywords, like this:
+		(map print '(1 2 3))
 	)
 
 	; There are lots of ways to slice-and-dice lists:
@@ -134,6 +137,13 @@ Code is Data, and We Learn from Data
 	(if false 1 2)		; 2
 	(if 0 1)			; nil
 
+	; and of course we can loop (actually there are lots of interesting ways to look, like map, apply, and filter, but this is the boring way)
+	(do
+		(sod x 10)
+		(while (> $x 0) (do
+			(print $x)
+			(set x (- $x 1)))))
+
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; WTF are those curly-braces doing in my Lisp-like?
@@ -174,6 +184,9 @@ Code is Data, and We Learn from Data
 
 	(filter (=> (n) (> $n 5)) '(1 10 7 3 -4 154))
 
+	; Notice the difference between:
+	(apply (=> (x) (+ $x 1)) '(1 2 3 4))		; results in '(1 2 3 4)
+	(map (=> (x) (+ $x 1)) '(1 2 3 4))			; results in `(2 3 4 5)
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Sometimes you have a thought in the shower like, "lisp would make a way better node.js than js"
@@ -273,18 +286,13 @@ Code is Data, and We Learn from Data
 	
 	; ....  TODO
 
-
-
-
-
-
-
 keywords:
 
 	json/jsonv     ;The latter evaluates the object before JSONifying it, the former just JSONifies it
 	dejson
 	pair
 	print
+	printnb / pnb
 	quote / '(
 	string / str
 	def
@@ -309,11 +317,14 @@ keywords:
 	nop / qnop
 	defn
 	filter
-	map
+	map					;map does the process and returns the result-list (so if the lambda changes the value in the list, map returns the new value)
+	apply				;works like map but returns the original, unmunged list
 	1st / rest
 	nth / range
 
-	=>					; (=> (args) (body))
+	while				; (while (condition) (action))
+
+	=>/lambda				; (=> (args) (body))
 
 	.s[et]
 	.sod

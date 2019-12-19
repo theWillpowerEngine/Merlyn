@@ -10,13 +10,13 @@ namespace Merp
     class Program
     {
         public static bool KeepREPLing = true;
-		public static bool ShowResult = false;
+		public static bool ShowResult = true;
 
         static void Main(string[] args)
         {
 			Merpreter.Output = s =>
 			{
-				Console.WriteLine(s);
+				Console.Write(s);
 			};
 			var merp = new Merpreter();
 
@@ -30,7 +30,6 @@ namespace Merp
                 {
                     try
                     {
-                        Console.WriteLine();
                         var ret = merp.Eval(code);
 						if (ShowResult)
 							Console.WriteLine("[result] " + ret.ToString());

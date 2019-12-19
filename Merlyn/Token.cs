@@ -27,7 +27,7 @@ namespace Merlyn
             Toke = "false",
             Children = null
         };
-       #endregion
+        #endregion
 
         #region CTORs
 
@@ -62,6 +62,11 @@ namespace Merlyn
         {
             Children = new List<Token>(cs);
         }
+        public Token()
+        {
+            Toke = null;
+            Children = null;
+        }
         #endregion
 
         public string Name;
@@ -75,6 +80,16 @@ namespace Merlyn
         public bool IsNumeric => Toke is long || Toke is decimal;
         public bool IsDecimal => Toke is decimal;
         public bool IsFunction => Params != null;
+
+        public bool IsTrue {
+            get
+            {
+                if (this == True) return true;
+                if(Toke == True.Toke) return true;
+                if(IsNumeric && (int)Toke != 0) return true;
+                return false;
+            }
+        }
 
         public new string ToString()
         {
