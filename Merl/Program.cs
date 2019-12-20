@@ -15,6 +15,7 @@ namespace Merl
         public bool Compiling = false;
         public bool ShowResult = false;
         public string EXEName;
+        public string EntryModule = "main";
         public string[] Files;
 
         public bool HasFiles => Files.Length > 0;
@@ -57,11 +58,19 @@ namespace Merl
                             if (!Options.EXEName.ToLower().EndsWith(".exe"))
                                 Options.EXEName += ".exe";
                             break;
+
+                        case "-ep":
+                            i += 1;
+                            Options.EntryModule = args[i];
+                            break;
                     }
                 }
                 else
                 {
-                    files.Add(arg);
+                    var f = arg;
+                    if (!f.Contains("."))
+                        f += ".mrln";
+                    files.Add(f);
                 }
 
                 Options.Files = files.ToArray();
@@ -85,7 +94,7 @@ namespace Merl
                 if(!Options.Interpreting)
                 {
                     //Welcome to the REPL
-                    Console.WriteLine("    merp running in interactive, REPL mode.  If you want to do other things try 'merp -help'");
+                    Console.WriteLine("    merl is running in interactive, REPL mode.  If you want to do other things try 'merp -help'");
                     Console.WriteLine("    Merlyn interpreter version: " + Merpreter.Version);
                     Console.WriteLine("        (double-tap Enter to run buffered code)");
                     Console.WriteLine();
@@ -131,29 +140,43 @@ namespace Merl
             } else
             {
                 //Compile time
-                var c = new Compiler("main");
-                c.AddMerlynModule("test", "(defn say-hi () (print 'hello nurse!'))");
-                c.AddMerlynModule("main", "(do (import test) (say-hi))");
+                var c = new Compiler(Options.EntryModule);
+                bool hadMain = false;
+                foreach(var f in Options.Files)
+                {
+                    var name = f.Split('.')[0];
+                    c.AddMerlynModule(name, File.ReadAllText(f));
 
-                var path = @"D:\Code";
+                    if (name == Options.EntryModule)
+                        hadMain = true;
+                }
 
-                AssemblyName[] a = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
-                foreach (AssemblyName an in a)
-                    if (an.FullName.ToLower().Contains("merlyn"))
-                    {
-                        if (File.Exists(path + "\\Merlyn.dll"))
-                            File.Delete(path + "\\Merlyn.dll");
-                        File.Copy(Assembly.Load(an).Location, path + "\\Merlyn.dll");
-                    }
-
-
-                System.CodeDom.Compiler.CompilerError ce;
-                c.Compile("dan.exe", path, out ce);
-
-                if (ce == null)
-                    Console.WriteLine("Compile success");
+                if (!hadMain)
+                {
+                    Console.WriteLine("Expected entry point for compiled application (" + Options.EntryModule + ") wasn't found.");
+                }
                 else
-                    Console.WriteLine("Compile failed: " + ce.ErrorText);
+                {
+                    var path = @"D:\Code";
+
+                    AssemblyName[] a = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
+                    foreach (AssemblyName an in a)
+                        if (an.FullName.ToLower().Contains("merlyn"))
+                        {
+                            if (File.Exists(path + "\\Merlyn.dll"))
+                                File.Delete(path + "\\Merlyn.dll");
+                            File.Copy(Assembly.Load(an).Location, path + "\\Merlyn.dll");
+                        }
+
+
+                    System.CodeDom.Compiler.CompilerError ce;
+                    c.Compile("dan.exe", path, out ce);
+
+                    if (ce == null)
+                        Console.WriteLine("Compile success");
+                    else
+                        Console.WriteLine("Compile failed: " + ce.ErrorText);
+                }
 
                 Console.ReadLine();
             }
