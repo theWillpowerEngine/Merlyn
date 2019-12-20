@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Merlyn;
 
-namespace Merp
+namespace Merl
 {
     class Program
     {

@@ -7,7 +7,7 @@ using System.IO;
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 
-namespace Merp
+namespace Merl
 {
     public class Compiler
     {
@@ -39,7 +39,9 @@ namespace Merp
             code = code.Replace("##START##", start);
 
             CSharpCodeProvider cSharpProvider = new CSharpCodeProvider();
+#pragma warning disable CS0618 // Type or member is obsolete
             ICodeCompiler codeCompiler = cSharpProvider.CreateCompiler();
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // Create a CompilerParameters object that specifies assemblies referenced
             //  by the source code and the compiler options chosen by the user.
@@ -50,7 +52,7 @@ namespace Merp
             cp.GenerateInMemory = false;
             cp.TreatWarningsAsErrors = false;
             cp.CompilerOptions = "/optimize";
-            cp.MainClass = "Merp.Program";
+            cp.MainClass = "Merl.Program";
 
             try
             {

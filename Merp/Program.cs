@@ -7,7 +7,7 @@ using System.IO;
 using System.Reflection;
 using Merlyn;
 
-namespace Merp
+namespace Merl
 {
     class Options
     {
