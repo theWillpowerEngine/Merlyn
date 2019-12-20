@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Merlyn.Nimue
+namespace Shiro.Nimue
 {
     internal enum ConnectionType
     {
@@ -100,7 +100,7 @@ namespace Merlyn.Nimue
             catch (Exception ex)
             {
                 if(throwOnFail)
-                    Merpreter.Error($"Exception in Connection.CleanUp: {ex.Message}.");
+                    Interpreter.Error($"Exception in Connection.CleanUp: {ex.Message}.");
             }
         }
 

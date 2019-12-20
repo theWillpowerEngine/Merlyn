@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Merlyn;
+using Shiro;
 
-namespace Merl
+namespace Compiled
 {
     class Program
     {
@@ -10,29 +10,29 @@ namespace Merl
 
 		static void Main(string[] args)
         {
-			var merp = new Merpreter();
+			var shiro = new Interpreter();
 
 			##MODULES##
 
-			Merpreter.Output = s =>
+			Interpreter.Output = s =>
 			{
 				Console.Write(s);
 			};
 
-			Merpreter.LoadModule = (m, s) => {
+			Interpreter.LoadModule = (m, s) => {
 				if(Modules.ContainsKey(s.ToLower())) {
-					merp.Eval(Modules[s.ToLower()]);
+					shiro.Eval(Modules[s.ToLower()]);
 					return true;
 				}
 
-				return Merpreter.DefaultModuleLoader(m, s);
+				return Interpreter.DefaultModuleLoader(m, s);
 			};
 
 			var code = Modules["##START##"];
 
             try
             {
-                var ret = merp.Eval(code);
+                var ret = shiro.Eval(code);
 				Console.WriteLine();
             }
             catch (ApplicationException aex)

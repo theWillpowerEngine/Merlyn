@@ -1,9 +1,11 @@
-/Merlyn/.vs/**
-/Merlyn/obj/**
-/Merlyn/bin/**
-/Merlyn/packages/**
+/shiro/.vs/**
+/shiro/obj/**
+/shiro/bin/**
+/shiro/packages/**
 
-/Merl/.vs/**
-/Merl/obj/**
-/Merl/bin/**
+/Shiro.Lang/.vs/**
+/Shiro.Lang/obj/**
+/Shiro.Lang/bin/**
 /.vs
+
+/packages/**

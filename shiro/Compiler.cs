@@ -7,7 +7,7 @@ using System.IO;
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 
-namespace Merl
+namespace Shiro.Build
 {
     public class Compiler
     {
@@ -17,7 +17,7 @@ namespace Merl
 
         public Compiler(string startModule)
         {
-            Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("Merl.Merges.CompiledBase.txt");
+            Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("Shiro.Cons.Merges.CompiledBase.txt");
             st.Seek(0, SeekOrigin.Begin);
             StreamReader sr = new StreamReader(st);
             code = sr.ReadToEnd();
@@ -25,9 +25,9 @@ namespace Merl
             start = startModule;
         }
 
-        public void AddMerlynModule(string name, string code)
+        public void AddShiroModule(string name, string code)
         {
-            _mods.AppendLine($"Modules.Add(\"{name.ToLower()}\", @\"{code}\");");
+            _mods.AppendLine($"Modules.Add(\"{name.ToLower()}\", @\"{code.Replace("\"", "\"\"")}\");");
         }
 
         public bool Compile(string outFile, string path, out CompilerError compilerError)
@@ -45,14 +45,14 @@ namespace Merl
 
             // Create a CompilerParameters object that specifies assemblies referenced
             //  by the source code and the compiler options chosen by the user.
-            CompilerParameters cp = new CompilerParameters(new string[] { "System.dll", path + @"\Merlyn.dll" }, path + "\\" + outFile);
+            CompilerParameters cp = new CompilerParameters(new string[] { "System.dll", path + @"\Shiro.Lang.dll" }, path + "\\" + outFile);
 
             cp.GenerateExecutable = true;
             cp.IncludeDebugInformation = false;
             cp.GenerateInMemory = false;
             cp.TreatWarningsAsErrors = false;
             cp.CompilerOptions = "/optimize";
-            cp.MainClass = "Merl.Program";
+            cp.MainClass = "Compiled.Program";
 
             try
             {

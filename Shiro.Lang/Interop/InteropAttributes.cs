@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Merlyn.Interop
+namespace Shiro.Interop
 {
 	[AttributeUsage(AttributeTargets.Class)]
-	public class MerlynLibAttribute : Attribute
+	public class ShiroLibAttribute : Attribute
 	{
 		public string Name;
 	}
 
 	[AttributeUsage(AttributeTargets.Method)]
-	public class MerlynMethodAttribute : Attribute
+	public class ShiroMethodAttribute : Attribute
 	{
 		public string Name;
 	}

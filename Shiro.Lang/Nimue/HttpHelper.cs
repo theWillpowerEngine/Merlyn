@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Merlyn.Nimue
+namespace Shiro.Nimue
 {
     internal static class HttpHelper
     {
@@ -251,7 +251,7 @@ namespace Merlyn.Nimue
 				response.status = (int)RespState.OK;
 
             response.Headers = new Hashtable();
-            response.Headers.Add("Server", "Merlyn/" + Merpreter.Version);
+            response.Headers.Add("Server", "Shiro/" + Interpreter.Version);
             response.Headers.Add("Date", DateTime.Now.ToString("r"));
 
 			if(ContentType != null)

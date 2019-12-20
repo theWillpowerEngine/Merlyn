@@ -1,4 +1,4 @@
-﻿using Merlyn.Guts;
+﻿using Shiro.Guts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Merlyn.Interop
+namespace Shiro.Interop
 {
 	internal static class Loader
 	{

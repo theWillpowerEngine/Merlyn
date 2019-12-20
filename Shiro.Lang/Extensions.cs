@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Merlyn
+namespace Shiro
 {
     public static class Extensions
     {
@@ -26,7 +26,7 @@ namespace Merlyn
 
             return ret.ToString().Trim();
         }
-        public static string ToJSONArray(this List<Token> tokes, Merpreter merp)
+        public static string ToJSONArray(this List<Token> tokes, Interpreter merp)
         {
             StringBuilder ret = new StringBuilder("[");
 
@@ -35,7 +35,7 @@ namespace Merlyn
 
             return ret.ToString().Trim().TrimEnd(',') + "]";
         }
-        public static string ToJSON(this Token toke, Merpreter merp, bool evaluate = false)
+        public static string ToJSON(this Token toke, Interpreter merp, bool evaluate = false)
         {
             if (!toke.IsParent)
                 return $"\"{toke.ToString()}\"";

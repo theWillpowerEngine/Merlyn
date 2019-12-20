@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Merlyn.Nimue;
+using Shiro.Nimue;
 
-namespace Merlyn.Guts
+namespace Shiro.Guts
 {
     internal class Symbols
     {
-        private Merpreter _merp;
+        private Interpreter _merp;
 
         private readonly Dictionary<string, Token> SymbolTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Token> LetTable = new Dictionary<string, Token>();
@@ -34,7 +34,7 @@ namespace Merlyn.Guts
             if (SymbolTable.ContainsKey(name))
                 return SymbolTable[name];
 
-            Merpreter.Error("Attempt to get value of non-existant variable: " + name);
+            Interpreter.Error("Attempt to get value of non-existant variable: " + name);
             return Token.Nil;
         }
 
@@ -83,25 +83,25 @@ namespace Merlyn.Guts
         public void AddFunc(string name, Token val)
         {
             if(!val.IsFunction)
-                Merpreter.Error($"Token declared as function '{name}' is not a function token");
+                Interpreter.Error($"Token declared as function '{name}' is not a function token");
             if (!FunctionTable.ContainsKey(name))
                 FunctionTable.Add(name, val);
             else
                 FunctionTable[name] = val;
         }
 
-        public Token CallFunc(string name, Merpreter merp, params Token[] args)
+        public Token CallFunc(string name, Interpreter merp, params Token[] args)
         {
             if (!FuncExists(name))
             {
-                Merpreter.Error("Attempt to call undefined function: " + name);
+                Interpreter.Error("Attempt to call undefined function: " + name);
                 return Token.Nil;
             }
 
             Guid letId = Guid.NewGuid();
             var func = FunctionTable[name];
             if(func.Params.Count != args.Length)
-                Merpreter.Error($"Incorrect number of params passed to function '{name}', expected {func.Params.Count}, found {args.Length} instead");
+                Interpreter.Error($"Incorrect number of params passed to function '{name}', expected {func.Params.Count}, found {args.Length} instead");
 
             int i = 0;
             foreach (var pn in func.Params)
@@ -112,11 +112,11 @@ namespace Merlyn.Guts
             return retVal;
         }
 
-        public Symbols(Merpreter merp)
+        public Symbols(Interpreter merp)
         {
             _merp = merp;
 
-            AutoSymbols.Add("MerVer", () => new Token(Merpreter.Version));
+            AutoSymbols.Add("MerVer", () => new Token(Interpreter.Version));
             AutoSymbols.Add("IsServing", () => Server.Serving ? Token.True : Token.False);
         }
     }

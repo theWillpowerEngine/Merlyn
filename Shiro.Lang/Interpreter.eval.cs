@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-using Merlyn.Guts;
-using Merlyn.Interop;
-using Merlyn.Nimue;
+using Shiro.Guts;
+using Shiro.Interop;
+using Shiro.Nimue;
 
-namespace Merlyn
+namespace Shiro
 {
-    public partial class Merpreter
+    public partial class Interpreter
     {
         public Token Eval(List<Token> list)
         {
@@ -818,7 +818,7 @@ namespace Merlyn
 					if(!Loader.LoadDLL(list[1].ToString()))
                     {
                         if (!LoadModule(this, list[1].ToString()))
-                            Error("Could not import module '" + list[1].ToString() + "', could not find either a DLL or a matching Merlyn file");
+                            Error("Could not import module '" + list[1].ToString() + "', could not find either a DLL or a matching Shiro file");
                     }
 					return Token.Nil;
 

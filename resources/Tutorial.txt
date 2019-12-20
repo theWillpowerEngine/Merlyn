@@ -70,7 +70,7 @@ Code is Data, and We Learn from Data
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Lists (code is data yo)
-	;  Note that by default, any list in Merlyn (something in parenthesis) will be evaluated, which means that the
+	;  Note that by default, any list in Shiro (something in parenthesis) will be evaluated, which means that the
 	;  first item in the list should be a keyword or function name.  So,
 	;(sod x (1 2 3))										; will throw an error, because '1' is not a keyword or function name.  But you can set a variable to a list 
 	;  without evaluating it by quoting that list:
@@ -127,7 +127,7 @@ Code is Data, and We Learn from Data
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Now that we know a bunch of things that evaluate to booleans, let's figure out how to branch,
-	;  Merlyn provides a very innovative and bleeding-edge keyword for this, called 'if':
+	;  Shiro provides a very innovative and bleeding-edge keyword for this, called 'if':
 
 	(if true (print "Hello world"))
 	(if false (print "Won't Print") (print "Will Print"))
@@ -147,7 +147,7 @@ Code is Data, and We Learn from Data
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; WTF are those curly-braces doing in my Lisp-like?
-	;  Well, they're called 'inline-objects' and they help make the stuff Merlyn
+	;  Well, they're called 'inline-objects' and they help make the stuff Shiro
 	;  was designed to do easier.  They are just lists, but lists that:
 	;		a)  Are not evaluated like normal lists (they have an 'implicit quote')
 	;		b)  Where each element in the list has a name as well as a value
@@ -198,10 +198,10 @@ Code is Data, and We Learn from Data
 	
 	(telnet 4676 (sendAll (str $id " says '" $input "'")))
 
-	; Merlyn has a few keywords (like 'telnet' above) that go into network server mode.  This has a few properties:
-	;  a)  The interpreter's main thread (the one that executes your Merlyn) begins blocking.  A multi-threaded network
-	;       server component will begin listening, and as events occur which evaluate Merlyn they will be evaluated by
-	;       the network server's threads.  Don't worry, your Merlyn is always thread-safe.
+	; Shiro has a few keywords (like 'telnet' above) that go into network server mode.  This has a few properties:
+	;  a)  The interpreter's main thread (the one that executes your Shiro) begins blocking.  A multi-threaded network
+	;       server component will begin listening, and as events occur which evaluate Shiro they will be evaluated by
+	;       the network server's threads.  Don't worry, your Shiro is always thread-safe.
 	;
 	;  b)  The main thread doesn't go away -- all your code and variables are still there, and if the network-server
 	;       ever executes a 'stop' keyword it will come right back.  You can even return something from the network thread
@@ -212,10 +212,10 @@ Code is Data, and We Learn from Data
 			(do (print "quitting")(stop $input))
 			(print $input)))
 			
-	;      If you telnet into this server and type anything it will print out in the Merlyn window.  If you send it 'quit'
-	;       the Merlyn server will stop listening and return "quit" to the main thread.
+	;      If you telnet into this server and type anything it will print out in the Shiro window.  If you send it 'quit'
+	;       the Shiro server will stop listening and return "quit" to the main thread.
 	;
-	;  c)  A series of local variables (ie: 'let' scoped variables) will be created for Merlyn evaluated in the server's
+	;  c)  A series of local variables (ie: 'let' scoped variables) will be created for Shiro evaluated in the server's
 	;       context.  For telnet, these are id (a guid-as-string uniquely identifying the socket which triggered the
 	;       evaluation) and input (the full line-command sent to the server).
 	;
@@ -252,7 +252,7 @@ Code is Data, and We Learn from Data
 	;  to turn one of our inline-objects into a json string.
 
 	; So normally websites and webservices have different endpoints on them, they don't respond to all connections
-	;  the same way.  We call this routing the request, and like most of this stuff so far, it's pretty easy to do in Merlyn:
+	;  the same way.  We call this routing the request, and like most of this stuff so far, it's pretty easy to do in Shiro:
 
 	(http 8676 (route
 		"getJson" (content "application/json" (json {name: "Dan Larsen", age: 35}))

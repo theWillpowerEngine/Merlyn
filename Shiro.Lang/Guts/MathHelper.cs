@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Merlyn.Guts
+namespace Shiro.Guts
 {
     internal static class MathHelper
     {
@@ -13,7 +13,7 @@ namespace Merlyn.Guts
             Token retVal = new Token();
             bool isDec = false;
             if (tokes.Any(t => !t.IsNumeric))
-                Merpreter.Error("Cannot add non-numeric types");
+                Interpreter.Error("Cannot add non-numeric types");
 
             isDec = tokes.Any(t => t.IsDecimal);
 
@@ -36,7 +36,7 @@ namespace Merlyn.Guts
             bool isFirst = true;
             bool isDec = false;
             if (tokes.Any(t => !t.IsNumeric))
-                Merpreter.Error("Cannot subtract non-numeric types");
+                Interpreter.Error("Cannot subtract non-numeric types");
 
             isDec = tokes.Any(t => t.IsDecimal);
 
@@ -73,7 +73,7 @@ namespace Merlyn.Guts
             bool isFirst = true;
             bool isDec = false;
             if (tokes.Any(t => !t.IsNumeric))
-                Merpreter.Error("Cannot multiply non-numeric types");
+                Interpreter.Error("Cannot multiply non-numeric types");
 
             isDec = tokes.Any(t => t.IsDecimal);
 
@@ -109,7 +109,7 @@ namespace Merlyn.Guts
             Token retVal = new Token();
             bool isFirst = true;
             if (tokes.Any(t => !t.IsNumeric))
-                Merpreter.Error("Cannot divide non-numeric types");
+                Interpreter.Error("Cannot divide non-numeric types");
 
             decimal d = 0;
             foreach (var t in tokes)
@@ -163,7 +163,7 @@ namespace Merlyn.Guts
         internal static Token GreaterThan(Token t1, Token t2)
         {
             if (t1.IsNil || t2.IsNil)
-                Merpreter.Error("Attempted to compare values (GT) with at least one value being nil");
+                Interpreter.Error("Attempted to compare values (GT) with at least one value being nil");
             
             if (t1.Toke.Equals(t2.Toke))
                 return Token.False;
@@ -197,14 +197,14 @@ namespace Merlyn.Guts
                     return Token.False;
             }
 
-            Merpreter.Error("Tried to compared values (GT) but I don't know how");
+            Interpreter.Error("Tried to compared values (GT) but I don't know how");
             return Token.False;
         }
 
         internal static Token LessThan(Token t1, Token t2)
         {
             if (t1.IsNil || t2.IsNil)
-                Merpreter.Error("Attempted to compare values (LT) with at least one value being nil");
+                Interpreter.Error("Attempted to compare values (LT) with at least one value being nil");
 
             if (t1.Toke.Equals(t2.Toke))
                 return Token.False;
@@ -238,7 +238,7 @@ namespace Merlyn.Guts
                     return Token.False;
             }
 
-            Merpreter.Error("Tried to compared values (LT) but I don't know how");
+            Interpreter.Error("Tried to compared values (LT) but I don't know how");
             return Token.False;
         }
 

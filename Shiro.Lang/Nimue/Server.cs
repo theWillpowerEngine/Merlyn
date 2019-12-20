@@ -6,9 +6,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Merlyn.Guts;
+using Shiro.Guts;
 
-namespace Merlyn.Nimue
+namespace Shiro.Nimue
 {
     internal static class Server
     {
@@ -23,14 +23,14 @@ namespace Merlyn.Nimue
         internal static class Locks
         {
             public static readonly object ConnectionsLock = new object();
-            public static readonly object MerlynLock = new object();
+            public static readonly object ShiroLock = new object();
         }
 
         private static List<Connection> Connections = new List<Connection>();
         private static int Port = 4676;
 
         private static Token HandlerToken, ConnectHandlerToken;
-        private static Merpreter Merp;
+        private static Interpreter Merp;
 
         private static void Listener()
         {
@@ -54,7 +54,7 @@ namespace Merlyn.Nimue
 
                 if (ConnectHandlerToken != null)
                 {
-                    lock (Locks.MerlynLock)
+                    lock (Locks.ShiroLock)
                     {
                         EvaluateTokenWithLet(conn, ConnectHandlerToken);
                     }
@@ -99,7 +99,7 @@ namespace Merlyn.Nimue
 
         private static Token EvaluateTokenWithLet(Connection con, Token handler)
         {
-            lock (Locks.MerlynLock)
+            lock (Locks.ShiroLock)
             {
 				Guid letId = Guid.NewGuid();
 				try
@@ -146,7 +146,7 @@ namespace Merlyn.Nimue
             if (conn != null)
                 conn.Send(msg);
             else
-                Merpreter.Error($"Attempt to send on non-existent socket, data '{msg}'");
+                Interpreter.Error($"Attempt to send on non-existent socket, data '{msg}'");
         }
         internal static void SendToAll(string msg)
         {
@@ -165,14 +165,14 @@ namespace Merlyn.Nimue
             }
         }
 
-        internal static void ListenForTelnet(Merpreter merp, Token commandHandler, int port = 4676, Token connectHandler = null)
+        internal static void ListenForTelnet(Interpreter merp, Token commandHandler, int port = 4676, Token connectHandler = null)
         {
             ConType = ConnectionType.MUD;
             Port = port;
             HandlerToken = commandHandler;
             ConnectHandlerToken = connectHandler;
 
-            lock(Locks.MerlynLock)
+            lock(Locks.ShiroLock)
                 Merp = merp;
 
             Serving = true;
@@ -210,14 +210,14 @@ namespace Merlyn.Nimue
             }
         }
 
-        internal static void ListenForHttp(Merpreter merp, Token commandHandler, int port = 8088)
+        internal static void ListenForHttp(Interpreter merp, Token commandHandler, int port = 8088)
         {
             ConType = ConnectionType.HTTP;
             Port = port;
             HandlerToken = commandHandler;
             ConnectHandlerToken = null;
 
-            lock (Locks.MerlynLock)
+            lock (Locks.ShiroLock)
                 Merp = merp;
 
             Serving = true;

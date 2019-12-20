@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace Merlyn.Interop
+namespace Shiro.Interop
 {
 	internal class LoadedDLL
 	{
