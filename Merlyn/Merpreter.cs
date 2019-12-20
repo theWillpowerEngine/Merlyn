@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using System.Web.Script.Serialization;
 using Merlyn.Guts;
 
@@ -10,7 +11,7 @@ namespace Merlyn
 {
     public partial class Merpreter
     {
-        public static string Version = "0.1.3";
+        public static string Version = "0.1.4";
         internal Symbols Symbols;
         public Merpreter()
         {
@@ -26,6 +27,23 @@ namespace Merlyn
 		{
 			Console.WriteLine(s);
 		};
+
+        public static Func<Merpreter, string, bool> LoadModule = DefaultModuleLoader;
+
+        public static bool DefaultModuleLoader(Merpreter m, string s)
+        {
+            if (!File.Exists(s) && !File.Exists(s + ".mrln"))
+                return false;
+
+            string code = "";
+            if (File.Exists(s))
+                code = File.ReadAllText(s);
+            else
+                code = File.ReadAllText(s + ".mrln");
+
+            m.Eval(code);
+            return true;
+        }
 
         #region "Reader" (somewhere a LISP purist just threw up in their mouth and doesn't know why)
 

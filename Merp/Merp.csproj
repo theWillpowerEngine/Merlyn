@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compiler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -48,10 +49,9 @@
       <Project>{af0fd65c-e75b-4d87-9f39-c5351a08ac75}</Project>
       <Name>Merlyn</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MSL\MSL.csproj">
-      <Project>{aaaebb15-4b85-497a-89a6-827c217ed7c8}</Project>
-      <Name>MSL</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Merges\CompiledBase.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

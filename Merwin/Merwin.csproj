@@ -97,11 +97,5 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MSL\MSL.csproj">
-      <Project>{aaaebb15-4b85-497a-89a6-827c217ed7c8}</Project>
-      <Name>MSL</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -12,19 +12,17 @@ namespace Merlyn.Interop
 	{
 		private static List<Assembly> LoadedDLLs = new List<Assembly>();
 
-		internal static void LoadDLL(string name)
+		internal static bool LoadDLL(string name)
 		{
 			try
 			{
-				if (name == "MSL")
-					name = "MSL.dll";
-
 				var a = Assembly.LoadFrom(name);
 				LoadedDLLs.Add(a);
+                return true;
 			}
 			catch (Exception)
 			{
-				Merpreter.Error("Could not import dll: " + name);
+                return false;
 			}
 		}
 

@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using Merlyn;
+
+namespace Merp
+{
+    class Program
+    {
+        private static Dictionary<string, string> Modules = new Dictionary<string, string>();
+
+		static void Main(string[] args)
+        {
+			var merp = new Merpreter();
+
+			##MODULES##
+
+			Merpreter.Output = s =>
+			{
+				Console.Write(s);
+			};
+
+			Merpreter.LoadModule = (m, s) => {
+				if(Modules.ContainsKey(s.ToLower())) {
+					merp.Eval(Modules[s.ToLower()]);
+					return true;
+				}
+
+				return Merpreter.DefaultModuleLoader(m, s);
+			};
+
+			var code = Modules["##START##"];
+
+            try
+            {
+                var ret = merp.Eval(code);
+				Console.WriteLine();
+            }
+            catch (ApplicationException aex)
+            {
+                Console.WriteLine("[error] " + aex.Message);
+                Console.WriteLine();
+            }
+
+			Console.WriteLine("Press Enter to exit");
+			Console.ReadLine();
+
+        }
+    }
+}

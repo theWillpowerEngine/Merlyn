@@ -554,6 +554,7 @@ namespace Merlyn
                         Error("Wrong number of parameters to keyword 'defn', expected 3");
                     s1 = list[1].Toke.ToString();
                     toke = new Token();
+                    toke.Children = new List<Token>();
                     toke.Params = new List<string>();
 
                     if (!list[2].IsParent)
@@ -814,7 +815,11 @@ namespace Merlyn
 				case "import":
 					if (!list.ValidateParamCount(1))
 						Error("Wrong number of parameters to keyword 'import', expected 1");
-					Loader.LoadDLL(list[1].ToString());
+					if(!Loader.LoadDLL(list[1].ToString()))
+                    {
+                        if (!LoadModule(this, list[1].ToString()))
+                            Error("Could not import module '" + list[1].ToString() + "', could not find either a DLL or a matching Merlyn file");
+                    }
 					return Token.Nil;
 
                 #endregion
