@@ -3,15 +3,7 @@
 /Merlyn/bin/**
 /Merlyn/packages/**
 
-/Merp/.vs/**
-/Merp/obj/**
-/Merp/bin/**
+/Merl/.vs/**
+/Merl/obj/**
+/Merl/bin/**
 /.vs
-
-/Merwin/.vs/**
-/Merwin/obj/**
-/Merwin/bin/**
-
-/MSL/.vs/**
-/MSL/obj/**
-/MSL/bin/**
