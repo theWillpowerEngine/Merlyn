@@ -88,6 +88,7 @@ namespace Merp
                     Console.WriteLine("    merp running in interactive, REPL mode.  If you want to do other things try 'merp -help'");
                     Console.WriteLine("    Merlyn interpreter version: " + Merpreter.Version);
                     Console.WriteLine("        (double-tap Enter to run buffered code)");
+                    Console.WriteLine();
 
                     Merpreter.Output = s =>
                     {
@@ -98,7 +99,6 @@ namespace Merp
                     var code = "";
                     while (KeepREPLing)
                     {
-                        Console.WriteLine();
                         Console.Write(":>  ");
                         var line = Console.ReadLine();
                         if (line != "")
