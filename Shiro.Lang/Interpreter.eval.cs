@@ -363,6 +363,46 @@ namespace Shiro
 
                     return Symbols.Get(name);
 
+                case ".d":
+                case ".def":
+                    if (!list.ValidateParamCount(3, true))
+                        Error("Wrong number of parameters to keyword '.def', expected at least 3");
+
+                    if (list[1].IsParent)
+                        Error("First argument to '.def' must be a name, not simply a list or inline object");
+
+                    name = list[1].Toke.ToString();
+                    if (!Symbols.CanGet(name))
+                        Error("Can't find variable " + name + " for .def command");
+
+                    toke = Symbols.Get(name);
+
+                    for (i = 2; i < list.Count - 1; i++)
+                    {
+                        var t2 = list[i].Eval(this);
+                        if (t2.IsParent)
+                            t2 = t2.Eval(this);
+                        s1 = t2.ToString();
+
+                        if (i < list.Count - 2)
+                        {
+                            if (toke.Children == null || !toke.Children.HasProperty(s1))
+                                Error($"Cannot dereference property {s1} off {toke.ToString()}");
+                            else
+                            {
+                                toke = toke.Children.GetProperty(s1);
+                            }
+                        }
+                    }
+
+                    val = list[list.Count - 1].Eval(this);
+                    if (!toke.Children.HasProperty(s1))
+                        toke.Children.AddProperty(s1, val);
+                    else
+                        Error($"Attempt to .def already existing property {s1}.  Let me introduce you to '.sod' instead.");
+
+                    return Symbols.Get(name);
+
                 case ".?":
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '.?', expected at least 2");

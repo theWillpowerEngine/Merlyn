@@ -12,6 +12,16 @@ namespace Compiled
         {
 			var shiro = new Interpreter();
 
+			shiro.RegisterAutoFunction("cls", (i, t) =>
+            {
+                Console.Clear();
+                return Token.Nil;
+            });
+            shiro.RegisterAutoFunction("input", (i, t) =>
+            {
+                return new Token(Console.ReadLine());
+            });
+
 			##MODULES##
 
 			Interpreter.Output = s =>

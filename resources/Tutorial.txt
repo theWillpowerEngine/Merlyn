@@ -300,6 +300,16 @@ Code is Data, and We Learn from Data
 	; like (GET):
 	;   http://localhost:8676/folks/1
 
+
+console app built-ins (includes compiled):
+
+	cls / input
+	
+  examples:""
+	(print (str 'hello ' (do (pnb 'Enter your name: ') (input))))
+
+
+
 keywords:
 
 	json/jsonv     ;The latter evaluates the object before JSONifying it, the former just JSONifies it
@@ -345,6 +355,7 @@ keywords:
 	=>/fn				; (=> (args) (body))
 
 	.s[et]
+	.d[ef]
 	.sod
 
 	telnet <port> <command handler> [<connect handler>]		;within command handler, 'input' contains the value of the last telnet command, and 'id' contains a guid-string of the connection id
