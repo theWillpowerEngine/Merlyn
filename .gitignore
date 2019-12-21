@@ -15,4 +15,4 @@
 /libs/math/obj/**
 /libs/math/bin/**
 /libs/math/packages/**
-/libs/math.dll
+/libs/dist/**

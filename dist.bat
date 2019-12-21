@@ -1,16 +1,14 @@
-@ECHO OFF
-
 RMDIR /s /q dist
 MKDIR dist
 
 cd dist
 
 copy ..\shiro\bin\* .
-rmdir /s /q ..\shiro\bin
 
 del *.pdb
 
+rmdir /s /q libs
 mkdir libs
 cd libs
 
-copy ..\..\libs\* .
+xcopy ..\..\libs\dist . /s /e

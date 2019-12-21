@@ -52,6 +52,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy math.dll ..\..\..</PostBuildEvent>
+    <PostBuildEvent>rmdir /s /q ..\..\..\dist\math
+mkdir  ..\..\..\dist\math
+copy math.dll ..\..\..\dist\math</PostBuildEvent>
   </PropertyGroup>
 </Project>

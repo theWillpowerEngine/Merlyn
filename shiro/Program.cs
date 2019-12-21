@@ -33,14 +33,17 @@ namespace Shiro.Cons
                 return;
 
             var files = new List<string>();
+            var start = 1;
             switch (args[0])
             {
                 case "install":
-                    var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\libs\\" + args[1] + ".dll";
-                    Console.WriteLine(path);
-                    if (File.Exists(path))
+                    var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\libs\\" + args[1];
+                    
+                    if (Directory.Exists(path))
                     {
-                        File.Copy(path, Directory.GetCurrentDirectory() + "\\" + args[1] + ".dll");
+                        foreach (var file in Directory.GetFiles(path))
+                            File.Copy(file, Path.Combine(Directory.GetCurrentDirectory(), Path.GetFileName(file)));
+
                         Console.WriteLine("Installed built-in library: " + args[1]);
                     } else
                     {
@@ -58,7 +61,7 @@ namespace Shiro.Cons
                     Options.Interpreting = true;
                     break;
 
-                default:
+                case "help":
                     Console.WriteLine("  shiro <command> [<args>] [<files>]");
                     Console.WriteLine("    Commands:  compile, run, install");
                     Console.WriteLine("    args:");
@@ -68,9 +71,13 @@ namespace Shiro.Cons
                     KeepREPLing = false;
                     break;
 
+                default:
+                    start -= 1;
+                    break;
+
             }
             
-            for(var i=1; i<args.Length; i++)
+            for(var i=start; i<args.Length; i++)
             {
                 var arg = args[i];
                 if(arg[0] == '-')
@@ -143,7 +150,11 @@ namespace Shiro.Cons
                     var code = "";
                     while (KeepREPLing)
                     {
-                        Console.Write(":>  ");
+                        if (string.IsNullOrEmpty(code))
+                            Console.Write(":>  ");
+                        else
+                            Console.Write("    ");
+
                         var line = Console.ReadLine();
                         if (line != "")
                             code += line + Environment.NewLine;
@@ -168,7 +179,8 @@ namespace Shiro.Cons
                             }
                         }
                     }
-                } else
+                }
+                else
                 {
                     //Interpret files
                     var modules = new Dictionary<string, string>();
