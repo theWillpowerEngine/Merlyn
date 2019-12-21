@@ -10,7 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Litterbox", "Litterbox", "{1935F89C-98AE-42E9-8543-879C328205AE}"
 	ProjectSection(SolutionItems) = preProject
 		dist.bat = dist.bat
-		resources\Guide.docx = resources\Guide.docx
 		resources\tests.shr = resources\tests.shr
 		resources\Tutorial.txt = resources\Tutorial.txt
 	EndProjectSection
