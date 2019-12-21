@@ -7,5 +7,12 @@
 /Shiro.Lang/obj/**
 /Shiro.Lang/bin/**
 /.vs
+/dist/**
 
 /packages/**
+
+/libs/math/.vs/**
+/libs/math/obj/**
+/libs/math/bin/**
+/libs/math/packages/**
+/libs/math.dll
