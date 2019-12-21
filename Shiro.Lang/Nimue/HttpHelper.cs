@@ -41,7 +41,6 @@ namespace Shiro.Nimue
             public int status;
             public string version;
             public Hashtable Headers;
-            public int BodySize;
             public byte[] BodyData;
         }
 

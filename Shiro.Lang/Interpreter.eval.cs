@@ -877,6 +877,27 @@ namespace Shiro
                                 return new Token("PUT requires an ID in the URL (or I couldn't find the one you gave me).  You might try PATCH instead.");
                             }
 
+                        case "patch":
+                            s1 = request.Children.GetProperty("body").Toke.ToString();
+                            toke = ScanInlineObject(s1, true);
+                            id = toke.Children.GetProperty(s2).ToString();
+                            
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+
+                            if (restResult != null)
+                            {
+                                restDataStore.Children.Remove(restResult);
+                                restDataStore.Children.Add(toke);
+                                HttpHelper.ResponseStatus = 200;
+                                return toke;
+                            }
+                            else
+                            {
+                                HttpHelper.ResponseStatus = 202;
+                                restDataStore.Children.Add(toke);
+                                return toke;
+                            }
+
                         default:
                             HttpHelper.ResponseStatus = 500;
                             return new Token("Shiro's built-in REST server can't handle method: " + restMethod.ToUpper());
@@ -977,7 +998,7 @@ namespace Shiro
 				case "import":
 					if (!list.ValidateParamCount(1))
 						Error("Wrong number of parameters to keyword 'import', expected 1");
-					if(!Loader.LoadDLL(list[1].ToString()))
+					if(!Loader.LoadDLL(this, list[1].ToString()))
                     {
                         if (!LoadModule(this, list[1].ToString()))
                             Error("Could not import module '" + list[1].ToString() + "', could not find either a DLL or a matching Shiro file");

@@ -9,10 +9,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "shiro", "shiro\shiro.csproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Litterbox", "Litterbox", "{1935F89C-98AE-42E9-8543-879C328205AE}"
 	ProjectSection(SolutionItems) = preProject
+		dist.bat = dist.bat
 		resources\Guide.docx = resources\Guide.docx
-		tests.shr = tests.shr
+		resources\tests.shr = resources\tests.shr
 		resources\Tutorial.txt = resources\Tutorial.txt
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shiro Libraries", "Shiro Libraries", "{D7AEC569-357D-4895-B66A-108ECAEF3FC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "math", "libs\math\math.csproj", "{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,9 +33,16 @@ Global
 		{839327FA-F4BE-4701-A776-8599A6412765}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{839327FA-F4BE-4701-A776-8599A6412765}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{839327FA-F4BE-4701-A776-8599A6412765}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3} = {D7AEC569-357D-4895-B66A-108ECAEF3FC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D3ABE8-F513-4B23-B30A-D7B78F8C16F5}

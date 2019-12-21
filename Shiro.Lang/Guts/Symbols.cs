@@ -16,7 +16,7 @@ namespace Shiro.Guts
         private readonly Dictionary<string, Func<Token>> AutoSymbols = new Dictionary<string, Func<Token>>();
 
         private readonly Dictionary<string, Token> FunctionTable = new Dictionary<string, Token>();
-        private readonly Dictionary<string, Func<Token, Token>> AutoFunctions = new Dictionary<string, Func<Token, Token>>();
+        private readonly Dictionary<string, Func<Interpreter, Token, Token>> AutoFunctions = new Dictionary<string, Func<Interpreter, Token, Token>>();
 
         internal static class AutoVars
         {
@@ -77,6 +77,8 @@ namespace Shiro.Guts
         {
             if (FunctionTable.ContainsKey(name))
                 return true;
+            if (AutoFunctions.ContainsKey(name))
+                return true;
             return false;
         }
 
@@ -90,6 +92,14 @@ namespace Shiro.Guts
                 FunctionTable[name] = val;
         }
 
+        public void AddAutoFunc(string name, Func<Interpreter, Token, Token> val)
+        {
+            if (!AutoFunctions.ContainsKey(name))
+                AutoFunctions.Add(name, val);
+            else
+                AutoFunctions[name] = val;
+        }
+
         public Token CallFunc(string name, Interpreter merp, params Token[] args)
         {
             if (!FuncExists(name))
@@ -98,18 +108,26 @@ namespace Shiro.Guts
                 return Token.Nil;
             }
 
-            Guid letId = Guid.NewGuid();
-            var func = FunctionTable[name];
-            if(func.Params.Count != args.Length)
-                Interpreter.Error($"Incorrect number of params passed to function '{name}', expected {func.Params.Count}, found {args.Length} instead");
+            if (AutoFunctions.ContainsKey(name))
+            {
+                var res = AutoFunctions[name](merp, new Token(args));
+                return res;
+            }
+            else
+            {
+                Guid letId = Guid.NewGuid();
+                var func = FunctionTable[name];
+                if (func.Params.Count != args.Length)
+                    Interpreter.Error($"Incorrect number of params passed to function '{name}', expected {func.Params.Count}, found {args.Length} instead");
 
-            int i = 0;
-            foreach (var pn in func.Params)
-                Let(pn, args[i++], letId);
+                int i = 0;
+                foreach (var pn in func.Params)
+                    Let(pn, args[i++], letId);
 
-            var retVal = func.Eval(merp);
-            ClearLetId(letId);
-            return retVal;
+                var retVal = func.Eval(merp);
+                ClearLetId(letId);
+                return retVal;
+            }
         }
 
         public Symbols(Interpreter merp)

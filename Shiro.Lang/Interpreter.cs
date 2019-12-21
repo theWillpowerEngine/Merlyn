@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Web.Script.Serialization;
 using Shiro.Guts;
+using Shiro.Interop;
 
 namespace Shiro
 {
     public partial class Interpreter
     {
-        public static string Version = "0.1.4";
+        public static string Version = "0.2.0";
         internal Symbols Symbols;
+        internal Loader Loader = new Loader();
+
         public Interpreter()
         {
             Symbols = new Symbols(this);
@@ -32,19 +35,24 @@ namespace Shiro
 
         public static bool DefaultModuleLoader(Interpreter m, string s)
         {
-            if (!File.Exists(s) && !File.Exists(s + ".mrln"))
+            if (!File.Exists(s) && !File.Exists(s + ".shr"))
                 return false;
 
             string code = "";
             if (File.Exists(s))
                 code = File.ReadAllText(s);
             else
-                code = File.ReadAllText(s + ".mrln");
+                code = File.ReadAllText(s + ".shr");
 
             m.Eval(code);
             return true;
         }
 
+        public void RegisterAutoFunction(string name, Func<Interpreter, Token, Token> func)
+        {
+            Symbols.AddAutoFunc(name, func);
+        }
+        
         #region "Reader" (somewhere a LISP purist just threw up in their mouth and doesn't know why)
 
         private Token ScanJSONDictionary(Dictionary<string, object> dict)
@@ -61,7 +69,6 @@ namespace Shiro
                 }
                 else
                 {
-                    Type t;
                     object o = dict[key].ToString().TypeCoerce();
                     if (o is string && o.ToString().Trim().StartsWith("("))
                         retVal.Children.Add(new Token(key, Scan(o.ToString()).Children));

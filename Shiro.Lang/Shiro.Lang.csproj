@@ -41,9 +41,8 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Guts\MathHelper.cs" />
     <Compile Include="Guts\Symbols.cs" />
-    <Compile Include="Interop\InteropAttributes.cs" />
-    <Compile Include="Interop\LoadedDLL.cs" />
     <Compile Include="Interop\Loader.cs" />
+    <Compile Include="Interop\ShiroPlugin.cs" />
     <Compile Include="Interpreter.eval.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="Nimue\Connection.cs" />
