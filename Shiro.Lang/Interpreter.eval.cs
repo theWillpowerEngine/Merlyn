@@ -788,7 +788,7 @@ namespace Shiro
                         if (!list[i].IsParent && !list[i].IsFunction)
                         {
                             s2 = list[i].Toke.ToString();
-                            if (s1.ToLower() == "/" + s2.ToLower())
+                            if (NetHelper.IsRouteMatch(s1,  s2))
                                 return list[i + 1].Eval(this);
                             if (s2.ToLower() == "default")
                                 toke = list[i + 1];

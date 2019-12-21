@@ -164,6 +164,24 @@ namespace Shiro
                         work += " ";
                         continue;
                     }
+                    else if (c == '%' && code[i + 1] == 't')
+                    {
+                        i += 1;
+                        work += "\t";
+                        continue;
+                    }
+                    else if (c == '%' && code[i + 1] == 'n')
+                    {
+                        i += 1;
+                        work += Environment.NewLine;
+                        continue;
+                    }
+                    else if (c == '%' && code[i + 1] == '%')
+                    {
+                        i += 1;
+                        work += '%';
+                        continue;
+                    }
                     else if (c == stringDelim)
                     {
                         stringDelim = '#';

@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Extensions.cs" />
     <Compile Include="Guts\MathHelper.cs" />
+    <Compile Include="Guts\NetHelper.cs" />
     <Compile Include="Guts\Symbols.cs" />
     <Compile Include="Interop\Loader.cs" />
     <Compile Include="Interop\ShiroPlugin.cs" />

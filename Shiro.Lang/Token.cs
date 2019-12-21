@@ -80,6 +80,7 @@ namespace Shiro
         public bool IsNumeric => Toke is long || Toke is decimal;
         public bool IsDecimal => Toke is decimal;
         public bool IsFunction => Params != null;
+        public bool IsObject => IsParent && Children.Count > 0 && !string.IsNullOrEmpty(Children[0].Name);
 
         public bool IsTrue {
             get
