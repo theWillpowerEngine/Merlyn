@@ -64,6 +64,38 @@ namespace Shiro
                         s1 += list[i].Eval(this).ToString();
                     return new Token(s1);
 
+                case "contains":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters of keyword 'contains', expected 2");
+
+                    s1 = list[1].Eval(this).ToString();
+                    s2 = list[2].Eval(this).ToString();
+                    return s1.Contains(s2) ? Token.True : Token.False;
+
+                case "lower":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters of keyword 'lower', expected 1");
+
+                    s1 = list[1].Eval(this).ToString();
+                    return new Token(s1.ToLower());
+                
+                case "upper":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters of keyword 'upper', expected 1");
+
+                    s1 = list[1].Eval(this).ToString();
+                    return new Token(s1.ToUpper());
+
+                case "split":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters of keyword 'split', expected 2");
+
+                    s1 = list[1].Eval(this).ToString();
+                    s2 = list[2].Eval(this).ToString();
+
+                    var split = s1.Split(new string[] { s2 }, StringSplitOptions.RemoveEmptyEntries);
+                    return new Token(split.Select(s => new Token(s)).ToList());
+
                 #endregion
 
                 #region Web service stuff and serialization
@@ -107,16 +139,16 @@ namespace Shiro
                         lastVal.Children.Add(list[2]);
                     return lastVal;
 
-                case "1st":
+                case "kw":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of parameters to keyword '1st', expected 1");
+                        Error("Wrong number of parameters to keyword 'kw', expected 1");
                     lastVal = list[1].Eval(this);
                     if (lastVal.IsParent)
                         return lastVal.Children[0];
                     return lastVal;
-                case "rest":
+                case "params":
                     if (!list.ValidateParamCount(1))
-                        Error("Wrong number of parameters to keyword 'rest', expected 1");
+                        Error("Wrong number of parameters to keyword 'params', expected 1");
                     lastVal = list[1].Eval(this);
                     if (lastVal.IsParent)
                         return new Token(lastVal.Children.Quote());
@@ -636,7 +668,7 @@ namespace Shiro
 
                 #endregion
 
-                #region Network
+                #region HTTP
 
                 //Global
                 case "stop":
@@ -713,19 +745,149 @@ namespace Shiro
                     
                     for (i = 1; i < list.Count; i += 2)
                     {
-                        s2 = list[i].Eval(this).Toke.ToString();
-                        if (s1.ToLower().EndsWith(s2.ToLower()))
-                            return list[i + 1].Eval(this);
-                        if (s2.ToLower() == "default")
-                            toke = list[i + 1];
+                        if (!list[i].IsParent && !list[i].IsFunction)
+                        {
+                            s2 = list[i].Toke.ToString();
+                            if (s1.ToLower() == "/" + s2.ToLower())
+                                return list[i + 1].Eval(this);
+                            if (s2.ToLower() == "default")
+                                toke = list[i + 1];
+                        }
+                        else if (list[i].IsFunction)
+                        {
+                            if (list[i].Params.Count != 1)
+                                Error("Anonymous Function passed as a potential route must take only a single parameter.  My best attempt to render the offending lambda is: " + list[i].ToString());
+
+                            var lr = list[i].EvalLambda(this, request.Children.GetProperty("url"));
+                            if (lr.IsTrue)
+                                return list[i + 1].Eval(this);
+                        }
+                        else
+                        {
+                            var iHopeThisIsALambdaYouTool = list[i].Eval(this);
+                            if(!iHopeThisIsALambdaYouTool.IsFunction)
+                                Error("You passed a list as a potential route, it has to be a string or a lambda");
+                            
+                            var lr = iHopeThisIsALambdaYouTool.EvalLambda(this, request.Children.GetProperty("url"));
+                            if (lr.IsTrue)
+                                return list[i + 1].Eval(this);
+                        }
                     }
 
                     if (toke != null)
                         return toke.Eval(this);
                     return Token.Nil;
 
-				//Telnet
-				case "telnet":
+                #region REST (It's big)
+                case "rest":
+                    if (!list.ValidateParamCount(2))
+                        Error("The rest keyword requires 2 parameters");
+                    if (!Server.Serving || Server.ConType != ConnectionType.HTTP)
+                        Error("Cannot use 'rest' keyword if we are not currently in an http server context");
+                    
+                    request = Symbols.Get(Symbols.AutoVars.HttpRequest);
+                    var restMethod = request.Children.GetProperty("method").Toke.ToString();
+                    s1 = request.Children.GetProperty("url").Toke.ToString();
+                    s2 = list[2].Eval(this).ToString();
+
+                    var restDataStore = list[1].Eval(this);
+                    if (!restDataStore.IsParent) {
+                        Error("The data source passed to the 'rest' keyword must be a list.  You ended up with: " + restDataStore.ToString());
+                        HttpHelper.ResponseStatus = 400;
+                        return new Token("Not Found");
+                    }
+
+                    Token restResult;
+                    string[] eles;
+                    string id;
+
+                    switch(restMethod.ToLower())
+                    {
+                        case "get":
+                            eles = s1.Split('/');
+                            id = eles[eles.Length - 1];
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+                            
+                            if(restResult != null)
+                            {
+                                HttpHelper.ResponseStatus = 200;
+                                return new Token(restResult.ToJSON(this));
+                            } 
+                            else
+                            {
+                                HttpHelper.ResponseStatus = 400;
+                                return new Token("Not Found");
+                            }
+
+                        case "delete":
+                            eles = s1.Split('/');
+                            id = eles[eles.Length - 1];
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+
+                            if (restResult != null)
+                            {
+                                restDataStore.Children.Remove(restResult);
+                                HttpHelper.ResponseStatus = 200;
+                                return new Token("Deleted");
+                            }
+                            else
+                            {
+                                HttpHelper.ResponseStatus = 500;
+                                return new Token("Id not found, nothing was deleted");
+                            }
+
+                        case "post":
+                            s1 = request.Children.GetProperty("body").Toke.ToString();
+                            toke = ScanInlineObject(s1, true);
+                            id = toke.Children.GetProperty(s2).ToString();
+                            if(restDataStore.Children.Any(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id))
+                            {
+                                HttpHelper.ResponseStatus = 500;
+                                return new Token("A duplicate ID exists, did you mean to use PUT?");
+                            } 
+                            else
+                            {
+                                restDataStore.Children.Add(toke);
+                                HttpHelper.ResponseStatus = 200;
+                                return toke;
+                            }
+
+                        case "put":
+                            eles = s1.Split('/');
+                            id = eles[eles.Length - 1];
+                            s1 = request.Children.GetProperty("body").Toke.ToString();
+                            toke = ScanInlineObject(s1, true);
+                            if(id != toke.Children.GetProperty(s2).ToString())
+                            {
+                                HttpHelper.ResponseStatus = 500;
+                                return new Token("ID mismatch for PUT.  URL id was: " + id + ", object id was: " + toke.Children.GetProperty(s2).ToString());
+                            }
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+
+                            if (restResult != null)
+                            {
+                                restDataStore.Children.Remove(restResult);
+                                restDataStore.Children.Add(toke);
+                                HttpHelper.ResponseStatus = 200;
+                                return toke;
+                            }
+                            else
+                            {
+                                HttpHelper.ResponseStatus = 500;
+                                return new Token("PUT requires an ID in the URL (or I couldn't find the one you gave me).  You might try PATCH instead.");
+                            }
+
+                        default:
+                            HttpHelper.ResponseStatus = 500;
+                            return new Token("Shiro's built-in REST server can't handle method: " + restMethod.ToUpper());
+                    }
+                #endregion
+
+                #endregion
+
+                #region Telnet
+
+                case "telnet":
 					if (Server.Serving)
 						Error("Can't start a telnet server while already serving something");
 					if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))

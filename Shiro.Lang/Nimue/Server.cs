@@ -120,7 +120,7 @@ namespace Shiro.Nimue
 				}
 				catch (ApplicationException aex)
 				{
-					Merp.Eval($"print 'Server error: {aex.Message}'");
+					Merp.Eval($"print 'Server error: {aex.Message.Replace("'", "%'")}'");
 				}
 				finally
 				{

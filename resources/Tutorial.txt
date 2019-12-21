@@ -99,8 +99,8 @@ Code is Data, and We Learn from Data
 	)
 
 	; There are lots of ways to slice-and-dice lists:
-	(1st '(1 2 3))		   ; 1
-	(rest '(1 2 3))        ; 2 3 
+	(kw '(1 2 3))		   ; 1
+	(params '(1 2 3))      ; 2 3 
 	(nth 2 '(1 2 3))	   ; 2
 	(range 2 2 '(1 2 3 4)) ; 2 3
 
@@ -286,8 +286,19 @@ Code is Data, and We Learn from Data
 	;   http://localhost:8676/store?id=1&json={name:"Steve",age:21}
 	;   http://localhost:8676/get?id=1
 
-	
+	; Or we could just stand up a REST service.  Note that route can also take a lambda which takes a
+	;  single parameter and returns a boolean, which is useful for routing rest requests.
 
+	(do 
+		(sod data '({id: 1, name: "Dan", age: 35} {id: 2, name: "Dhiraj", age: 28}))
+		(http 8676 (route
+			(=> s (contains $s "folks")) (rest $data id)
+			"quit" (stop $data))))
+
+	; You can now GET/POST/PUT/DELETE on
+	;   http://localhost:8676/folks
+	; like (GET):
+	;   http://localhost:8676/folks/1
 
 keywords:
 
@@ -322,10 +333,14 @@ keywords:
 	filter
 	map					;map does the process and returns the result-list (so if the lambda changes the value in the list, map returns the new value)
 	apply				;works like map but returns the original, unmunged list
-	1st / rest
+	kw / params
 	nth / range
 
 	while				; (while (condition) (action))
+
+	contains
+	upper / lower
+	split
 
 	=>/fn				; (=> (args) (body))
 
@@ -338,8 +353,9 @@ keywords:
 
 	http <port> <handler>
 	content "<content-type>" <return list>
-	route "routeContains" <return list>...
+	route {"routeContains"|<lambda>} <return list>...
 	status <#> <return list>
+	rest <collection> <id field name>
 
 	http request:
 		body

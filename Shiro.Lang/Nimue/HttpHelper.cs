@@ -200,7 +200,8 @@ namespace Shiro.Nimue
                         break;
                     case RState.BODY:
                         // Append to request BodyData
-                        Array.Copy(rawData.ToCharArray(), ndx, request.BodyData, bfndx, rawData.Length - ndx);
+                        var body = rawData.Substring(ndx);
+                        request.BodyData = body.Select(c => (byte)c).ToArray();
                         bfndx += rawData.Length - ndx;
                         ndx = rawData.Length;
                         if (request.BodySize <= bfndx)
@@ -265,7 +266,7 @@ namespace Shiro.Nimue
             else
                 response.BodyData = Encoding.ASCII.GetBytes(result);
 
-            string HeadersString = $"HTTP 1.0 {response.status} {GetResponseString(response.status)}\n";
+            string HeadersString = $"HTTP/1.0 {response.status} {GetResponseString(response.status)}\n";
 
             foreach (DictionaryEntry Header in response.Headers)
             {

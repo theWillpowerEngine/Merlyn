@@ -50,6 +50,7 @@ namespace Shiro
         private Token ScanJSONDictionary(Dictionary<string, object> dict)
         {
             Token retVal = new Token();
+            retVal.Children = new List<Token>();
 
             foreach (var key in dict.Keys)
             {

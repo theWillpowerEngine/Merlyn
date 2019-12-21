@@ -14,17 +14,17 @@ namespace Shiro
 
         public static string ToFlatString(this List<Token> tokes)
         {
-            StringBuilder ret = new StringBuilder("");
+            StringBuilder ret = new StringBuilder("(");
 
             foreach (var t in tokes)
             {
                 if (t.IsParent)
-                    ret.Append($"({t.Children.ToFlatString()}) ");
+                    ret.Append($"{t.Children.ToFlatString()} ");
                 else
                     ret.Append($"{t.ToString()} ");
             }
 
-            return ret.ToString().Trim();
+            return ret.ToString().Trim() + ")";
         }
         public static string ToJSONArray(this List<Token> tokes, Interpreter merp)
         {
