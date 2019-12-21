@@ -8,9 +8,9 @@ Tutorial.txt in the repo teaches you most of the language via example and has a 
 If you're curious as to why Shiro is worth learning at all, well...  I challenge you to write a fully functional REST service that you can call with GET, PUT, POST, DELETE and PATCH implemented in less code than this:
 
 	(do 
-		(sod data '({id: 1, name: "Dan", age: 35} {id: 2, name: "Dhiraj", age: 28}))
-		(http 8080 (route
-			(=> s (contains $s "api")) (rest $data id)
-			"quit" (stop $data))))
+		(def data '({id: 1, name: "Dan", age: 35}
+			   {id: 2, name: "Dhiraj", age: 28}))
+		(http 8676 (route
+			 "api*" (rest $data id))))
 
-And honestly I could probably get it terser if we were like competing or something...
+I'm working on the guide now so this will all make sense to the 0-1 of you who will ever care shortly.
