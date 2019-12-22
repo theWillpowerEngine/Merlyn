@@ -262,6 +262,8 @@ namespace Shiro
                         ts.Clear();
                         ts.Add(list[1]);
                         ts.Add(t);
+
+                        Eval(ts);
                     }
                     return new Token(toke);
 
@@ -429,6 +431,7 @@ namespace Shiro
 
                     s1 = list[1].Eval(this).ToString();
                     toke = list[2].Eval(this);
+
                     if (toke.IsParent)
                         return new Token(new Token(s1, toke.Children));
                     else
