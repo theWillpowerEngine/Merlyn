@@ -3,6 +3,11 @@
 /shiro/bin/**
 /shiro/packages/**
 
+/shide/.vs/**
+/shide/obj/**
+/shide/bin/**
+/shide/packages/**
+
 /Shiro.Lang/.vs/**
 /Shiro.Lang/obj/**
 /Shiro.Lang/bin/**
