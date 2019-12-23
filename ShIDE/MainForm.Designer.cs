@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -35,6 +36,7 @@
 			this.cleanMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.formatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.autoDoMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.quickParenMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -44,7 +46,6 @@
 			this.txtInput = new System.Windows.Forms.TextBox();
 			this.console = new ConsoleControl.ConsoleControl();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.quickParenMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -116,6 +117,14 @@
 			this.autoDoMenu.Size = new System.Drawing.Size(211, 22);
 			this.autoDoMenu.Text = "Surround With &Do";
 			this.autoDoMenu.Click += new System.EventHandler(this.autoDoMenu_Click);
+			// 
+			// quickParenMenu
+			// 
+			this.quickParenMenu.Name = "quickParenMenu";
+			this.quickParenMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
+			this.quickParenMenu.Size = new System.Drawing.Size(211, 22);
+			this.quickParenMenu.Text = "Quick &Parenthesis";
+			this.quickParenMenu.Click += new System.EventHandler(this.quickParenMenu_Click);
 			// 
 			// statusStrip1
 			// 
@@ -236,14 +245,6 @@
 			this.tabPage2.Text = "tabPage2";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
-			// quickParenMenu
-			// 
-			this.quickParenMenu.Name = "quickParenMenu";
-			this.quickParenMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-			this.quickParenMenu.Size = new System.Drawing.Size(211, 22);
-			this.quickParenMenu.Text = "Quick &Parenthesis";
-			this.quickParenMenu.Click += new System.EventHandler(this.quickParenMenu_Click);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -253,9 +254,11 @@
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.menuStrip1);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "MainForm";
 			this.Text = "ShIDE, a shiro code editor";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();

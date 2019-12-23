@@ -264,5 +264,10 @@ namespace ShIDE
             editor.ReplaceSelection(@"(" + editor.SelectedText + ")");
             editor.SetEmptySelection(editor.CurrentPosition - 1);
         }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Environment.Exit(0);
+        }
     }
 }
