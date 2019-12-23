@@ -25,7 +25,10 @@ namespace ShIDE
         private ShiroLexer Lexer = new ShiroLexer("json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
         private bool Inputting = false;
         private string Input = "";
-        private delegate void ShowInput();
+
+		#region Thread-safe UI Delegate Wrappers
+
+		private delegate void ShowInput();
         private delegate void WriteConsole(string text);
 
         public void Eval(string code, Action<Token> cb)
@@ -33,11 +36,19 @@ namespace ShIDE
             var ts = new ThreadStart(() =>
                 {
                     Token res;
-                    lock (ShiroLock)
-                    {
-                        res = Shiro.Eval(code);
-                    }
-                    cb(res);
+                        try
+                        {
+                            lock (ShiroLock)
+                            {
+                                res = Shiro.Eval(code);
+                            }
+                            cb(res);
+                        }
+                        catch (Exception ex)
+                        {
+                            SafeError(ex.Message);
+                        }
+                    
                 });
 
             new Thread(ts).Start();
@@ -80,22 +91,28 @@ namespace ShIDE
                 console.WriteOutput(text, Color.Ivory);
             }
         }
-
-        private void MainForm_Load(object sender, EventArgs e)
-		{
-            Interpreter.Output = s =>
+        private void SafeError(string text)
+        {
+            if (console.InvokeRequired)
             {
-                SafeWrite(s);
-            };
+                var d = new WriteConsole(SafeError);
+                console.Invoke(d, new object[] {Environment.NewLine + text + Environment.NewLine }); 
+            }
+            else
+            {
+                console.WriteOutput(text, Color.Red);
+            }
+        }
+        #endregion
 
-            cleanMenu_Click(null, null);
+        #region Scintilla Stuff
 
-            txtInput.Hide();
-
+        private void SetupScintilla()
+        {
             editor.StyleResetDefault();
             editor.Styles[Style.Default].Font = "Consolas";
             editor.Styles[Style.Default].Size = 11;
-            editor.Styles[Style.Default].BackColor = Color.FromArgb(25,25,25);
+            editor.Styles[Style.Default].BackColor = Color.FromArgb(25, 25, 25);
             editor.Styles[Style.Default].ForeColor = Color.Ivory;
 
             editor.StyleClearAll();
@@ -108,58 +125,9 @@ namespace ShIDE
             editor.Styles[ShiroLexer.StyleString].ForeColor = Color.Cyan;
             editor.Styles[ShiroLexer.StyleNumber].ForeColor = Color.GreenYellow;
             editor.Styles[ShiroLexer.StyleComment].ForeColor = Color.MediumOrchid;
-
-            Show();
+            editor.Styles[ShiroLexer.StyleFunction].ForeColor = Color.LightSteelBlue;
+            editor.Styles[ShiroLexer.StyleVariable].ForeColor = Color.OrangeRed;
         }
-
-        private void txtInput_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == '\r' || e.KeyChar == '\n')
-            {
-                Input = txtInput.Text;
-                Inputting = false;
-                txtInput.Hide();
-                txtInput.Text = "";
-            }
-        }
-
-        private void evaluateMenu_Click(object sender, EventArgs e)
-        {
-            Eval(editor.Text, t => { });
-        }
-
-        private void cleanMenu_Click(object sender, EventArgs e)
-        {
-            lock (ShiroLock)
-            {
-                Shiro = new Interpreter();
-                Shiro.RegisterAutoFunction("cls", (i, t) =>
-                {
-                    SafeClear();
-                    return Token.Nil;
-                });
-                Shiro.RegisterAutoFunction("input", (i, t) =>
-                {
-                    Input = "";
-                    Inputting = true;
-
-                    SafeShowInput();
-
-                    while (Inputting)
-                        Thread.Sleep(100);
-
-                    console.WriteInput(Input, Color.Green, false);
-
-                    return new Token(Input);
-                });
-                Shiro.RegisterAutoFunction("exit", (i, t) =>
-                {
-                    Application.Exit();
-                    return Token.Nil;
-                });
-            }
-        }
-
         private void editor_StyleNeeded(object sender, StyleNeededEventArgs e)
         {
             //var startPos = editor.GetEndStyled();
@@ -215,6 +183,86 @@ namespace ShIDE
                     editor.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
                 }
             }
+        }
+        #endregion
+
+        private void MainForm_Load(object sender, EventArgs e)
+		{
+            Interpreter.Output = s =>
+            {
+                SafeWrite(s);
+            };
+
+            cleanMenu_Click(null, null);
+
+            txtInput.Hide();
+
+            SetupScintilla();
+
+            Show();
+            editor.Focus();
+        }
+
+        private void txtInput_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\r' || e.KeyChar == '\n')
+            {
+                Input = txtInput.Text;
+                Inputting = false;
+                txtInput.Hide();
+                txtInput.Text = "";
+            }
+        }
+
+        private void evaluateMenu_Click(object sender, EventArgs e)
+        {
+            Eval(editor.Text, t => { });
+        }
+
+        private void cleanMenu_Click(object sender, EventArgs e)
+        {
+            lock (ShiroLock)
+            {
+                Shiro = new Interpreter();
+                ShiroLexer.Shiro = Shiro;
+                Shiro.RegisterAutoFunction("cls", (i, t) =>
+                {
+                    SafeClear();
+                    return Token.Nil;
+                });
+                Shiro.RegisterAutoFunction("input", (i, t) =>
+                {
+                    Input = "";
+                    Inputting = true;
+
+                    SafeShowInput();
+
+                    while (Inputting)
+                        Thread.Sleep(100);
+
+                    console.WriteInput(Input, Color.Green, false);
+
+                    return new Token(Input);
+                });
+                Shiro.RegisterAutoFunction("exit", (i, t) =>
+                {
+                    Application.Exit();
+                    return Token.Nil;
+                });
+            }
+        }
+
+        private void autoDoMenu_Click(object sender, EventArgs e)
+        {
+            editor.ReplaceSelection(@"(do 
+    " + editor.SelectedText + ")");
+            editor.SetEmptySelection(editor.CurrentPosition - 1);
+        }
+
+        private void quickParenMenu_Click(object sender, EventArgs e)
+        {
+            editor.ReplaceSelection(@"(" + editor.SelectedText + ")");
+            editor.SetEmptySelection(editor.CurrentPosition - 1);
         }
     }
 }

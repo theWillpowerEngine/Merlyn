@@ -33,6 +33,8 @@
 			this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.evaluateMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.cleanMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.formatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.autoDoMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -42,6 +44,7 @@
 			this.txtInput = new System.Windows.Forms.TextBox();
 			this.console = new ConsoleControl.ConsoleControl();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.quickParenMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -58,7 +61,8 @@
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.evaluateToolStripMenuItem});
+            this.evaluateToolStripMenuItem,
+            this.formatToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(938, 24);
@@ -95,6 +99,23 @@
 			this.cleanMenu.Size = new System.Drawing.Size(181, 22);
 			this.cleanMenu.Text = "&Clean Interpreter";
 			this.cleanMenu.Click += new System.EventHandler(this.cleanMenu_Click);
+			// 
+			// formatToolStripMenuItem
+			// 
+			this.formatToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.autoDoMenu,
+            this.quickParenMenu});
+			this.formatToolStripMenuItem.Name = "formatToolStripMenuItem";
+			this.formatToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
+			this.formatToolStripMenuItem.Text = "Forma&t";
+			// 
+			// autoDoMenu
+			// 
+			this.autoDoMenu.Name = "autoDoMenu";
+			this.autoDoMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
+			this.autoDoMenu.Size = new System.Drawing.Size(211, 22);
+			this.autoDoMenu.Text = "Surround With &Do";
+			this.autoDoMenu.Click += new System.EventHandler(this.autoDoMenu_Click);
 			// 
 			// statusStrip1
 			// 
@@ -215,6 +236,14 @@
 			this.tabPage2.Text = "tabPage2";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
+			// quickParenMenu
+			// 
+			this.quickParenMenu.Name = "quickParenMenu";
+			this.quickParenMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
+			this.quickParenMenu.Size = new System.Drawing.Size(211, 22);
+			this.quickParenMenu.Text = "Quick &Parenthesis";
+			this.quickParenMenu.Click += new System.EventHandler(this.quickParenMenu_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -260,6 +289,9 @@
 		private System.Windows.Forms.ToolStripMenuItem evaluateToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem evaluateMenu;
 		private System.Windows.Forms.ToolStripMenuItem cleanMenu;
+		private System.Windows.Forms.ToolStripMenuItem formatToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem autoDoMenu;
+		private System.Windows.Forms.ToolStripMenuItem quickParenMenu;
 	}
 }
 

@@ -75,6 +75,8 @@ namespace Shiro.Guts
 
         public bool FuncExists(string name)
         {
+            if (name == null)
+                return false;
             if (FunctionTable.ContainsKey(name))
                 return true;
             if (AutoFunctions.ContainsKey(name))

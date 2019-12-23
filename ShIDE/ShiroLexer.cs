@@ -1,4 +1,5 @@
 ﻿using ScintillaNET;
+using Shiro;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +16,17 @@ namespace ShIDE
         public const int StyleComment = 2;
         public const int StyleString = 3;
         public const int StyleNumber = 4;
+        public const int StyleFunction = 5;
+        public const int StyleVariable = 6;
 
         private const int STATE_UNKNOWN = 0;
         private const int STATE_IDENTIFIER = 1;
         private const int STATE_NUMBER = 2;
         private const int STATE_STRING = 3;
         private const int STATE_COMMENT = 4;
-
-
+        
         private HashSet<string> keywords;
+        public static Interpreter Shiro;
 
         public void Style(Scintilla scintilla, int startPos, int endPos)
         {
@@ -45,7 +48,14 @@ namespace ShIDE
                 switch (state)
                 {
                     case STATE_UNKNOWN:
-                        if (c == '"' || c == '\'')
+                        if (c == '"')
+                        {
+                            // Start of "string"
+                            stringDelim = c;
+                            scintilla.SetStyling(1, StyleString);
+                            state = STATE_STRING;
+                        }
+                        else if(c == '\'' && (startPos+1 <= endPos && (char)scintilla.GetCharAt(startPos+1) != '('))
                         {
                             // Start of "string"
                             stringDelim = c;
@@ -134,6 +144,10 @@ namespace ShIDE
                             var identifier = scintilla.GetTextRange(startPos - length, length);
                             if (keywords.Contains(identifier))
                                 style = StyleKeyword;
+                            if (Shiro.IsFunctionName(identifier))
+                                style = StyleFunction;
+                            if (Shiro.IsVariableName(identifier.TrimStart('$')))
+                                style = StyleVariable;
 
                             scintilla.SetStyling(length, style);
                             length = 0;

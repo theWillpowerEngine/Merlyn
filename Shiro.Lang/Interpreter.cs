@@ -21,10 +21,10 @@ namespace Shiro
             Symbols = new Symbols(this);
         }
 
-        public static void Error(string msg)
+        public static Action<string> Error = (msg) =>
         {
             throw new ApplicationException(msg);
-        }
+        };
 
 		public static Action<string> Output = s =>
 		{
@@ -52,7 +52,15 @@ namespace Shiro
         {
             Symbols.AddAutoFunc(name, func);
         }
-        
+        public bool IsFunctionName(string name)
+        {
+            return Symbols.FuncExists(name);
+        }
+        public bool IsVariableName(string name)
+        {
+            return Symbols.CanGet(name);
+        }
+
         #region "Reader" (somewhere a LISP purist just threw up in their mouth and doesn't know why)
 
         private Token ScanJSONDictionary(Dictionary<string, object> dict)
