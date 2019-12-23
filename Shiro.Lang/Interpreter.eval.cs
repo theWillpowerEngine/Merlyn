@@ -373,6 +373,36 @@ namespace Shiro
 
                     return Symbols.Get(name);
 
+                case ".c":
+                case ".call":
+                    if (!list.ValidateParamCount(3, true))
+                        Error("Wrong number of parameters to keyword '.call', expected at least 3");
+
+                    toke = list[1].Eval(this);
+
+                    for (i = 2; i < list.Count-1; i++)
+                    {
+                        var t2 = list[i].Eval(this);
+                        if (t2.IsParent)
+                            t2 = t2.Eval(this);
+                        s1 = t2.ToString();
+
+                        if (toke.Children == null || !toke.Children.HasProperty(s1))
+                            Error($"Cannot dereference property {s1} off {toke.ToString()}");
+                        else
+                            toke = toke.Children.GetProperty(s1);
+                    }
+
+                    toke = toke.Eval(this);
+                    if (!toke.IsFunction)
+                        Error("Cannot call non-function property " + s1);
+
+                    var argList = list[list.Count - 1];
+                    if (argList.IsParent)
+                        return toke.EvalLambda(this, argList.Children.ToArray());
+                    else
+                        return toke.EvalLambda(this, argList);
+
                 case ".d":
                 case ".def":
                     if (!list.ValidateParamCount(3, true))
