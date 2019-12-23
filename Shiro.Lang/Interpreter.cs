@@ -12,7 +12,7 @@ namespace Shiro
 {
     public partial class Interpreter
     {
-        public static string Version = "0.2.0";
+        public static string Version = "0.2.1";
         internal Symbols Symbols;
         internal Loader Loader = new Loader();
 

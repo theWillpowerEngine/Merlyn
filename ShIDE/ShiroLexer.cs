@@ -48,7 +48,7 @@ namespace ShIDE
                 switch (state)
                 {
                     case STATE_UNKNOWN:
-                        if (c == '"')
+                        if (c == '"' || c == '`')
                         {
                             // Start of "string"
                             stringDelim = c;
