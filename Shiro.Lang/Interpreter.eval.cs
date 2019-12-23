@@ -86,6 +86,14 @@ namespace Shiro
                     s1 = list[1].Eval(this).ToString();
                     return new Token(s1.ToUpper());
 
+                //This can have a shitty, long name because there's a reader shortcut for it
+                case "interpolate":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters of keyword 'interpolate', expected 1");
+
+                    s1 = list[1].Eval(this).ToString();
+                    return new Token(MiscHelper.Interpolate(this, s1));
+
                 case "split":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters of keyword 'split', expected 2");

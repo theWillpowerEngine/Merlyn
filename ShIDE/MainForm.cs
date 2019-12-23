@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
+using System.IO;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -22,13 +22,17 @@ namespace ShIDE
 			InitializeComponent();
 		}
 
-        private ShiroLexer Lexer = new ShiroLexer("json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
+        private ShiroLexer Lexer = new ShiroLexer("interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
         private bool Inputting = false;
         private string Input = "";
 
-		#region Thread-safe UI Delegate Wrappers
+        private Dictionary<string, Document> tabDocuments = new Dictionary<string, Document>();
+        private Dictionary<string, string> savedDocuments = new Dictionary<string, string>();
+        private Dictionary<string, string> savedDocumentPaths = new Dictionary<string, string>();
 
-		private delegate void ShowInput();
+        #region Thread-safe UI Delegate Wrappers
+
+        private delegate void ShowInput();
         private delegate void WriteConsole(string text);
 
         public void Eval(string code, Action<Token> cb)
@@ -184,7 +188,140 @@ namespace ShIDE
                 }
             }
         }
+
+        private void editor_CharAdded(object sender, CharAddedEventArgs e)
+        {
+            if(e.Char == '(')
+                if (!editor.AutoCActive)
+                    editor.AutoCShow(0, ShiroLexer.GetAutoCompleteItems());
+        }
+
+        private void showAutocompleteMenu_Click(object sender, EventArgs e)
+        {
+            if (editor.AutoCActive)
+                return;
+
+            var currentPos = editor.CurrentPosition;
+            var wordStartPos = editor.WordStartPosition(currentPos, true);
+
+            var lenEntered = currentPos - wordStartPos;
+            if (lenEntered > 0)
+            {
+                if (!editor.AutoCActive)
+                    editor.AutoCShow(lenEntered, ShiroLexer.GetAutoCompleteItems());
+            }
+        }
+
         #endregion
+
+        #region Document Management (editor tabs, save/load/new, etc.)
+
+        private string _previousTab = "new";
+        private bool _suppressTabChanged = false;
+        private void editorTabs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_suppressTabChanged)
+            {
+                _suppressTabChanged = false;
+                return;
+            }
+
+            var name = editorTabs.SelectedTab.Text;
+            tabDocuments[_previousTab] = editor.Document;
+            editor.AddRefDocument(tabDocuments[_previousTab]);
+
+            editor.Document = tabDocuments[name];
+            editor.ReleaseDocument(tabDocuments[name]);
+
+            _previousTab = name;
+        }
+
+        private void newMenu_Click(object sender, EventArgs e)
+        {
+            var name = editorTabs.SelectedTab.Text;
+            tabDocuments[name] = editor.Document;
+            editor.AddRefDocument(tabDocuments[name]);
+
+            editor.Document = Document.Empty;
+
+            var newName = "";
+            if (!tabDocuments.ContainsKeyInSomeFashion("new"))
+                tabDocuments.Add(newName = "new", editor.Document);
+            else
+            {
+                var idx = 1;
+                while (tabDocuments.ContainsKeyInSomeFashion("new " + idx))
+                    idx += 1;
+
+                tabDocuments.Add(newName = ("new " + idx), editor.Document);
+            }
+            editorTabs.TabPages.Add(new TabPage(newName));
+            _suppressTabChanged = true;
+            editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
+        }
+
+        private void saveMenu_Click(object sender, EventArgs e)
+        {
+            var name = editorTabs.SelectedTab.Text;
+            if (!savedDocuments.ContainsKey(name))
+            {
+                if (DialogResult.OK == saveFileDialog.ShowDialog())
+                {
+                    var file = saveFileDialog.FileName;
+                    File.WriteAllText(file, editor.Text);
+
+                    var tabName = Path.GetFileName(file);
+                    savedDocuments.Add(tabName, editor.Text);
+                    savedDocumentPaths.Add(tabName, file);
+
+                    editorTabs.SelectedTab.Text = tabName;
+
+                    var doc = tabDocuments[name];
+                    tabDocuments.Remove(name);
+                    tabDocuments.Add(tabName, doc);
+                }
+            }
+            else
+            {
+                File.WriteAllText(savedDocumentPaths[name], editor.Text);
+                savedDocuments[name] = editor.Text;
+            }
+        }
+
+
+        private void openMenu_Click(object sender, EventArgs e)
+        {
+            if (DialogResult.OK == openFileDialog.ShowDialog())
+            {
+                var file = openFileDialog.FileName;
+                var content = File.ReadAllText(file);
+
+                var tabName = Path.GetFileName(file);
+                savedDocuments.Add(tabName, content);
+                savedDocumentPaths.Add(tabName, file);
+
+                var name = editorTabs.SelectedTab.Text;
+                tabDocuments[name] = editor.Document;
+                editor.AddRefDocument(tabDocuments[name]);
+
+                editor.Document = Document.Empty;
+                editor.Text = content;
+                tabDocuments.Add(tabName, editor.Document);
+
+                editorTabs.TabPages.Add(new TabPage(tabName));
+                _previousTab = tabName;
+                _suppressTabChanged = true;
+                editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
+            }
+        }
+
+        private void saveAsMenu_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("I haven't done this yet I'm lazy and it's mildly annoying");
+        }
+
+        #endregion
+
 
         private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -198,6 +335,8 @@ namespace ShIDE
             txtInput.Hide();
 
             SetupScintilla();
+
+            tabDocuments.Add("new", editor.Document);
 
             Show();
             editor.Focus();
@@ -216,7 +355,10 @@ namespace ShIDE
 
         private void evaluateMenu_Click(object sender, EventArgs e)
         {
-            Eval(editor.Text, t => { });
+            evalStatusLabel.Text = "Evaluating...";
+            Eval(editor.Text, t => {
+                evalStatusLabel.Text = "Not Evaluating";
+            });
         }
 
         private void cleanMenu_Click(object sender, EventArgs e)
@@ -254,8 +396,16 @@ namespace ShIDE
 
         private void autoDoMenu_Click(object sender, EventArgs e)
         {
-            editor.ReplaceSelection(@"(do 
-    " + editor.SelectedText + ")");
+            var sbDo = new StringBuilder(@"(do 
+");
+            var lines = editor.SelectedText.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach(var line in lines)
+            {
+                sbDo.AppendLine("    " + line);
+            }
+            sbDo.Append(")");
+
+            editor.ReplaceSelection(sbDo.ToString());
             editor.SetEmptySelection(editor.CurrentPosition - 1);
         }
 

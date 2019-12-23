@@ -163,9 +163,15 @@ namespace ShIDE
 
         public ShiroLexer(string keywords)
         {
-            // Put keywords in a HashSet
+            keywordString = keywords;
             var list = Regex.Split(keywords ?? string.Empty, @"\s+").Where(l => !string.IsNullOrEmpty(l));
             this.keywords = new HashSet<string>(list);
+        }
+
+        private static string keywordString;
+        internal static string GetAutoCompleteItems()
+        {
+            return keywordString;
         }
     }
 }

@@ -189,7 +189,7 @@ Code is Data, and We Learn from Data
 
 	; Notice the difference between:
 	(apply (=> (x) (+ $x 1)) '(1 2 3 4))		; results in '(1 2 3 4)
-	(map (=> (x) (+ $x 1)) '(1 2 3 4))			; results in `(2 3 4 5)
+	(map (=> (x) (+ $x 1)) '(1 2 3 4))			; results in '(2 3 4 5)
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Sometimes you have a thought in the shower like, "lisp would make a way better node.js than js"
@@ -308,10 +308,19 @@ console app built-ins (includes compiled):
   examples:""
 	(print (str 'hello ' (do (pnb 'Enter your name: ') (input))))
 
+	(do
+		(sod x 34)
+		(print (interpolate "x is {x} and x+2 is {(+ $x 2)}")))
+  -or-
+
+	(do
+		(sod x 34)
+		(print `x is {x} and x+2 is {(+ $x 2)}`))
 
 
 keywords:
 
+	interpolate
 	json/jsonv     ;The latter evaluates the object before JSONifying it, the former just JSONifies it
 	dejson
 	pair

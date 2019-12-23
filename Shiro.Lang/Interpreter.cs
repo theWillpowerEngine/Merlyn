@@ -192,8 +192,12 @@ namespace Shiro
                     }
                     else if (c == stringDelim)
                     {
+                        var wasAutoInterp = stringDelim == '`';
                         stringDelim = '#';
-                        retVal.Add(new Token(work));
+                        if(!wasAutoInterp)
+                            retVal.Add(new Token(work));
+                        else
+                            retVal.Add(new Token(new Token[] { new Token("interpolate"), new Token(work) }));
                         work = "";
                         continue;
                     }
@@ -297,6 +301,12 @@ namespace Shiro
                             blockDepth = 1;
                             i++;
                         }
+                        break;
+
+                    //Reader shortcut:  auto-interpolation
+                    case '`':
+                        appendWork();
+                        stringDelim = c;
                         break;
 
                     case '$':
