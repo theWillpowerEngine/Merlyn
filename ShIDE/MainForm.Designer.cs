@@ -30,12 +30,17 @@
 		{
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.evaluateMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.cleanMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.editor = new ScintillaNET.Scintilla();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.txtInput = new System.Windows.Forms.TextBox();
+			this.console = new ConsoleControl.ConsoleControl();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -46,12 +51,14 @@
 			this.splitContainer2.Panel2.SuspendLayout();
 			this.splitContainer2.SuspendLayout();
 			this.tabControl1.SuspendLayout();
+			this.tabPage1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.evaluateToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(938, 24);
@@ -63,6 +70,31 @@
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileToolStripMenuItem.Text = "&File";
+			// 
+			// evaluateToolStripMenuItem
+			// 
+			this.evaluateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.evaluateMenu,
+            this.cleanMenu});
+			this.evaluateToolStripMenuItem.Name = "evaluateToolStripMenuItem";
+			this.evaluateToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
+			this.evaluateToolStripMenuItem.Text = "E&valuate";
+			// 
+			// evaluateMenu
+			// 
+			this.evaluateMenu.Name = "evaluateMenu";
+			this.evaluateMenu.ShortcutKeys = System.Windows.Forms.Keys.F5;
+			this.evaluateMenu.Size = new System.Drawing.Size(181, 22);
+			this.evaluateMenu.Text = "E&valuate";
+			this.evaluateMenu.Click += new System.EventHandler(this.evaluateMenu_Click);
+			// 
+			// cleanMenu
+			// 
+			this.cleanMenu.Name = "cleanMenu";
+			this.cleanMenu.ShortcutKeys = System.Windows.Forms.Keys.F4;
+			this.cleanMenu.Size = new System.Drawing.Size(181, 22);
+			this.cleanMenu.Text = "&Clean Interpreter";
+			this.cleanMenu.Click += new System.EventHandler(this.cleanMenu_Click);
 			// 
 			// statusStrip1
 			// 
@@ -104,7 +136,7 @@
 			// 
 			this.splitContainer2.Panel2.Controls.Add(this.tabControl1);
 			this.splitContainer2.Size = new System.Drawing.Size(622, 514);
-			this.splitContainer2.SplitterDistance = 358;
+			this.splitContainer2.SplitterDistance = 316;
 			this.splitContainer2.TabIndex = 0;
 			// 
 			// editor
@@ -112,11 +144,14 @@
 			this.editor.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.editor.CaretForeColor = System.Drawing.Color.Yellow;
+			this.editor.CaretLineBackColor = System.Drawing.Color.LemonChiffon;
 			this.editor.Location = new System.Drawing.Point(3, 3);
 			this.editor.Name = "editor";
-			this.editor.Size = new System.Drawing.Size(616, 352);
+			this.editor.Size = new System.Drawing.Size(616, 310);
 			this.editor.TabIndex = 0;
-			this.editor.Text = "scintilla1";
+			this.editor.StyleNeeded += new System.EventHandler<ScintillaNET.StyleNeededEventArgs>(this.editor_StyleNeeded);
+			this.editor.UpdateUI += new System.EventHandler<ScintillaNET.UpdateUIEventArgs>(this.editor_UpdateUI);
 			// 
 			// tabControl1
 			// 
@@ -128,25 +163,54 @@
 			this.tabControl1.Location = new System.Drawing.Point(3, 3);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(619, 149);
+			this.tabControl1.Size = new System.Drawing.Size(619, 191);
 			this.tabControl1.TabIndex = 0;
 			// 
 			// tabPage1
 			// 
+			this.tabPage1.Controls.Add(this.txtInput);
+			this.tabPage1.Controls.Add(this.console);
 			this.tabPage1.Location = new System.Drawing.Point(4, 22);
 			this.tabPage1.Name = "tabPage1";
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(611, 123);
+			this.tabPage1.Size = new System.Drawing.Size(611, 165);
 			this.tabPage1.TabIndex = 0;
-			this.tabPage1.Text = "tabPage1";
+			this.tabPage1.Text = "Console";
 			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// txtInput
+			// 
+			this.txtInput.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtInput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+			this.txtInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.txtInput.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txtInput.ForeColor = System.Drawing.Color.LightGray;
+			this.txtInput.Location = new System.Drawing.Point(40, 141);
+			this.txtInput.Name = "txtInput";
+			this.txtInput.Size = new System.Drawing.Size(536, 25);
+			this.txtInput.TabIndex = 1;
+			this.txtInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtInput_KeyPress);
+			// 
+			// console
+			// 
+			this.console.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.console.IsInputEnabled = true;
+			this.console.Location = new System.Drawing.Point(0, 0);
+			this.console.Name = "console";
+			this.console.SendKeyboardCommandsToProcess = false;
+			this.console.ShowDiagnostics = false;
+			this.console.Size = new System.Drawing.Size(611, 166);
+			this.console.TabIndex = 0;
 			// 
 			// tabPage2
 			// 
 			this.tabPage2.Location = new System.Drawing.Point(4, 22);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(173, 38);
+			this.tabPage2.Size = new System.Drawing.Size(611, 165);
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "tabPage2";
 			this.tabPage2.UseVisualStyleBackColor = true;
@@ -163,6 +227,7 @@
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "MainForm";
 			this.Text = "ShIDE, a shiro code editor";
+			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.splitContainer1.Panel2.ResumeLayout(false);
@@ -173,6 +238,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
 			this.splitContainer2.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
+			this.tabPage1.ResumeLayout(false);
+			this.tabPage1.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -188,6 +255,11 @@
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPage2;
+		private ConsoleControl.ConsoleControl console;
+		private System.Windows.Forms.TextBox txtInput;
+		private System.Windows.Forms.ToolStripMenuItem evaluateToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem evaluateMenu;
+		private System.Windows.Forms.ToolStripMenuItem cleanMenu;
 	}
 }
 
