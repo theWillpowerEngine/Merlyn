@@ -34,6 +34,7 @@
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.openMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.openFolder = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveAsMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,9 +45,13 @@
 			this.quickParenMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.showAutocompleteMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.navigateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.registerWindowsExplorerContextMenuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.evalStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.tree = new System.Windows.Forms.TreeView();
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.editor = new ScintillaNET.Scintilla();
 			this.editorTabs = new System.Windows.Forms.TabControl();
@@ -63,6 +68,7 @@
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -80,7 +86,9 @@
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.evaluateToolStripMenuItem,
-            this.formatToolStripMenuItem});
+            this.formatToolStripMenuItem,
+            this.navigateToolStripMenuItem,
+            this.optionsToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(1122, 24);
@@ -92,6 +100,7 @@
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newMenu,
             this.openMenu,
+            this.openFolder,
             this.saveMenu,
             this.saveAsMenu});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -102,7 +111,7 @@
 			// 
 			this.newMenu.Name = "newMenu";
 			this.newMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-			this.newMenu.Size = new System.Drawing.Size(146, 22);
+			this.newMenu.Size = new System.Drawing.Size(214, 22);
 			this.newMenu.Text = "&New";
 			this.newMenu.Click += new System.EventHandler(this.newMenu_Click);
 			// 
@@ -110,22 +119,31 @@
 			// 
 			this.openMenu.Name = "openMenu";
 			this.openMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-			this.openMenu.Size = new System.Drawing.Size(146, 22);
+			this.openMenu.Size = new System.Drawing.Size(214, 22);
 			this.openMenu.Text = "&Open";
 			this.openMenu.Click += new System.EventHandler(this.openMenu_Click);
+			// 
+			// openFolder
+			// 
+			this.openFolder.Name = "openFolder";
+			this.openFolder.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.O)));
+			this.openFolder.Size = new System.Drawing.Size(214, 22);
+			this.openFolder.Text = "Open &Folder";
+			this.openFolder.Click += new System.EventHandler(this.openFolder_Click);
 			// 
 			// saveMenu
 			// 
 			this.saveMenu.Name = "saveMenu";
 			this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.saveMenu.Size = new System.Drawing.Size(146, 22);
+			this.saveMenu.Size = new System.Drawing.Size(214, 22);
 			this.saveMenu.Text = "&Save";
 			this.saveMenu.Click += new System.EventHandler(this.saveMenu_Click);
 			// 
 			// saveAsMenu
 			// 
 			this.saveAsMenu.Name = "saveAsMenu";
-			this.saveAsMenu.Size = new System.Drawing.Size(146, 22);
+			this.saveAsMenu.Size = new System.Drawing.Size(214, 22);
 			this.saveAsMenu.Text = "Save &As...";
 			this.saveAsMenu.Click += new System.EventHandler(this.saveAsMenu_Click);
 			// 
@@ -194,6 +212,27 @@
 			this.showAutocompleteMenu.Text = "Show &Autocomplete";
 			this.showAutocompleteMenu.Click += new System.EventHandler(this.showAutocompleteMenu_Click);
 			// 
+			// navigateToolStripMenuItem
+			// 
+			this.navigateToolStripMenuItem.Name = "navigateToolStripMenuItem";
+			this.navigateToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
+			this.navigateToolStripMenuItem.Text = "&Navigate";
+			// 
+			// optionsToolStripMenuItem
+			// 
+			this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.registerWindowsExplorerContextMenuToolStripMenuItem});
+			this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+			this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+			this.optionsToolStripMenuItem.Text = "&Options";
+			// 
+			// registerWindowsExplorerContextMenuToolStripMenuItem
+			// 
+			this.registerWindowsExplorerContextMenuToolStripMenuItem.Name = "registerWindowsExplorerContextMenuToolStripMenuItem";
+			this.registerWindowsExplorerContextMenuToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.registerWindowsExplorerContextMenuToolStripMenuItem.Text = "Register Windows Explorer Context Menu";
+			this.registerWindowsExplorerContextMenuToolStripMenuItem.Click += new System.EventHandler(this.registerWindowsExplorerContextMenuToolStripMenuItem_Click);
+			// 
 			// statusStrip1
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -221,6 +260,7 @@
 			// splitContainer1.Panel1
 			// 
 			this.splitContainer1.Panel1.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+			this.splitContainer1.Panel1.Controls.Add(this.tree);
 			// 
 			// splitContainer1.Panel2
 			// 
@@ -228,6 +268,18 @@
 			this.splitContainer1.Size = new System.Drawing.Size(1122, 646);
 			this.splitContainer1.SplitterDistance = 234;
 			this.splitContainer1.TabIndex = 3;
+			// 
+			// tree
+			// 
+			this.tree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tree.BackColor = System.Drawing.Color.Gray;
+			this.tree.Font = new System.Drawing.Font("Lucida Sans Unicode", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.tree.Location = new System.Drawing.Point(3, 3);
+			this.tree.Name = "tree";
+			this.tree.Size = new System.Drawing.Size(228, 640);
+			this.tree.TabIndex = 0;
 			// 
 			// splitContainer2
 			// 
@@ -397,6 +449,7 @@
 			this.menuStrip1.PerformLayout();
 			this.statusStrip1.ResumeLayout(false);
 			this.statusStrip1.PerformLayout();
+			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
@@ -445,6 +498,11 @@
         private System.Windows.Forms.ToolStripMenuItem showAutocompleteMenu;
         private ConsoleControl.ConsoleControl terminal;
 		private System.Windows.Forms.Timer saveStateTimer;
+		private System.Windows.Forms.ToolStripMenuItem navigateToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem registerWindowsExplorerContextMenuToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem openFolder;
+		private System.Windows.Forms.TreeView tree;
 	}
 }
 

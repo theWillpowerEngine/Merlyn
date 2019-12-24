@@ -103,7 +103,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="shiro.ico" />
+    <Content Include="shiro.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

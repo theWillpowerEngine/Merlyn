@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 using ScintillaNET;
 using Shiro;
+using System.Reflection;
 
 namespace ShIDE
 {
@@ -216,6 +217,28 @@ namespace ShIDE
 
         #region Document Management (editor tabs, save/load/new, etc.)
 
+        private void ListDirectory(TreeView treeView, string path)
+        {
+            treeView.Nodes.Clear();
+            var rootDirectoryInfo = new DirectoryInfo(path);
+            treeView.Nodes.Add(CreateDirectoryNode(rootDirectoryInfo));
+        }
+
+        private static TreeNode CreateDirectoryNode(DirectoryInfo directoryInfo)
+        {
+            var directoryNode = new TreeNode(directoryInfo.Name);
+            foreach (var directory in directoryInfo.GetDirectories())
+                directoryNode.Nodes.Add(CreateDirectoryNode(directory));
+            foreach (var file in directoryInfo.GetFiles())
+                directoryNode.Nodes.Add(new TreeNode(file.Name));
+            return directoryNode;
+        }
+
+        private void OpenFolder(string path)
+        {
+            tree.Nodes.Add(CreateDirectoryNode(new DirectoryInfo(path)));
+        }
+        
         private string _previousTab = "new";
         private bool _suppressTabChanged = false;
         private void editorTabs_SelectedIndexChanged(object sender, EventArgs e)
@@ -333,7 +356,6 @@ namespace ShIDE
 
         #endregion
 
-
         private void MainForm_Load(object sender, EventArgs e)
 		{
             Interpreter.Output = s =>
@@ -352,6 +374,9 @@ namespace ShIDE
 
             Show();
             editor.Focus();
+
+            if (Program.DirectoryToOpen != null)
+                OpenFolder(Program.DirectoryToOpen);
         }
 
         private void txtInput_KeyPress(object sender, KeyPressEventArgs e)
@@ -436,6 +461,34 @@ namespace ShIDE
         {
             if(bottomTabs.SelectedTab.Text == "Terminal" && !terminal.IsProcessRunning)
                 terminal.StartProcess("cmd.exe", null);
+        }
+
+        private void registerWindowsExplorerContextMenuToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Microsoft.Win32.RegistryKey key;
+            key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software");
+
+            key = key.OpenSubKey("Classes");
+            key = key.OpenSubKey("directory");
+            key = key.OpenSubKey("shell");
+
+            try
+            {
+                key = key.CreateSubKey("ShIDE");
+                key.SetValue("", "Open with ShIDE");
+                key.SetValue("command", Assembly.GetExecutingAssembly().Location);
+                key.SetValue("icon", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "shiro.ico"));
+            } catch(UnauthorizedAccessException)
+            {
+                MessageBox.Show("You have to run ShIDE as Administrator to register this");
+            }
+
+            key.Close();
+        }
+
+        private void openFolder_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
