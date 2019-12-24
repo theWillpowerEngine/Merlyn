@@ -124,7 +124,7 @@ namespace Shiro.Guts
 
                 int i = 0;
                 foreach (var pn in func.Params)
-                    Let(pn, args[i++], letId);
+                    Let(pn, args[i++].Eval(merp), letId);
 
                 var retVal = func.Eval(merp);
                 ClearLetId(letId);

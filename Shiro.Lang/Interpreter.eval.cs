@@ -535,10 +535,21 @@ namespace Shiro
                         Symbols.Let(s1, toke, letId);
                     }
 
-                    for (i = 2; i < list.Count; i++)
-                        lastVal = list[i].Eval(this);
+                    try
+                    {
+                        for (i = 2; i < list.Count; i++)
+                            lastVal = list[i].Eval(this);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex.Message);
+                    }
+                    finally
+                    {
+                        Symbols.ClearLetId(letId);
+                    }
 
-                    Symbols.ClearLetId(letId);
+                    
                     return lastVal;
 
                 #endregion

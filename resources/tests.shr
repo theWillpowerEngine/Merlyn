@@ -1,0 +1,31 @@
+(do
+    (cls)
+    (defn assert (test s) (pnb (if (! $test) (str "FAIL: " $s "%n") "")))
+    (defn assert-not (test s) (pnb (if $test (str "FAIL: " $s "%n") "")))
+    
+    ;basic bools
+    (assert true "Ok, it's a start")
+    (assert 1 "Truthiness 1")
+    (assert '(1 2 3) "Truthiness 2")    
+    (assert 'hello' "Truthiness 3")
+    (assert-not false "Falsiness")
+    (assert-not 0 "Falsiness 1")
+    (assert-not nil "Falsiness 2")
+    (assert-not '' "Falsiness 3")
+    (assert-not () "Falsiness 4")
+
+    ;let-scope
+    (sod y 5)
+    (let (x 1 y 2) 
+        (do
+            (assert (= 1 $x) "let 1")
+            (assert (= 2 (v y)) "let 2")
+            (assert (def? x) "let 3")
+            (assert (= '~3~' `~{+ $x $y}~`) "let 4 interp")
+    ))
+
+    (assert-not (def? x) "let scope undef")
+    (assert (def? y) "let scope hiding")
+    (assert (= 5 $y) "let scope hiding 2")
+
+    (print 'Test run complete'))

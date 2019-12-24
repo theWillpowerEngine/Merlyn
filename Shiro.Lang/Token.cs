@@ -125,7 +125,7 @@ namespace Shiro
 
             int i = 0;
             foreach (var pn in Params)
-                merp.Symbols.Let(pn, args[i++], letId);
+                merp.Symbols.Let(pn, args[i++].Eval(merp), letId);
 
             var retVal = Eval(merp);
             merp.Symbols.ClearLetId(letId);

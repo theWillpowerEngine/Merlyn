@@ -247,7 +247,7 @@ namespace Shiro.Guts
             if (t1.IsNil)
                 return Token.True;
 
-            if (t1.Toke == null && t1.Children.Count == 0)
+            if (t1.Toke == null && (t1.Children == null || t1.Children.Count == 0))
                 return Token.True;
 
             if (t1.IsDecimal && (decimal) t1.Toke == 0)
@@ -256,10 +256,10 @@ namespace Shiro.Guts
             if (t1.IsNumeric && (long)t1.Toke == 0)
                 return Token.True;
 
-            if (t1.Toke.ToString() == Token.False.Toke.ToString())
+            if (t1?.Toke?.ToString() == Token.False.Toke.ToString())
                 return Token.True;
 
-            if (t1.Toke.ToString() == "")
+            if (t1?.Toke?.ToString() == "")
                 return Token.True;
 
             return Token.False;
