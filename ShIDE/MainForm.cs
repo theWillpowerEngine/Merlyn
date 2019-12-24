@@ -13,15 +13,17 @@ using System.Reflection;
 
 namespace ShIDE
 {
-	public partial class MainForm : Form
-	{
-		public static Interpreter Shiro;
+    public partial class MainForm : Form
+    {
+        internal static MainForm ActiveForm;
+
+        public static Interpreter Shiro;
         private static object ShiroLock = new object();
 
-		public MainForm()
-		{
-			InitializeComponent();
-		}
+        public MainForm()
+        {
+            InitializeComponent();
+        }
 
         private ShiroLexer Lexer = new ShiroLexer(".c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
         private bool Inputting = false;
@@ -41,19 +43,19 @@ namespace ShIDE
             var ts = new ThreadStart(() =>
                 {
                     Token res;
-                        try
+                    try
+                    {
+                        lock (ShiroLock)
                         {
-                            lock (ShiroLock)
-                            {
-                                res = Shiro.Eval(code);
-                            }
-                            cb(res);
+                            res = Shiro.Eval(code);
                         }
-                        catch (Exception ex)
-                        {
-                            SafeError(ex.Message);
-                        }
-                    
+                        cb(res);
+                    }
+                    catch (Exception ex)
+                    {
+                        SafeError(ex.Message);
+                    }
+
                 });
 
             new Thread(ts).Start();
@@ -101,7 +103,7 @@ namespace ShIDE
             if (console.InvokeRequired)
             {
                 var d = new WriteConsole(SafeError);
-                console.Invoke(d, new object[] {Environment.NewLine + text + Environment.NewLine }); 
+                console.Invoke(d, new object[] { Environment.NewLine + text + Environment.NewLine });
             }
             else
             {
@@ -192,7 +194,7 @@ namespace ShIDE
 
         private void editor_CharAdded(object sender, CharAddedEventArgs e)
         {
-            if(e.Char == '(')
+            if (e.Char == '(')
                 if (!editor.AutoCActive)
                     editor.AutoCShow(0, ShiroLexer.GetAutoCompleteItems());
         }
@@ -238,7 +240,44 @@ namespace ShIDE
         {
             tree.Nodes.Add(CreateDirectoryNode(new DirectoryInfo(path)));
         }
-        
+        internal void OpenFile(string file)
+        {
+            var content = File.ReadAllText(file);
+
+            var tabName = Path.GetFileName(file);
+            savedDocuments.Add(tabName, content);
+            savedDocumentPaths.Add(tabName, file);
+
+            if (editorTabs.SelectedTab != null)
+            {
+                var name = editorTabs.SelectedTab.Text;
+                tabDocuments[name] = editor.Document;
+                editor.AddRefDocument(tabDocuments[name]);
+            }
+
+            editor.Document = Document.Empty;
+            editor.Text = content;
+            tabDocuments.Add(tabName, editor.Document);
+
+            editorTabs.TabPages.Add(new TabPage(tabName));
+            _previousTab = tabName;
+            _suppressTabChanged = true;
+            editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
+
+            saveStateTimer.Enabled = true;
+        }
+
+        private void openFolder_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            var node = e.Node;
+
+        }
+
         private string _previousTab = "new";
         private bool _suppressTabChanged = false;
         private void editorTabs_SelectedIndexChanged(object sender, EventArgs e)
@@ -321,26 +360,7 @@ namespace ShIDE
             if (DialogResult.OK == openFileDialog.ShowDialog())
             {
                 var file = openFileDialog.FileName;
-                var content = File.ReadAllText(file);
-
-                var tabName = Path.GetFileName(file);
-                savedDocuments.Add(tabName, content);
-                savedDocumentPaths.Add(tabName, file);
-
-                var name = editorTabs.SelectedTab.Text;
-                tabDocuments[name] = editor.Document;
-                editor.AddRefDocument(tabDocuments[name]);
-
-                editor.Document = Document.Empty;
-                editor.Text = content;
-                tabDocuments.Add(tabName, editor.Document);
-
-                editorTabs.TabPages.Add(new TabPage(tabName));
-                _previousTab = tabName;
-                _suppressTabChanged = true;
-                editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
-
-                saveStateTimer.Enabled = true;
+                OpenFile(file);
             }
         }
 
@@ -357,7 +377,8 @@ namespace ShIDE
         #endregion
 
         private void MainForm_Load(object sender, EventArgs e)
-		{
+        {
+            ActiveForm = this;
             Interpreter.Output = s =>
             {
                 SafeWrite(s);
@@ -368,15 +389,20 @@ namespace ShIDE
             txtInput.Hide();
 
             SetupScintilla();
-            tabDocuments.Add("new", editor.Document);
 
-            SafeWrite("Welcome!  Shiro Version:  " + Interpreter.Version + Environment.NewLine + Environment.NewLine);
+            SafeWrite("Your output will go here.  Shiro Version:  " + Interpreter.Version + Environment.NewLine + Environment.NewLine);
 
             Show();
-            editor.Focus();
 
-            if (Program.DirectoryToOpen != null)
-                OpenFolder(Program.DirectoryToOpen);
+            if (Program.ThingToOpen != null)
+                OpenFile(Program.ThingToOpen);
+            else
+            {
+                editorTabs.TabPages.Add("new");
+                tabDocuments.Add("new", editor.Document);
+            }
+
+            editor.Focus();
         }
 
         private void txtInput_KeyPress(object sender, KeyPressEventArgs e)
@@ -393,7 +419,8 @@ namespace ShIDE
         private void evaluateMenu_Click(object sender, EventArgs e)
         {
             evalStatusLabel.Text = "Evaluating...";
-            Eval(editor.Text, t => {
+            Eval(editor.Text, t =>
+            {
                 evalStatusLabel.Text = "Not Evaluating";
             });
         }
@@ -436,7 +463,7 @@ namespace ShIDE
             var sbDo = new StringBuilder(@"(do 
 ");
             var lines = editor.SelectedText.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach(var line in lines)
+            foreach (var line in lines)
             {
                 sbDo.AppendLine("    " + line);
             }
@@ -459,7 +486,7 @@ namespace ShIDE
 
         private void bottomTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(bottomTabs.SelectedTab.Text == "Terminal" && !terminal.IsProcessRunning)
+            if (bottomTabs.SelectedTab.Text == "Terminal" && !terminal.IsProcessRunning)
                 terminal.StartProcess("cmd.exe", null);
         }
 
@@ -478,17 +505,13 @@ namespace ShIDE
                 key.SetValue("", "Open with ShIDE");
                 key.SetValue("command", Assembly.GetExecutingAssembly().Location);
                 key.SetValue("icon", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "shiro.ico"));
-            } catch(UnauthorizedAccessException)
+            }
+            catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("You have to run ShIDE as Administrator to register this");
             }
 
             key.Close();
-        }
-
-        private void openFolder_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
