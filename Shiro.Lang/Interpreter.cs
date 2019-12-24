@@ -117,10 +117,18 @@ namespace Shiro
                     json += c;
             }
 
-            var jss = new JavaScriptSerializer();
-            var dict = (Dictionary<string, object>)jss.DeserializeObject(json);
-            var retVal = ScanJSONDictionary(dict);
-            return retVal;
+            try
+            {
+                var jss = new JavaScriptSerializer();
+                var dict = (Dictionary<string, object>)jss.DeserializeObject(json);
+                var retVal = ScanJSONDictionary(dict);
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                Error("Invalid inline object, could not parse it.  JSON error was: " + ex.Message);
+                return Token.Nil;
+            }
         }
 
         private Token Scan(string code)
@@ -136,12 +144,15 @@ namespace Shiro
 
             Action appendWork = () =>
             {
+                decimal d;
+                long l;
+
                 if (!string.IsNullOrEmpty(work))
                 {
                     if (isAutoV)
                     {
                         isAutoV = false;
-                        retVal.Add(new Token(new Token[] {new Token("v"), new Token(work)}));
+                        retVal.Add(new Token(new Token[] { new Token("v"), new Token(work) }));
                     }
                     else if (work == "nil")
                         retVal.Add(Token.Nil);
@@ -149,6 +160,18 @@ namespace Shiro
                         retVal.Add(Token.True);
                     else if (work == "false" || work == "False" || work == "FALSE")
                         retVal.Add(Token.False);
+                    else if (!decimal.TryParse(work, out d) && !long.TryParse(work, out l) && work.Contains(".") && !work.StartsWith("."))
+                    {
+                        //Reader shortcut for dot unrolling
+                        var eles = work.Split('.');
+                        List<Token> tokes = new List<Token>();
+                        tokes.Add(new Token("."));
+                        tokes.Add(new Token(new Token[] { new Token("v"), new Token(eles[0]) }));
+                        for (var i = 1; i < eles.Length; i++)
+                            tokes.Add(new Token(eles[i]));
+
+                        retVal.Add(new Token(tokes.ToArray()));
+                    }
                     else
                         retVal.Add(new Token(work));
                 }

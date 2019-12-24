@@ -26,6 +26,8 @@ namespace Shiro
             if (list[0].IsParent)
             {
                 var evalled = list[0].Eval(this);
+                while(evalled.IsParent && !evalled.IsFunction)
+                    evalled = evalled.Eval(this);
                 if (list.Count > 1 && !evalled.IsFunction)
                     Error("Sibling peered list passed for evaluation -- you are probably missing a 'do' keyword");
                 else if (list.Count == 1)
