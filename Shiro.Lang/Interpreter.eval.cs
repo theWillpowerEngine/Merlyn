@@ -252,7 +252,6 @@ namespace Shiro
                         Error("Map can only operate on a list");
 
                     var mappedItems = new List<Token>();
-                    mappedItems.Add(new Token("quote"));
                     foreach (var t in toke.Children)
                     {
                         ts.Clear();
@@ -279,7 +278,7 @@ namespace Shiro
 
                         Eval(ts);
                     }
-                    return new Token(toke);
+                    return new Token(toke.Children);
 
                 #endregion
 

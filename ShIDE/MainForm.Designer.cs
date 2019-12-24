@@ -313,6 +313,7 @@
             this.editor.Size = new System.Drawing.Size(878, 368);
             this.editor.TabIndex = 0;
             this.editor.CharAdded += new System.EventHandler<ScintillaNET.CharAddedEventArgs>(this.editor_CharAdded);
+            this.editor.InsertCheck += new System.EventHandler<ScintillaNET.InsertCheckEventArgs>(this.editor_InsertCheck);
             this.editor.StyleNeeded += new System.EventHandler<ScintillaNET.StyleNeededEventArgs>(this.editor_StyleNeeded);
             this.editor.UpdateUI += new System.EventHandler<ScintillaNET.UpdateUIEventArgs>(this.editor_UpdateUI);
             // 

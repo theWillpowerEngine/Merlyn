@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ScintillaNET;
 using Shiro;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ShIDE
 {
@@ -189,6 +190,22 @@ namespace ShIDE
                     // Turn off brace matching
                     editor.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
                 }
+            }
+        }
+
+        private void editor_InsertCheck(object sender, InsertCheckEventArgs e)
+        {
+            if ((e.Text.EndsWith("\r") || e.Text.EndsWith("\n")))
+            {
+                var curLine = editor.LineFromPosition(e.Position);
+                var curLineText = editor.Lines[curLine].Text;
+
+                var indent = Regex.Match(curLineText, @"^\s*");
+                e.Text += indent.Value; // Add indent following "\r\n"
+
+                // Current line end with bracket?
+                if (Regex.IsMatch(curLineText, @"{\s*$"))
+                    e.Text += '\t'; // Add tab
             }
         }
 

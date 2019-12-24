@@ -71,7 +71,7 @@ namespace ShIDE
                             state = STATE_NUMBER;
                             goto REPROCESS;
                         }
-                        else if (Char.IsLetter(c) || c == '.')
+                        else if (Char.IsLetter(c) || c == '.' || c == '?' || c == '+' || c == '-' || c == '<' || c == '!' || c == '=' || c == '*' || c == '/')
                         {
                             state = STATE_IDENTIFIER;
                             goto REPROCESS;
@@ -134,7 +134,7 @@ namespace ShIDE
                         break;
 
                     case STATE_IDENTIFIER:
-                        if (Char.IsLetterOrDigit(c) || c == '.')
+                        if (Char.IsLetterOrDigit(c) || c == '.' || c == '?' || c == '+' || c == '-' || c == '<' || c == '!' || c == '=' || c == '*' || c == '/')
                         {
                             length++;
                         }
