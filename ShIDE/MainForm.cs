@@ -279,12 +279,16 @@ namespace ShIDE
                     var doc = tabDocuments[name];
                     tabDocuments.Remove(name);
                     tabDocuments.Add(tabName, doc);
+
+                    saveStateTimer.Enabled = true;
                 }
             }
             else
             {
                 File.WriteAllText(savedDocumentPaths[name], editor.Text);
                 savedDocuments[name] = editor.Text;
+
+                saveStateTimer.Enabled = true;
             }
         }
 
@@ -312,12 +316,19 @@ namespace ShIDE
                 _previousTab = tabName;
                 _suppressTabChanged = true;
                 editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
+
+                saveStateTimer.Enabled = true;
             }
         }
 
         private void saveAsMenu_Click(object sender, EventArgs e)
         {
             MessageBox.Show("I haven't done this yet I'm lazy and it's mildly annoying");
+        }
+
+        private void saveStateTimer_Tick(object sender, EventArgs e)
+        {
+            //TODO:  Implement the little * to tell you what to save.
         }
 
         #endregion
@@ -335,8 +346,9 @@ namespace ShIDE
             txtInput.Hide();
 
             SetupScintilla();
-
             tabDocuments.Add("new", editor.Document);
+
+            SafeWrite("Welcome!  Shiro Version:  " + Interpreter.Version + Environment.NewLine + Environment.NewLine);
 
             Show();
             editor.Focus();
@@ -418,6 +430,12 @@ namespace ShIDE
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Environment.Exit(0);
+        }
+
+        private void bottomTabs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(bottomTabs.SelectedTab.Text == "Terminal" && !terminal.IsProcessRunning)
+                terminal.StartProcess("cmd.exe", null);
         }
     }
 }
