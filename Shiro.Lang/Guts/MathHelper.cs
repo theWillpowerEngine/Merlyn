@@ -169,7 +169,10 @@ namespace Shiro.Guts
         {
             if (t1.IsNil || t2.IsNil)
                 Interpreter.Error("Attempted to compare values (GT) with at least one value being nil");
-            
+
+            if (t1.IsParent || t2.IsParent)
+                Interpreter.Error("Attempted to compare values (GT) with at least one value being a list");
+
             if (t1.Toke.Equals(t2.Toke))
                 return Token.False;
 
@@ -210,6 +213,9 @@ namespace Shiro.Guts
         {
             if (t1.IsNil || t2.IsNil)
                 Interpreter.Error("Attempted to compare values (LT) with at least one value being nil");
+
+            if (t1.IsParent || t2.IsParent)
+                Interpreter.Error("Attempted to compare values (GT) with at least one value being a list");
 
             if (t1.Toke.Equals(t2.Toke))
                 return Token.False;
