@@ -144,6 +144,11 @@ namespace Shiro.Guts
             else if(t1.IsNil || t2.IsNil)
                 return Token.False;
 
+            if(t1.IsParent || t2.IsParent)
+            {
+                return t1.ToString().Equals(t2.ToString()) ? Token.True : Token.False;
+            }
+
             if(t1.Toke.Equals(t2.Toke))
                 return Token.True;
 

@@ -26,12 +26,13 @@ namespace Shiro
             if (list[0].IsParent)
             {
                 var evalled = list[0].Eval(this);
-                while(evalled.IsParent && !evalled.IsFunction)
+                if (list.Count == 1)
+                    return evalled;
+
+                if(evalled.IsParent && !evalled.IsFunction && !evalled.IsQuotedList)
                     evalled = evalled.Eval(this);
                 if (list.Count > 1 && !evalled.IsFunction)
                     Error("Sibling peered list passed for evaluation -- you are probably missing a 'do' keyword");
-                else if (list.Count == 1)
-                    return evalled;
                 else
                     list[0] = evalled;
             }
@@ -132,7 +133,10 @@ namespace Shiro
                 #region Tree/list manipulation
 
                 case "quote":
-                    return new Token(list.Quote());
+                    return new Token(list.Quote())
+                    {
+                        IsQuotedList = true
+                    };
 
                 case "eval":
                     if (!list.ValidateParamCount(1))
@@ -1084,9 +1088,13 @@ namespace Shiro
 
                 case "nop":
                     Output("No Op encountered" + Environment.NewLine);
+                    if (list.Count > 1)
+                        return list[1];
                     return Token.Nil;
 
                 case "qnop":
+                    if (list.Count > 1)
+                        return list[1];
                     return Token.Nil;
 
 				case "import":

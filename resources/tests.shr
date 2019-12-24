@@ -2,6 +2,7 @@
     (cls)
     (defn assert (test s) (pnb (if (! $test) (str "FAIL: " $s "%n") "")))
     (defn assert-not (test s) (pnb (if $test (str "FAIL: " $s "%n") "")))
+    (defn assert-eq (t1 t2 s) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}"%n` "")))
     
     ;basic bools
     (assert true "Ok, it's a start")
@@ -27,5 +28,11 @@
     (assert-not (def? x) "let scope undef")
     (assert (def? y) "let scope hiding")
     (assert (= 5 $y) "let scope hiding 2")
+
+    ;lists
+    (sod l '(1 2 3 4 5 6 7 8 9 10))
+    (assert (list? $l) "lists are lists")
+    (assert-eq 2 (nth 2 $l) "nth works")
+    (assert-eq '(3 4 5) (range 3 3 $l) "range works")
 
     (print 'Test run complete'))
