@@ -30,7 +30,7 @@ namespace Shiro.Nimue
         private static int Port = 4676;
 
         private static Token HandlerToken, ConnectHandlerToken;
-        private static Interpreter Merp;
+        private static Interpreter shiro;
 
         private static void Listener()
         {
@@ -104,27 +104,27 @@ namespace Shiro.Nimue
 				Guid letId = Guid.NewGuid();
 				try
 				{
-					Merp.Symbols.Let(Symbols.AutoVars.ConnectionId, new Token(con.ConnectionId.ToString()), letId);
+					shiro.Symbols.Let(Symbols.AutoVars.ConnectionId, new Token(con.ConnectionId.ToString()), letId);
 
 					if (ConType == ConnectionType.MUD)
-						Merp.Symbols.Let(Symbols.AutoVars.TelnetInput, new Token(con.GetCommand()), letId);
+						shiro.Symbols.Let(Symbols.AutoVars.TelnetInput, new Token(con.GetCommand()), letId);
 					else
 					{
 						var request = HttpHelper.ParseRequest(con.GetCommand());
 						var token = HttpHelper.RequestToToken(request);
-						Merp.Symbols.Let(Symbols.AutoVars.HttpRequest, token, letId);
+						shiro.Symbols.Let(Symbols.AutoVars.HttpRequest, token, letId);
 					}
 
-					var retVal = handler.Eval(Merp);
+					var retVal = handler.Eval(shiro);
 					return retVal;
 				}
 				catch (ApplicationException aex)
 				{
-					Merp.Eval($"print 'Server error: {aex.Message.Replace("'", "%'")}'");
+					shiro.Eval($"print 'Server error: {aex.Message.Replace("'", "%'")}'");
 				}
 				finally
 				{
-					Merp.Symbols.ClearLetId(letId);
+					shiro.Symbols.ClearLetId(letId);
 				}
 			}
 
@@ -165,7 +165,7 @@ namespace Shiro.Nimue
             }
         }
 
-        internal static void ListenForTelnet(Interpreter merp, Token commandHandler, int port = 4676, Token connectHandler = null)
+        internal static void ListenForTelnet(Interpreter shiro, Token commandHandler, int port = 4676, Token connectHandler = null)
         {
             ConType = ConnectionType.MUD;
             Port = port;
@@ -173,7 +173,7 @@ namespace Shiro.Nimue
             ConnectHandlerToken = connectHandler;
 
             lock(Locks.ShiroLock)
-                Merp = merp;
+                shiro = shiro;
 
             Serving = true;
             
@@ -210,7 +210,7 @@ namespace Shiro.Nimue
             }
         }
 
-        internal static void ListenForHttp(Interpreter merp, Token commandHandler, int port = 8088)
+        internal static void ListenForHttp(Interpreter shiro, Token commandHandler, int port = 8088)
         {
             ConType = ConnectionType.HTTP;
             Port = port;
@@ -218,7 +218,7 @@ namespace Shiro.Nimue
             ConnectHandlerToken = null;
 
             lock (Locks.ShiroLock)
-                Merp = merp;
+                shiro = shiro;
 
             Serving = true;
 

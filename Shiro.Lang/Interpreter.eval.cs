@@ -302,6 +302,9 @@ namespace Shiro
                         else
                             toke = toke.Children.GetProperty(s1);
                     }
+
+                    if (toke.IsFunction && toke.Params.Count == 0)
+                        return toke.EvalLambda(this);
                     return toke;
 
                 case ".s":
@@ -380,8 +383,8 @@ namespace Shiro
 
                 case ".c":
                 case ".call":
-                    if (!list.ValidateParamCount(3, true))
-                        Error("Wrong number of parameters to keyword '.call', expected at least 3");
+                    if (!list.ValidateParamCount(2, true))
+                        Error("Wrong number of parameters to keyword '.call', expected at least 2");
 
                     toke = list[1].Eval(this);
 
@@ -398,7 +401,9 @@ namespace Shiro
                             toke = toke.Children.GetProperty(s1);
                     }
 
-                    toke = toke.Eval(this);
+                    if(!toke.IsFunction)
+                        toke = toke.Eval(this);
+
                     if (!toke.IsFunction)
                         Error("Cannot call non-function property " + s1);
 
@@ -1131,7 +1136,8 @@ namespace Shiro
         public Token Eval(string code)
         {
             var scanned = Scan(code);
-            return scanned.Eval(this);
+            var retVal = scanned.Eval(this);
+            return retVal;
         }
     }
 }

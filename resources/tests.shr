@@ -44,5 +44,29 @@
 
     (assert-eq '(4 5 6) $l2 "apply worked 2")
 
+    ;lambdas, object lamdbas and top-level lambdas (lol)
+    (sod val 123)
+    (sod o {name: 'dan', fn: (=> () (sod val 1))})
+    (.sod o fn2 (=> () (sod val 2)))
+    (.sod o fn3 (=> (x) (sod val $x)))
+    
+    (assert-eq $val 123 "object-lambdas step 1")
+    (.call $o fn ())
+    (assert-eq $val 1 "object-lambdas step 2")
+    (.call $o fn2 ())
+    (assert-eq $val 2 "object-lambdas step 3")
+    (.call $o fn3 555)
+    (assert-eq $val 555 "object-lambdas step 4")
+
+    (sod val 123)
+    (assert-eq o.name 'dan' "Auto-dotting basic test")
+    (o.fn3 23)
+    (assert-eq $val 23 "object-lambdas step 5")
+    (o.fn2)
+    (assert-eq $val 2 "object-lambdas step 6")
+    (o.fn)
+    (assert-eq $val 1 "object-lambdas step 7")
+
+    (assert-eq 4 ((=> (a b) (+ $a $b)) 2 2) "Lambda at the root")
 
     (print 'Test run complete'))

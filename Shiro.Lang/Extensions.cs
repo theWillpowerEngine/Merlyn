@@ -26,29 +26,29 @@ namespace Shiro
 
             return ret.ToString().Trim() + ")";
         }
-        public static string ToJSONArray(this List<Token> tokes, Interpreter merp)
+        public static string ToJSONArray(this List<Token> tokes, Interpreter shiro)
         {
             StringBuilder ret = new StringBuilder("[");
 
             foreach (var t in tokes)
-                ret.Append($"\"{t.Eval(merp).ToString()}\", ");
+                ret.Append($"\"{t.Eval(shiro).ToString()}\", ");
 
             return ret.ToString().Trim().TrimEnd(',') + "]";
         }
-        public static string ToJSON(this Token toke, Interpreter merp, bool evaluate = false)
+        public static string ToJSON(this Token toke, Interpreter shiro, bool evaluate = false)
         {
             if (!toke.IsParent)
                 return $"\"{toke.ToString()}\"";
             if (string.IsNullOrEmpty(toke.Children[0].Name))
-                return toke.Children.ToJSONArray(merp);
+                return toke.Children.ToJSONArray(shiro);
                     
             StringBuilder ret = new StringBuilder("{");
 
             foreach (var t in toke.Children)
                 if(evaluate)
-                    ret.Append($"\"{t.Name}\": {t.Eval(merp).ToJSON(merp, true)}, ");
+                    ret.Append($"\"{t.Name}\": {t.Eval(shiro).ToJSON(shiro, true)}, ");
                 else
-                    ret.Append($"\"{t.Name}\": {t.ToJSON(merp, false)}, ");
+                    ret.Append($"\"{t.Name}\": {t.ToJSON(shiro, false)}, ");
 
             return ret.ToString().Trim().TrimEnd(',') + "}";
         }
@@ -79,8 +79,13 @@ namespace Shiro
             if (!tokes.HasProperty(name))
                 return false;
 
-            if(val.IsParent)
-                tokes.First(t => t.Name != null && t.Name.ToLower() == name.ToLower()).Children = val.Children;
+            if (val.IsParent)
+            {
+                var toke = tokes.First(t => t.Name != null && t.Name.ToLower() == name.ToLower());
+                toke.Children = val.Children;
+                toke.Params = val.Params;
+
+            }
             else
                 tokes.First(t => t.Name != null && t.Name.ToLower() == name.ToLower()).Toke = val.Toke;
             return true;
@@ -90,10 +95,7 @@ namespace Shiro
             if (tokes.HasProperty(name))
                 throw new Exception("Token List AddProperty called when the property already exists.  Property was: " + name);
 
-            if (val.IsParent)
-                tokes.Add(new Token(name, val.Children));
-            else
-                tokes.Add(new Token(name, val.Toke));
+           tokes.Add(val.Clone(name));
         }
 
         public static bool ValidateParamCount(this List<Token> tokes, int expected, bool orGreaterThan = false)

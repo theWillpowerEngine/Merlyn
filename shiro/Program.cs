@@ -144,7 +144,7 @@ namespace Shiro.Cons
                     //Welcome to the REPL
                     if (KeepREPLing)
                     {
-                        Console.WriteLine("    shiro is running in interactive, REPL mode.  If you want to do other things try 'merp -help'");
+                        Console.WriteLine("    shiro is running in interactive, REPL mode.  If you want to do other things try 'shiro -help'");
                         Console.WriteLine("    Shiro interpreter version: " + Interpreter.Version);
                         Console.WriteLine("        (double-tap Enter to run buffered code)");
                         Console.WriteLine("        Built-In Functions:  cls, input, exit");

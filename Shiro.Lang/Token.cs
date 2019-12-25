@@ -93,6 +93,17 @@ namespace Shiro
             }
         }
 
+        public Token Clone(string name = null)
+        {
+            if (IsParent)
+                return new Token(name ?? Name, Children)
+                {
+                    Params = Params
+                };
+            else
+                return new Token(name ?? Name, Toke);
+        }
+
         public new string ToString()
         {
             if (IsNil)
@@ -105,15 +116,18 @@ namespace Shiro
             return "nil";
         }
 
-        internal Token Eval(Interpreter merp)
+        internal Token Eval(Interpreter shiro)
         {
             if (IsParent)
-                return merp.Eval(Children);
+            {
+                var res = shiro.Eval(Children);
+                return res;
+            }                
                
             return this;
         }
 
-        public Token EvalLambda(Interpreter merp, params Token[] args)
+        public Token EvalLambda(Interpreter shiro, params Token[] args)
         {
             if (!IsFunction) { 
                 Interpreter.Error("Attempted to evaluate something as a lambda that's not a lambda.  It was: " + ToString());
@@ -126,10 +140,10 @@ namespace Shiro
 
             int i = 0;
             foreach (var pn in Params)
-                merp.Symbols.Let(pn, args[i++].Eval(merp), letId);
+                shiro.Symbols.Let(pn, args[i++].Eval(shiro), letId);
 
-            var retVal = Eval(merp);
-            merp.Symbols.ClearLetId(letId);
+            var retVal = Eval(shiro);
+            shiro.Symbols.ClearLetId(letId);
             return retVal;
         }
     }

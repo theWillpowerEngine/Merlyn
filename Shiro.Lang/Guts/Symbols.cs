@@ -102,7 +102,7 @@ namespace Shiro.Guts
                 AutoFunctions[name] = val;
         }
 
-        public Token CallFunc(string name, Interpreter merp, params Token[] args)
+        public Token CallFunc(string name, Interpreter shiro, params Token[] args)
         {
             if (!FuncExists(name))
             {
@@ -112,7 +112,7 @@ namespace Shiro.Guts
 
             if (AutoFunctions.ContainsKey(name))
             {
-                var res = AutoFunctions[name](merp, new Token(args));
+                var res = AutoFunctions[name](shiro, new Token(args));
                 return res;
             }
             else
@@ -124,17 +124,17 @@ namespace Shiro.Guts
 
                 int i = 0;
                 foreach (var pn in func.Params)
-                    Let(pn, args[i++].Eval(merp), letId);
+                    Let(pn, args[i++].Eval(shiro), letId);
 
-                var retVal = func.Eval(merp);
+                var retVal = func.Eval(shiro);
                 ClearLetId(letId);
                 return retVal;
             }
         }
 
-        public Symbols(Interpreter merp)
+        public Symbols(Interpreter shiro)
         {
-            _merp = merp;
+            _merp = shiro;
 
             AutoSymbols.Add("MerVer", () => new Token(Interpreter.Version));
             AutoSymbols.Add("IsServing", () => Server.Serving ? Token.True : Token.False);
