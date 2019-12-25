@@ -111,6 +111,18 @@ namespace ShIDE
                 console.WriteOutput(text, Color.Red);
             }
         }
+        private void SafeStyleEditor()
+        {
+            if (console.InvokeRequired)
+            {
+                var d = new ShowInput(SafeStyleEditor);
+                console.Invoke(d, new object[] { });
+            }
+            else
+            {
+                editor_StyleNeeded(null, null);
+            }
+        }
         #endregion
 
         #region Scintilla Stuff
@@ -439,6 +451,7 @@ namespace ShIDE
             Eval(editor.Text, t =>
             {
                 evalStatusLabel.Text = "Not Evaluating";
+                SafeStyleEditor();
             });
         }
 
