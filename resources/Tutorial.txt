@@ -352,6 +352,9 @@ keywords:
 	def?		;takes a name, not a $name
 	fn?
 	nil?
+	impl?
+	impl[ementer]
+	mixin
 	let
 	nop / qnop
 	defn
@@ -375,7 +378,7 @@ keywords:
 	.d[ef]
 	.sod
 
-	telnet <port> <command handler> [<connect handler>]		;within command handler, 'input' contains the value of the last telnet command, and 'id' contains a guid-string of the connection id
+	telnet/tcp <port> <command handler> [<connect handler>]		;within command handler, 'input' contains the value of the last telnet command, and 'id' contains a guid-string of the connection id
 	send / sendTo <id> <msg> / sendAll						;only available for telnet connections
 	stop [<result>]
 

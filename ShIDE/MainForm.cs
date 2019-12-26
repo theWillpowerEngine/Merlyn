@@ -451,6 +451,12 @@ namespace ShIDE
 
         private void evaluateMenu_Click(object sender, EventArgs e)
         {
+            if(evalStatusLabel.Text == "Evaluating...")
+            {
+                MessageBox.Show("Shiro is already evaluating something (probably a network server), sorry");
+                return;
+            }
+
             evalStatusLabel.Text = "Evaluating...";
             Eval(editor.Text, t =>
             {
@@ -461,6 +467,11 @@ namespace ShIDE
 
         private void cleanMenu_Click(object sender, EventArgs e)
         {
+            if (evalStatusLabel.Text == "Evaluating...")
+            {
+                MessageBox.Show("Can't clean the interpreter while shiro is evaluating something.  You might have a network server running somewhere");
+                return;
+            }
             lock (ShiroLock)
             {
                 Shiro = new Interpreter();
