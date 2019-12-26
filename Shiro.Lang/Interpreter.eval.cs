@@ -711,22 +711,28 @@ namespace Shiro
 
                 case "=>":
                 case "fn":
-                    if (!list.ValidateParamCount(2))
-                        Error("Wrong number of parameters to keyword '=>', expected 2");
-                    if (!list[2].IsParent)
-                        Error("Second param to => must be the body of the lambda");
+                    if (!list.ValidateParamCount(1) && !list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword '=>', expected 1 or 2");
 
-                    Token lambda = new Token(list[2].Children);
-                    if (list[1].IsParent)
-                        lambda.Params = list[1].Children.Select(e =>
-                        {
-                            if (e.IsParent)
-                                Error("Parameter list in lambda can't have lists in it");
+                    Token lambda = (list.Count == 2) ? list[1] : list[2];
+                    if (!lambda.IsParent)
+                        Error("Lambda body must be a list, not: " + lambda.ToString());
 
-                            return e.ToString();
-                        }).ToList();
-                    else
-                        lambda.Params = new List<string>(new string[] { list[1].Toke.ToString() });
+                    lambda = lambda.Clone();
+                    if (list.Count == 3)
+                    {
+                        if (list[1].IsParent)
+                            lambda.Params = list[1].Children.Select(e =>
+                            {
+                                if (e.IsParent)
+                                    Error("Parameter list in lambda can't have lists in it");
+
+                                return e.ToString();
+                            }).ToList();
+                        else
+                            lambda.Params = new List<string>(new string[] { list[1].Toke.ToString() });
+                    } else
+                        lambda.Params = new List<string>();
                     return lambda;
 
                 #endregion
@@ -748,7 +754,62 @@ namespace Shiro
                         return Token.Nil;
                     }
 
-				case "do":
+                case "throw":
+                    if (list.Count == 1)
+                        throw new ShiroException(Token.Nil);
+
+                    throw new ShiroException(list[1].Eval(this));
+
+                case "catch":
+                    if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
+                        Error("Wrong number of parameters to keyword 'catch', expected 2 or 3");
+
+                    toke = list[1];
+                    var finBlock = list.Count == 4 ? list[3] : null;
+                    try
+                    {
+                        toke = toke.Eval(this);
+                    } 
+                    catch(ShiroException shex)
+                    {
+                        letId = Guid.NewGuid();
+                        Symbols.Let("ex", shex.Exception, letId);
+                        toke = list[2].Eval(this);
+                        Symbols.ClearLetId(letId);
+                    } 
+                    finally
+                    {
+                        if (finBlock != null)
+                            toke = finBlock.Eval(this);
+                    }
+                    return toke;
+
+                case "try":
+                    if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
+                        Error("Wrong number of parameters to keyword 'try', expected 2 or 3");
+
+                    toke = list[1];
+                    var finBlock2 = list.Count == 4 ? list[3] : null;
+                    try
+                    {
+                        toke = toke.Eval(this);
+                    }
+                    catch (Exception ex)
+                    {
+                        letId = Guid.NewGuid();
+                        Symbols.Let("ex", new Token(ex.Message), letId);
+                        toke = list[2].Eval(this);
+                        Symbols.ClearLetId(letId);
+                    }
+                    finally
+                    {
+                        if (finBlock2 != null)
+                            toke = finBlock2.Eval(this);
+                    }
+                    return toke;
+
+
+                case "do":
 					for(i =1; i<list.Count;i++)
 					{
 						lastVal = list[i].Eval(this);

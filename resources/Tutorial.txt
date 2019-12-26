@@ -367,7 +367,9 @@ keywords:
 	upper / lower
 	split
 
-	=>/fn				; (=> (args) (body))
+	=>/fn				; (=> (args) (body))				;can leave out args
+	catch/throw			(catch (body) (catch) (finally))		;catch only catches thrown things
+	try					;try catches anything
 
 	.s[et]
 	.d[ef]

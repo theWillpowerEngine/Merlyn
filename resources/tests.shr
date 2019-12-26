@@ -3,7 +3,9 @@
     (defn assert (test s) (pnb (if (! $test) (str "FAIL: " $s "%n") "")))
     (defn assert-not (test s) (pnb (if $test (str "FAIL: " $s "%n") "")))
     (defn assert-eq (t1 t2 s) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}"%n` "")))
-    
+    (defn assert-throws (f s) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
+    (defn assert-fails (f s) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
+
     ;basic bools
     (assert true "Ok, it's a start")
     (assert 1 "Truthiness 1")
@@ -12,6 +14,7 @@
     (assert-not false "Falsiness")
     (assert-not 0 "Falsiness 1")
     (assert-not nil "Falsiness 2")
+
     (assert-not '' "Falsiness 3")
     (assert-not () "Falsiness 4")
 
@@ -68,5 +71,13 @@
     (assert-eq $val 1 "object-lambdas step 7")
 
     (assert-eq 4 ((=> (a b) (+ $a $b)) 2 2) "Lambda at the root")
+    
+    ;exceptions
+    (assert-throws (=> () (do (sod dingleberry 123) (throw 'fuck off'))) 'basic throw/catch')
+    (assert (def? dingleberry) 'basic throw/catch 2')
+    (assert-fails (=> () (do (sod dingleberry 666) (throw 'fuck off'))) 'try catches shiro exceptions')
+    (assert (= $dingleberry 666) 'try catches shiro exceptions 2')
+    
+    (assert-fails (=> ((+ 1 2) (+ 3 4))) 'sibling paired list fails (and also try works)')
 
     (print 'Test run complete'))

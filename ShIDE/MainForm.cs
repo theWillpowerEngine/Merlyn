@@ -26,7 +26,7 @@ namespace ShIDE
             InitializeComponent();
         }
 
-        private ShiroLexer Lexer = new ShiroLexer(".c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
+        private ShiroLexer Lexer = new ShiroLexer("try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
         private bool Inputting = false;
         private string Input = "";
 
@@ -212,12 +212,16 @@ namespace ShIDE
                 var curLine = editor.LineFromPosition(e.Position);
                 var curLineText = editor.Lines[curLine].Text;
 
-                var indent = Regex.Match(curLineText, @"^\s*");
-                e.Text += indent.Value; // Add indent following "\r\n"
+                if (curLineText.Trim() == "")
+                    e.Text += curLineText;
+                else {
+                    var indent = Regex.Match(curLineText, @"^\s*");
+                    e.Text += indent.Value; // Add indent following "\r\n"
 
-                // Current line end with bracket?
-                if (Regex.IsMatch(curLineText, @"{\s*$"))
-                    e.Text += '\t'; // Add tab
+                    // Current line end with bracket?
+                    if (Regex.IsMatch(curLineText, @"{\s*$"))
+                        e.Text += "\t"; // Add tab
+                }
             }
         }
 
