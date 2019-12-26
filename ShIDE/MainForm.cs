@@ -526,15 +526,15 @@ namespace ShIDE
 
         private void registerWindowsExplorerContextMenuToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Microsoft.Win32.RegistryKey key;
-            key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software");
-
-            key = key.OpenSubKey("Classes");
-            key = key.OpenSubKey("directory");
-            key = key.OpenSubKey("shell");
-
+            Microsoft.Win32.RegistryKey key = null;
             try
             {
+                key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software");
+
+                key = key.OpenSubKey("Classes");
+                key = key.OpenSubKey("directory");
+                key = key.OpenSubKey("shell");
+
                 key = key.CreateSubKey("ShIDE");
                 key.SetValue("", "Open with ShIDE");
                 key.SetValue("command", Assembly.GetExecutingAssembly().Location);
@@ -543,9 +543,10 @@ namespace ShIDE
             catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("You have to run ShIDE as Administrator to register this");
+            } finally
+            {
+                key.Close();
             }
-
-            key.Close();
         }
     }
 }

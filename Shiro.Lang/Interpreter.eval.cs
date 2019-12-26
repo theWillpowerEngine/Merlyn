@@ -243,13 +243,13 @@ namespace Shiro
                     }
                     return new Token(filteredItems.ToArray());
 
-                case "map":
+                case "apply":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of parameters to keyword 'map', expected 2");
+                        Error("Wrong number of parameters to keyword 'apply', expected 2");
                     toke = list[2].Eval(this);
 
                     if (!toke.IsParent)
-                        Error("Map can only operate on a list");
+                        Error("apply can only operate on a list");
 
                     var mappedItems = new List<Token>();
                     foreach (var t in toke.Children)
@@ -262,13 +262,13 @@ namespace Shiro
                     }
                     return new Token(mappedItems);
 
-                case "apply":
+                case "map":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of parameters to keyword 'apply', expected 2");
+                        Error("Wrong number of parameters to keyword 'map', expected 2");
                     toke = list[2].Eval(this);
 
                     if (!toke.IsParent)
-                        Error("Apply can only operate on a list");
+                        Error("map can only operate on a list");
 
                     foreach (var t in toke.Children)
                     {
@@ -633,6 +633,8 @@ namespace Shiro
                     toke = list[1].Eval(this);
                     s1 = toke.ToString();
                     if (Symbols.FuncExists(s1))
+                        return Token.True;
+                    if (toke.IsFunction)
                         return Token.True;
                     return Token.False;
 

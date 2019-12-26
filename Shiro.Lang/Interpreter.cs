@@ -113,6 +113,9 @@ namespace Shiro
                     else
                         json += ")";
                 }
+                else if (c == '\"' && depthCount > 0)
+                    json += "\\\"";
+
                 else
                     json += c;
             }

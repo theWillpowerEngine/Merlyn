@@ -5,6 +5,7 @@
     (defn assert-eq (t1 t2 s) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}"%n` "")))
     (defn assert-throws (f s) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
     (defn assert-fails (f s) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
+    (defn assert-works (f s) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` "")))
 
     ;basic bools
     (assert true "Ok, it's a start")
@@ -37,10 +38,10 @@
     (assert (list? $l) "lists are lists")
     (assert-eq 2 (nth 2 $l) "nth works")
     (assert-eq '(3 4 5) (range 3 3 $l) "range works")
-	(assert-eq '(4 5 6) (map (=> v (+ $v 1)) (range 3 3 $l)) "map works")
+	(assert-eq '(4 5 6) (apply (=> v (+ $v 1)) (range 3 3 $l)) "map works")
 
 	(sod l2 '())
-    (assert-eq '(3 4 5) (apply (=> v (do 
+    (assert-eq '(3 4 5) (map (=> v (do 
         (set l2 (concat $l2 (+ $v 1)))
         (+ $v 1))
     ) (range 3 3 $l)) "apply works")
@@ -81,5 +82,8 @@
     (assert-fails (=> ((+ 1 2) (+ 3 4))) 'sibling paired list fails (and also try works)')
     
     (assert-eq 3 (catch (+ 1 1) 'blah blah' (+ 1 $result)) 'checking result variable in finally')
+
+    ;bug-fix test cases
+    (assert-works (=> (sod o {say-hi: (=> (print "hello nurse"))})) "double-quotes in inline object bug")
 
     (print 'Test run complete'))
