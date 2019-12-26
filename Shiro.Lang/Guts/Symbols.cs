@@ -15,6 +15,8 @@ namespace Shiro.Guts
         private readonly Dictionary<string, Token> LetTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Token>> AutoSymbols = new Dictionary<string, Func<Token>>();
 
+        private readonly Dictionary<string, Token> Implementers = new Dictionary<string, Token>();
+
         private readonly Dictionary<string, Token> FunctionTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Interpreter, Token, Token>> AutoFunctions = new Dictionary<string, Func<Interpreter, Token, Token>>();
 
@@ -71,6 +73,30 @@ namespace Shiro.Guts
             var removeThese = LetTable.Keys.Where(k => LetTable[k].LetTableId == letId).ToArray().ToList();
             foreach (var key in removeThese)
                 LetTable.Remove(key);
+        }
+
+        public Token GetImplementer(string name)
+        {
+            if (Implementers.ContainsKey(name))
+                return Implementers[name];
+
+            Interpreter.Error("Attempt to get non-existant implementer: " + name);
+            return Token.Nil;
+        }
+
+        public bool CanGetImplementer(string name)
+        {
+            if (Implementers.ContainsKey(name))
+                return true;
+            return false;
+        }
+
+        public void SetImplementer(string name, Token val)
+        {
+            if (!Implementers.ContainsKey(name))
+                Implementers.Add(name, val);
+            else
+                Implementers[name] = val;
         }
 
         public bool FuncExists(string name)

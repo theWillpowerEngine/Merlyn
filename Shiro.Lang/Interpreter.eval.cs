@@ -496,6 +496,46 @@ namespace Shiro
                         return new Token(new Token(s1, toke.Toke));
                 #endregion
 
+                #region Implementers and Mixins
+                case "impl":
+                case "implementer":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'implementer', expected 2");
+                    if (list[1].IsParent)
+                        Error("First argument to 'implementer' must be a name, not any kind of list");
+                    s1 = list[1].Toke.ToString();
+
+                    toke = list[2].Eval(this);
+                    if (!toke.IsObject)
+                        Error("Second parameter to implementer must be an object, not: " + toke.ToString());
+
+                    Symbols.SetImplementer(s1, toke);
+                    return lastVal;
+
+                case "mixin":
+                    if (!list.ValidateParamCount(2, true))
+                        Error("Wrong number of parameters to keyword 'mixin', expected at least 2");
+
+                    toke = toke2 = list[list.Count - 1].Eval(this);
+                    List<string> mixins = new List<string>();
+
+                    for (i = 1; i < list.Count-1; i++)
+                    {
+                        var mixin = list[i];
+                        if (mixin.IsParent)
+                            Error("All parameters but the last to 'mixin' must be the names of implementers");
+
+                        s1 = mixin.ToString();
+                        if (!Symbols.CanGetImplementer(s1))
+                            Error("Can't find implementer " + s1);
+
+                        mixins.Add(s1);
+                    }
+
+                    return MiscHelper.MixIn(this, toke, mixins.ToArray());
+
+                #endregion
+
                 #region Variables
 
                 case "def":

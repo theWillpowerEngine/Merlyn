@@ -75,5 +75,23 @@ namespace Shiro.Guts
 
             return retVal.ToString();
         }
+
+        internal static Token MixIn(Interpreter shiro, Token toke, string[] mixins)
+        {
+            var retVal = toke.Clone();
+
+            foreach(var name in mixins)
+            {
+                var mixin = shiro.Symbols.GetImplementer(name);
+                foreach(var prop in mixin.Children)
+                {
+                    var pn = prop.Name;
+                    if (!retVal.Children.HasProperty(pn))
+                        retVal.Children.AddProperty(pn, mixin.Children.GetProperty(pn).Clone());
+                }
+            }
+
+            return retVal;
+        }
     }
 }
