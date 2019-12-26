@@ -79,5 +79,7 @@
     (assert (= $dingleberry 666) 'try catches shiro exceptions 2')
     
     (assert-fails (=> ((+ 1 2) (+ 3 4))) 'sibling paired list fails (and also try works)')
+    
+    (assert-eq 3 (catch (+ 1 1) 'blah blah' (+ 1 $result)) 'checking result variable in finally')
 
     (print 'Test run complete'))

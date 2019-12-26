@@ -769,6 +769,8 @@ namespace Shiro
                     try
                     {
                         toke = toke.Eval(this);
+                        if (toke.IsFunction && toke.Params.Count == 0)
+                            toke = toke.EvalLambda(this);
                     } 
                     catch(ShiroException shex)
                     {
@@ -780,7 +782,13 @@ namespace Shiro
                     finally
                     {
                         if (finBlock != null)
+                        {
+                            letId = Guid.NewGuid();
+                            Symbols.Let("result", toke, letId);
+                            toke = list[2].Eval(this);
                             toke = finBlock.Eval(this);
+                            Symbols.ClearLetId(letId);
+                        }
                     }
                     return toke;
 
@@ -793,6 +801,9 @@ namespace Shiro
                     try
                     {
                         toke = toke.Eval(this);
+                        if (toke.IsFunction && toke.Params.Count == 0)
+                            toke = toke.EvalLambda(this);
+
                     }
                     catch (Exception ex)
                     {
@@ -804,11 +815,16 @@ namespace Shiro
                     finally
                     {
                         if (finBlock2 != null)
+                        {
+                            letId = Guid.NewGuid();
+                            Symbols.Let("result", toke, letId);
+                            toke = list[2].Eval(this);
                             toke = finBlock2.Eval(this);
+                            Symbols.ClearLetId(letId);
+                        }
                     }
                     return toke;
-
-
+                    
                 case "do":
 					for(i =1; i<list.Count;i++)
 					{
