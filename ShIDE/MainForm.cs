@@ -213,7 +213,7 @@ namespace ShIDE
                 var curLineText = editor.Lines[curLine].Text;
 
                 if (curLineText.Trim() == "")
-                    e.Text += curLineText;
+                    e.Text += curLineText.TrimEnd('\r', '\n');
                 else {
                     var indent = Regex.Match(curLineText, @"^\s*");
                     e.Text += indent.Value; // Add indent following "\r\n"
