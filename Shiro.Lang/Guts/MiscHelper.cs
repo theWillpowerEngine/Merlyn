@@ -93,5 +93,30 @@ namespace Shiro.Guts
 
             return retVal;
         }
+
+        internal static Token DoesItQuack(Token checkThis, Token mixin)
+        {
+            if (!checkThis.IsParent)
+                Interpreter.Error("Can't check to see if '" + checkThis.ToString() + "' implements anything because it's not a list");
+
+            foreach (var prop in mixin.Children)
+            {
+                var pn = prop.Name;
+                if (!checkThis.Children.HasProperty(pn))
+                    return Token.False;
+
+                var node = mixin.Children.GetProperty(pn);
+                var ctNode = checkThis.Children.GetProperty(pn);
+                if (node.IsFunction) {
+                    if(!ctNode.IsFunction)
+                        return Token.False;
+
+                    if (node.Params.Count != ctNode.Params.Count)
+                        return Token.False;
+                }
+            }
+
+            return Token.True;
+        }
     }
 }

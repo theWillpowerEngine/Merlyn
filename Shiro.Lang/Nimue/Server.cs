@@ -106,7 +106,7 @@ namespace Shiro.Nimue
 				{
 					shiro.Symbols.Let(Symbols.AutoVars.ConnectionId, new Token(con.ConnectionId.ToString()), letId);
 
-					if (ConType == ConnectionType.MUD)
+					if (ConType != ConnectionType.HTTP)
 						shiro.Symbols.Let(Symbols.AutoVars.TelnetInput, new Token(con.GetCommand()), letId);
 					else
 					{
@@ -165,15 +165,15 @@ namespace Shiro.Nimue
             }
         }
 
-        internal static void ListenForTelnet(Interpreter shiro, Token commandHandler, int port = 4676, Token connectHandler = null)
+        internal static void ListenForTelnetOrTcp(Interpreter s, Token commandHandler, int port = 4676, Token connectHandler = null, bool isTcp = false)
         {
-            ConType = ConnectionType.MUD;
+            ConType = isTcp ? ConnectionType.TCP : ConnectionType.MUD;
             Port = port;
             HandlerToken = commandHandler;
             ConnectHandlerToken = connectHandler;
 
             lock(Locks.ShiroLock)
-                shiro = shiro;
+                shiro = s;
 
             Serving = true;
             
@@ -210,7 +210,7 @@ namespace Shiro.Nimue
             }
         }
 
-        internal static void ListenForHttp(Interpreter shiro, Token commandHandler, int port = 8088)
+        internal static void ListenForHttp(Interpreter s, Token commandHandler, int port = 8088)
         {
             ConType = ConnectionType.HTTP;
             Port = port;
@@ -218,7 +218,7 @@ namespace Shiro.Nimue
             ConnectHandlerToken = null;
 
             lock (Locks.ShiroLock)
-                shiro = shiro;
+                shiro = s;
 
             Serving = true;
 

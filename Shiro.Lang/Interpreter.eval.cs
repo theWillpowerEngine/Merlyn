@@ -531,8 +531,20 @@ namespace Shiro
 
                         mixins.Add(s1);
                     }
-
                     return MiscHelper.MixIn(this, toke, mixins.ToArray());
+
+                case "impl?":
+                case "quack?":      //lol
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'impl?', expected 2");
+
+                    toke = list[1].Eval(this);
+                    s1 = list[2].Eval(this).ToString();
+
+                    if (!Symbols.CanGetImplementer(s1))
+                        Error("impl? called with unknown implementer " + s1);
+
+                    return MiscHelper.DoesItQuack(toke, Symbols.GetImplementer(s1));
 
                 #endregion
 
@@ -728,6 +740,8 @@ namespace Shiro
                     if (Symbols.CanGet(s1))
                         return Token.True;
                     if (Symbols.FuncExists(s1))
+                        return Token.True;
+                    if (Symbols.CanGetImplementer(s1))
                         return Token.True;
                     return Token.False;
 
@@ -1137,7 +1151,7 @@ namespace Shiro
 
                 #endregion
 
-                #region Telnet
+                #region Telnet/TCP
 
                 case "telnet":
 					if (Server.Serving)
@@ -1159,10 +1173,45 @@ namespace Shiro
                         if (!conToke.IsParent)
                             conToke = conToke.Eval(this);
 
-                        Server.ListenForTelnet(this, toke, (int)l, conToke);
+                        Server.ListenForTelnetOrTcp(this, toke, (int)l, conToke);
                     }
                     else
-                        Server.ListenForTelnet(this, toke, (int)l);
+                        Server.ListenForTelnetOrTcp(this, toke, (int)l);
+
+                    i = 100;        //1 second total retry time
+                    while (null == (toke = Server.Result) && i-- > 0)
+                        Thread.Sleep(10);
+
+                    if (toke == null)
+                        Error("There was a problem getting the result of the last server run");
+
+                    Server.Result = null;
+                    return toke;
+
+                case "tcp":
+                    if (Server.Serving)
+                        Error("Can't start a tcp server while already serving something");
+                    if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
+                        Error("Wrong number of parameters to keyword 'tcp', expected 2 or 3");
+                    toke = list[1].Eval(this);
+                    if (!toke.IsNumeric)
+                        Error("First argument to tcp command must be a port number");
+
+                    l = (long)toke.Toke;   //l is now port number
+                    toke = list[2];
+                    if (!toke.IsParent)
+                        toke = toke.Eval(this);
+
+                    if (list.Count == 4)
+                    {
+                        var conToke = list[3];
+                        if (!conToke.IsParent)
+                            conToke = conToke.Eval(this);
+
+                        Server.ListenForTelnetOrTcp(this, toke, (int)l, conToke, true);
+                    }
+                    else
+                        Server.ListenForTelnetOrTcp(this, toke, (int)l, null, true);
 
                     i = 100;        //1 second total retry time
                     while (null == (toke = Server.Result) && i-- > 0)
@@ -1187,8 +1236,8 @@ namespace Shiro
                 case "sendall":
                     if (!Server.Serving)
                         Error("Cannot use 'sendAll' keyword when we are not acting as a network server");
-                    if (Server.ConType != ConnectionType.MUD)
-                        Error("The 'sendAll' keyword can only be used in a telnet server context");
+                    if (Server.ConType != ConnectionType.MUD && Server.ConType != ConnectionType.TCP)
+                        Error("The 'sendAll' keyword can only be used in a telnet or TCP server context");
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'sendAll', expected 1");
 
@@ -1199,8 +1248,8 @@ namespace Shiro
                 case "sendto":
                     if (!Server.Serving)
                         Error("Cannot use 'sendTo' keyword when we are not acting as a network server");
-                    if (Server.ConType != ConnectionType.MUD)
-                        Error("The 'sendTo' keyword can only be used in a telnet server context");
+                    if (Server.ConType != ConnectionType.MUD && Server.ConType != ConnectionType.TCP)
+                        Error("The 'sendTo' keyword can only be used in a telnet or tcp server context");
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'sendTo', expected 2");
 

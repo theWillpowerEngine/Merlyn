@@ -11,7 +11,8 @@ namespace Shiro.Nimue
     internal enum ConnectionType
     {
         MUD = 0,
-        HTTP = 1
+        HTTP = 1,
+        TCP = 2
     }
 
 
@@ -52,6 +53,9 @@ namespace Shiro.Nimue
                 if (ConType == ConnectionType.HTTP)
                     return InputBuffer.Contains("\r") || InputBuffer.Contains("\n");        //TODO:  Something better (this just tells you if the headers are there)
 
+                if (ConType == ConnectionType.TCP)
+                    return !string.IsNullOrEmpty(InputBuffer);
+
                 return false;
             }
         }
@@ -87,7 +91,8 @@ namespace Shiro.Nimue
 
                 string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                 _inputBuffer += dataReceived;
-                _inputBuffer = ProcessBackspaces(_inputBuffer);
+                if(ConType == ConnectionType.MUD)
+                    _inputBuffer = ProcessBackspaces(_inputBuffer);
             }
         }
 
