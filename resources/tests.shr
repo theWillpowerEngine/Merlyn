@@ -83,6 +83,14 @@
     
     (assert-eq 3 (catch (+ 1 1) 'blah blah' (+ 1 $result)) 'checking result variable in finally')
 
+    ;objects and stuff
+    (sod o {name: 'steve', say-hi: (=> (`Hi {this.name}`)), with-parm: (=> s (`{$s}{this.name}`))})
+    (assert-eq 'Hi steve' o.say-hi 'this in object lambdas 1')
+    (assert-eq '1steve' (o.with-parm 1) 'this in object lambdas 3')
+    (.sod o name 'dan')
+    (assert-eq 'Hi dan' (.c $o say-hi ()) 'this in object lambdas 2')
+    (assert-eq 'blehdan' (.c $o with-parm 'bleh') 'this in object lambdas 4')
+
     ;bug-fix test cases
     (assert-works (=> (sod o {say-hi: (=> (print "hello nurse"))})) "double-quotes in inline object bug")
 

@@ -127,7 +127,7 @@ namespace Shiro
             return this;
         }
 
-        public Token EvalLambda(Interpreter shiro, params Token[] args)
+        public Token EvalLambda(Token thisToke, Interpreter shiro, params Token[] args)
         {
             if (!IsFunction) { 
                 Interpreter.Error("Attempted to evaluate something as a lambda that's not a lambda.  It was: " + ToString());
@@ -141,6 +141,9 @@ namespace Shiro
             int i = 0;
             foreach (var pn in Params)
                 shiro.Symbols.Let(pn, args[i++].Eval(shiro), letId);
+
+            if(thisToke != null)
+                shiro.Symbols.Let("this", thisToke, letId);
 
             var retVal = Eval(shiro);
             shiro.Symbols.ClearLetId(letId);

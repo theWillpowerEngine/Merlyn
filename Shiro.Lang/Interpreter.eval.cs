@@ -14,6 +14,8 @@ namespace Shiro
 {
     public partial class Interpreter
     {
+        private Token _bestGuessAtThisForLambda = null;
+
         public Token Eval(List<Token> list)
         {
             if (list == null || list.Count == 0)
@@ -43,7 +45,7 @@ namespace Shiro
             string s1 = "", s2 = "", name = "";
             List<string> ls = new List<string>();
             List<Token> ts = new List<Token>();
-            Token toke = null, request = null;
+            Token toke = null, request = null, toke2 = null;
 
             switch (list[0].Toke?.ToString()?.ToLower())
             {
@@ -288,7 +290,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '.', expected at least 2");
 
-                    toke = list[1].Eval(this);
+                    toke = toke2 = list[1].Eval(this);
 
                     for (i = 2; i < list.Count; i++)
                     {
@@ -300,11 +302,16 @@ namespace Shiro
                         if (toke.Children == null || !toke.Children.HasProperty(s1))
                             Error($"Cannot dereference property {s1} off {toke.ToString()}");
                         else
+                        {
+                            toke2 = toke;
                             toke = toke.Children.GetProperty(s1);
+                        }
                     }
 
                     if (toke.IsFunction && toke.Params.Count == 0)
-                        return toke.EvalLambda(this);
+                        return toke.EvalLambda(toke2, this);
+                    else
+                        _bestGuessAtThisForLambda = toke2;
                     return toke;
 
                 case ".s":
@@ -386,7 +393,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '.call', expected at least 2");
 
-                    toke = list[1].Eval(this);
+                    toke = toke2 = list[1].Eval(this);
 
                     for (i = 2; i < list.Count-1; i++)
                     {
@@ -398,7 +405,10 @@ namespace Shiro
                         if (toke.Children == null || !toke.Children.HasProperty(s1))
                             Error($"Cannot dereference property {s1} off {toke.ToString()}");
                         else
+                        {
+                            toke2 = toke;
                             toke = toke.Children.GetProperty(s1);
+                        }
                     }
 
                     if(!toke.IsFunction)
@@ -409,9 +419,9 @@ namespace Shiro
 
                     var argList = list[list.Count - 1];
                     if (argList.IsParent)
-                        return toke.EvalLambda(this, argList.Children.ToArray());
+                        return toke.EvalLambda(toke2, this, argList.Children.ToArray());
                     else
-                        return toke.EvalLambda(this, argList);
+                        return toke.EvalLambda(toke2, this, argList);
 
                 case ".d":
                 case ".def":
@@ -772,7 +782,7 @@ namespace Shiro
                     {
                         toke = toke.Eval(this);
                         if (toke.IsFunction && toke.Params.Count == 0)
-                            toke = toke.EvalLambda(this);
+                            toke = toke.EvalLambda(null, this);
                     } 
                     catch(ShiroException shex)
                     {
@@ -804,7 +814,7 @@ namespace Shiro
                     {
                         toke = toke.Eval(this);
                         if (toke.IsFunction && toke.Params.Count == 0)
-                            toke = toke.EvalLambda(this);
+                            toke = toke.EvalLambda(null, this);
 
                     }
                     catch (Exception ex)
@@ -939,7 +949,7 @@ namespace Shiro
                             if (list[i].Params.Count != 1)
                                 Error("Anonymous Function passed as a potential route must take only a single parameter.  My best attempt to render the offending lambda is: " + list[i].ToString());
 
-                            var lr = list[i].EvalLambda(this, request.Children.GetProperty("url"));
+                            var lr = list[i].EvalLambda(null, this, request.Children.GetProperty("url"));
                             if (lr.IsTrue)
                                 return list[i + 1].Eval(this);
                         }
@@ -949,7 +959,7 @@ namespace Shiro
                             if(!iHopeThisIsALambdaYouTool.IsFunction)
                                 Error("You passed a list as a potential route, it has to be a string or a lambda");
                             
-                            var lr = iHopeThisIsALambdaYouTool.EvalLambda(this, request.Children.GetProperty("url"));
+                            var lr = iHopeThisIsALambdaYouTool.EvalLambda(null, this, request.Children.GetProperty("url"));
                             if (lr.IsTrue)
                                 return list[i + 1].Eval(this);
                         }
@@ -1194,17 +1204,22 @@ namespace Shiro
 
                 default:
                     if (list[0].IsFunction)
-                        return list[0].EvalLambda(this, list.Quote().ToArray());
+                    {
+                        var retVal = list[0].EvalLambda(_bestGuessAtThisForLambda, this, list.Quote().ToArray());
+                        _bestGuessAtThisForLambda = null;
+                        return retVal;
+                    }
                     else if (Symbols.FuncExists(s1 = list[0]?.Toke?.ToString()))
                         return Symbols.CallFunc(s1, this, list.Quote().ToArray());
-                    else if(Symbols.CanGet(s1))
+                    else if (Symbols.CanGet(s1))
                     {
                         var hopefulLambda = Symbols.Get(s1);
                         if (hopefulLambda.IsFunction)
-                            return hopefulLambda.EvalLambda(this, list.Quote().ToArray());
+                            return hopefulLambda.EvalLambda(null, this, list.Quote().ToArray());
                         else
                             return hopefulLambda;
-                    } else 
+                    }
+                    else
                         Error("Unknown keyword/function: " + list[0].Toke);
                     break;
             }
