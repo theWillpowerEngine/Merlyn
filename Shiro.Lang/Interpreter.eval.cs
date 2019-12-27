@@ -14,7 +14,7 @@ namespace Shiro
 {
     public partial class Interpreter
     {
-        private Token _bestGuessAtThisForLambda = null;
+        private Token _bestGuessAtThisForLambda = null;     //I have a feeling let-scopes just "make this work" but I also have a feeling my initial feeling is wrong.
 
         public Token Eval(List<Token> list)
         {
@@ -1267,6 +1267,16 @@ namespace Shiro
                 #endregion
 
                 #region Misc
+
+                case "len":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'len', expected 1");
+
+                    toke = list[1].Eval(this);
+
+                    if (toke.IsParent)
+                        return new Token(toke.Children.Count.ToString());
+                    return new Token(toke.ToString().Length.ToString());
 
                 case "nop":
                     Output("No Op encountered" + Environment.NewLine);

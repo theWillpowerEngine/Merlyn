@@ -51,7 +51,7 @@ namespace Shiro.Guts
             return false;
         }
 
-        public void Set(string name, Token val)
+		public void Set(string name, Token val)
         {
             if (!SymbolTable.ContainsKey(name))
                 SymbolTable.Add(name, val);
@@ -156,6 +156,19 @@ namespace Shiro.Guts
                 ClearLetId(letId);
                 return retVal;
             }
+        }
+
+        internal string GetFunctionsForAutoComplete()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var f in FunctionTable.Keys)
+                sb.Append(f + " ");
+
+            foreach (var f in AutoFunctions.Keys)
+                sb.Append(f + " ");
+
+            return sb.ToString().Trim();
         }
 
         public Symbols(Interpreter shiro)

@@ -12,7 +12,7 @@ namespace Shiro
 {
     public partial class Interpreter
     {
-        public static string Version = "0.2.2";
+        public static string Version = "0.2.3";
         internal Symbols Symbols;
         internal Loader Loader = new Loader();
 
@@ -59,6 +59,11 @@ namespace Shiro
         public bool IsVariableName(string name)
         {
             return Symbols.CanGet(name);
+        }
+
+        public string GetFunctionsForAutoComplete()
+        {
+            return Symbols.GetFunctionsForAutoComplete();
         }
 
         #region "Reader" (somewhere a LISP purist just threw up in their mouth and doesn't know why)

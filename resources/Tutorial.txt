@@ -369,6 +369,7 @@ keywords:
 	contains
 	upper / lower
 	split
+	len					;works with lists or strings
 
 	=>/fn				; (=> (args) (body))				;can leave out args
 	catch/throw			(catch (body) (catch) (finally))		;catch only catches thrown things

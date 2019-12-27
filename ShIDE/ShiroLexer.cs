@@ -171,7 +171,7 @@ namespace ShIDE
         private static string keywordString;
         internal static string GetAutoCompleteItems()
         {
-            return keywordString;
+            return keywordString +" " + Shiro.GetFunctionsForAutoComplete();
         }
     }
 }
