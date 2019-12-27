@@ -11,7 +11,7 @@ namespace math
 			shiro.RegisterAutoFunction("sqrt", (i, toke) =>
 			{
 				var t = toke.Children[0];
-				if (!t.IsNumeric)
+                if (!t.IsNumeric)
 					Interpreter.Error("sqrt function requires a numeric value, not " + t.ToString());
 
 				if (t.Toke is long)
@@ -22,6 +22,22 @@ namespace math
 				Interpreter.Error("Internal error in sqrt -- there must be a new numeric type that I didn't handle.");
 				return Token.Nil;
 			});
-		}
+
+            shiro.RegisterAutoFunction("abs", (i, toke) =>
+            {
+                var t = toke.Children[0];
+                if (!t.IsNumeric)
+                    Interpreter.Error("abs function requires a numeric value, not " + t.ToString());
+
+                if (t.Toke is long)
+                    return new Token(Math.Abs((long)t.Toke).ToString());
+                if (t.Toke is decimal)
+                    return new Token(Math.Abs((double)((decimal)t.Toke)).ToString());
+
+                Interpreter.Error("Internal error in abs-- there must be a new numeric type that I didn't handle.");
+                return Token.Nil;
+            });
+
+        }
 	}
 }

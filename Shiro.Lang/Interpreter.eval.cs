@@ -1268,6 +1268,38 @@ namespace Shiro
 
                 #region Misc
 
+                case "await":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'await', expected 2");
+
+                    s1 = list[1].ToString();
+                    toke = list[2];
+                    
+                    if (!toke.IsParent)
+                        Error("await's second parameter must be a list, not " + toke.ToString());
+
+                    Interpreter threadedInterpreter = new Interpreter(Symbols);
+                    Symbols.BeginAwaiting(s1);
+
+                    var tst = new ThreadStart(() =>
+                    {
+                        Token res;
+                        try
+                        {
+                            res = threadedInterpreter.Eval(toke.Children);
+                            Symbols.Deliver(s1, res);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Error(ex.Message);
+                        }
+
+                    });
+
+                    new Thread(tst).Start();
+                    return Token.Nil;
+
                 case "len":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'len', expected 1");

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Shiro.Nimue;
 
@@ -9,7 +10,7 @@ namespace Shiro.Guts
 {
     internal class Symbols
     {
-        private Interpreter _merp;
+        private Interpreter _shiro;
 
         private readonly Dictionary<string, Token> SymbolTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Token> LetTable = new Dictionary<string, Token>();
@@ -20,11 +21,33 @@ namespace Shiro.Guts
         private readonly Dictionary<string, Token> FunctionTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Interpreter, Token, Token>> AutoFunctions = new Dictionary<string, Func<Interpreter, Token, Token>>();
 
+        internal bool IsAwaiting => SymbolTable.Values.Any(t => t.IsBeingAwaited);
+
         internal static class AutoVars
         {
             internal static string ConnectionId = "id";
             internal static string TelnetInput = "input";
             internal static string HttpRequest = "request";
+        }
+
+        internal void CloneFrom(Symbols s)
+        {
+            foreach (var key in s.SymbolTable.Keys)
+                SymbolTable.Add(key, s.SymbolTable[key].Clone());
+            foreach (var key in s.LetTable.Keys)
+                LetTable.Add(key, s.LetTable[key].Clone());
+            foreach (var key in s.AutoSymbols.Keys)
+                if(!AutoSymbols.ContainsKey(key))
+                    AutoSymbols.Add(key, s.AutoSymbols[key]);
+
+            foreach (var key in s.Implementers.Keys)
+                Implementers.Add(key, s.Implementers[key].Clone());
+
+            foreach (var key in s.FunctionTable.Keys)
+                FunctionTable.Add(key, s.FunctionTable[key].Clone());
+            foreach (var key in s.AutoFunctions.Keys)
+                if (!AutoFunctions.ContainsKey(key))
+                    AutoFunctions.Add(key, s.AutoFunctions[key]);
         }
 
         public Token Get(string name)
@@ -34,7 +57,20 @@ namespace Shiro.Guts
             if (LetTable.ContainsKey(name))
                 return LetTable[name];
             if (SymbolTable.ContainsKey(name))
+            {
+                var awaiting = SymbolTable[name].IsBeingAwaited;
+                while(awaiting)
+                {
+                    Thread.Sleep(10);
+                    lock(SymbolTable[name])
+                    {
+                        awaiting = SymbolTable[name].IsBeingAwaited;
+                    }
+                }
+
                 return SymbolTable[name];
+            }
+                
 
             Interpreter.Error("Attempt to get value of non-existant variable: " + name);
             return Token.Nil;
@@ -173,10 +209,25 @@ namespace Shiro.Guts
 
         public Symbols(Interpreter shiro)
         {
-            _merp = shiro;
+            _shiro = shiro;
 
             AutoSymbols.Add("MerVer", () => new Token(Interpreter.Version));
             AutoSymbols.Add("IsServing", () => Server.Serving ? Token.True : Token.False);
+        }
+
+        internal void BeginAwaiting(string s1)
+        {
+            var val = Token.Nil.Clone();
+            val.IsBeingAwaited = true;
+            Set(s1, val);
+        }
+
+        internal void Deliver(string s1, Token res)
+        {
+            lock(SymbolTable[s1])
+            {
+                SymbolTable[s1] = res;
+            }
         }
     }
 }

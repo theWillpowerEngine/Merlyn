@@ -75,6 +75,8 @@ namespace Shiro
         public Guid LetTableId = Guid.Empty;
         public List<string> Params = null;
 
+        public bool IsBeingAwaited = false;
+
         public bool IsParent => Children != null;
         public bool IsNil => (Children == null && (Toke == null || (Toke is Token && (Toke as Token).IsNil)));
         public bool IsNumeric => Toke is long || Toke is decimal;
@@ -98,7 +100,7 @@ namespace Shiro
             if (IsParent)
                 return new Token(name ?? Name, Children)
                 {
-                    Params = Params
+                    Params = Params     //Don't clone IsBeingAwaited because only one of them is getting delivered
                 };
             else
                 return new Token(name ?? Name, Toke);

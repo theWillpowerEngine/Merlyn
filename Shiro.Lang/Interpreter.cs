@@ -12,13 +12,18 @@ namespace Shiro
 {
     public partial class Interpreter
     {
-        public static string Version = "0.2.3";
+        public static string Version = "0.2.4";
         internal Symbols Symbols;
         internal Loader Loader = new Loader();
 
         public Interpreter()
         {
             Symbols = new Symbols(this);
+        }
+        internal Interpreter(Symbols s)
+        {
+            Symbols = new Symbols(this);
+            Symbols.CloneFrom(s);
         }
 
         public static Action<string> Error = (msg) =>

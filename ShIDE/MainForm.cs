@@ -16,7 +16,7 @@ namespace ShIDE
 {
     public partial class MainForm : Form
     {
-        internal static MainForm ActiveForm;
+        internal static MainForm CurrentForm;
 
         public static Interpreter Shiro;
         private static object ShiroLock = new object();
@@ -26,7 +26,7 @@ namespace ShIDE
             InitializeComponent();
         }
 
-        private ShiroLexer Lexer = new ShiroLexer("len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
+        private ShiroLexer Lexer = new ShiroLexer("await len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
         private bool Inputting = false;
         private string Input = "";
 
@@ -55,6 +55,7 @@ namespace ShIDE
                     catch (Exception ex)
                     {
                         SafeError(ex.Message);
+                        cb(null);
                     }
 
                 });
@@ -411,7 +412,7 @@ namespace ShIDE
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            ActiveForm = this;
+            CurrentForm = this;
             Interpreter.Output = s =>
             {
                 SafeWrite(s);
