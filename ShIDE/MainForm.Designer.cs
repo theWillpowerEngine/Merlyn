@@ -34,7 +34,6 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.openMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.openFolder = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,6 +45,13 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.showAutocompleteMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.navigateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nextListMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.prevListMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.nextListSelectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.previousListSelectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.endOfListMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectToEOLMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registerWindowsExplorerContextMenuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -98,7 +104,6 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newMenu,
             this.openMenu,
-            this.openFolder,
             this.saveMenu,
             this.saveAsMenu});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -109,7 +114,7 @@
             // 
             this.newMenu.Name = "newMenu";
             this.newMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newMenu.Size = new System.Drawing.Size(214, 22);
+            this.newMenu.Size = new System.Drawing.Size(146, 22);
             this.newMenu.Text = "&New";
             this.newMenu.Click += new System.EventHandler(this.newMenu_Click);
             // 
@@ -117,31 +122,22 @@
             // 
             this.openMenu.Name = "openMenu";
             this.openMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openMenu.Size = new System.Drawing.Size(214, 22);
+            this.openMenu.Size = new System.Drawing.Size(146, 22);
             this.openMenu.Text = "&Open";
             this.openMenu.Click += new System.EventHandler(this.openMenu_Click);
-            // 
-            // openFolder
-            // 
-            this.openFolder.Name = "openFolder";
-            this.openFolder.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.O)));
-            this.openFolder.Size = new System.Drawing.Size(214, 22);
-            this.openFolder.Text = "Open &Folder";
-            this.openFolder.Click += new System.EventHandler(this.openFolder_Click);
             // 
             // saveMenu
             // 
             this.saveMenu.Name = "saveMenu";
             this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveMenu.Size = new System.Drawing.Size(214, 22);
+            this.saveMenu.Size = new System.Drawing.Size(146, 22);
             this.saveMenu.Text = "&Save";
             this.saveMenu.Click += new System.EventHandler(this.saveMenu_Click);
             // 
             // saveAsMenu
             // 
             this.saveAsMenu.Name = "saveAsMenu";
-            this.saveAsMenu.Size = new System.Drawing.Size(214, 22);
+            this.saveAsMenu.Size = new System.Drawing.Size(146, 22);
             this.saveAsMenu.Text = "Save &As...";
             this.saveAsMenu.Click += new System.EventHandler(this.saveAsMenu_Click);
             // 
@@ -212,9 +208,73 @@
             // 
             // navigateToolStripMenuItem
             // 
+            this.navigateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.nextListMenu,
+            this.prevListMenu,
+            this.nextListSelectionMenu,
+            this.previousListSelectionMenu,
+            this.endOfListMenu,
+            this.selectToEOLMenu,
+            this.toolStripMenuItem2});
             this.navigateToolStripMenuItem.Name = "navigateToolStripMenuItem";
             this.navigateToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
             this.navigateToolStripMenuItem.Text = "&Navigate";
+            // 
+            // nextListMenu
+            // 
+            this.nextListMenu.Name = "nextListMenu";
+            this.nextListMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+            this.nextListMenu.Size = new System.Drawing.Size(273, 22);
+            this.nextListMenu.Text = "Go to &Next List";
+            this.nextListMenu.Click += new System.EventHandler(this.nextListMenu_Click);
+            // 
+            // prevListMenu
+            // 
+            this.prevListMenu.Name = "prevListMenu";
+            this.prevListMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Q)));
+            this.prevListMenu.Size = new System.Drawing.Size(273, 22);
+            this.prevListMenu.Text = "Go to &Previous List";
+            this.prevListMenu.Click += new System.EventHandler(this.prevListMenu_Click);
+            // 
+            // nextListSelectionMenu
+            // 
+            this.nextListSelectionMenu.Name = "nextListSelectionMenu";
+            this.nextListSelectionMenu.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.E)));
+            this.nextListSelectionMenu.Size = new System.Drawing.Size(273, 22);
+            this.nextListSelectionMenu.Text = "Next List (selection)";
+            this.nextListSelectionMenu.Click += new System.EventHandler(this.nextListMenu_Click);
+            // 
+            // previousListSelectionMenu
+            // 
+            this.previousListSelectionMenu.Name = "previousListSelectionMenu";
+            this.previousListSelectionMenu.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.Q)));
+            this.previousListSelectionMenu.Size = new System.Drawing.Size(273, 22);
+            this.previousListSelectionMenu.Text = "Previous List (selection)";
+            this.previousListSelectionMenu.Click += new System.EventHandler(this.prevListMenu_Click);
+            // 
+            // endOfListMenu
+            // 
+            this.endOfListMenu.Name = "endOfListMenu";
+            this.endOfListMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
+            this.endOfListMenu.Size = new System.Drawing.Size(273, 22);
+            this.endOfListMenu.Text = "Go to &End of List";
+            this.endOfListMenu.Click += new System.EventHandler(this.endOfListMenu_Click);
+            // 
+            // selectToEOLMenu
+            // 
+            this.selectToEOLMenu.Name = "selectToEOLMenu";
+            this.selectToEOLMenu.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.W)));
+            this.selectToEOLMenu.Size = new System.Drawing.Size(273, 22);
+            this.selectToEOLMenu.Text = "Select to end of List";
+            this.selectToEOLMenu.Click += new System.EventHandler(this.endOfListMenu_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(270, 6);
             // 
             // optionsToolStripMenuItem
             // 
@@ -327,6 +387,7 @@
             this.editorTabs.Size = new System.Drawing.Size(873, 24);
             this.editorTabs.TabIndex = 1;
             this.editorTabs.SelectedIndexChanged += new System.EventHandler(this.editorTabs_SelectedIndexChanged);
+            this.editorTabs.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorTabs_MouseUp);
             // 
             // bottomTabs
             // 
@@ -413,8 +474,7 @@
             // openFileDialog
             // 
             this.openFileDialog.DefaultExt = "shr";
-            this.openFileDialog.FileName = "code";
-            this.openFileDialog.Filter = "Shiro Files|*.shr|Shiro Projects|*.shrp|Everything|*.*";
+            this.openFileDialog.Filter = "Shiro Files|*.shr*|Shiro Projects|*.shrp|Everything|*.*";
             // 
             // saveStateTimer
             // 
@@ -489,8 +549,14 @@
 		private System.Windows.Forms.ToolStripMenuItem navigateToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem registerWindowsExplorerContextMenuToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem openFolder;
 		private System.Windows.Forms.TreeView tree;
-	}
+        private System.Windows.Forms.ToolStripMenuItem nextListMenu;
+        private System.Windows.Forms.ToolStripMenuItem prevListMenu;
+        private System.Windows.Forms.ToolStripMenuItem nextListSelectionMenu;
+        private System.Windows.Forms.ToolStripMenuItem previousListSelectionMenu;
+        private System.Windows.Forms.ToolStripMenuItem endOfListMenu;
+        private System.Windows.Forms.ToolStripMenuItem selectToEOLMenu;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+    }
 }
 

@@ -26,7 +26,7 @@ namespace ShIDE
             InitializeComponent();
         }
 
-        private ShiroLexer Lexer = new ShiroLexer("await len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
+        private ShiroLexer Lexer = new ShiroLexer("awaith hermeticAwait await len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
         private bool Inputting = false;
         private string Input = "";
 
@@ -136,11 +136,15 @@ namespace ShIDE
             editor.Styles[Style.Default].BackColor = Color.FromArgb(25, 25, 25);
             editor.Styles[Style.Default].ForeColor = Color.Ivory;
 
+            editor.SetSelectionBackColor(true, Color.Ivory);
+            editor.SetSelectionForeColor(true, Color.FromArgb(25, 25, 25));
+
             editor.StyleClearAll();
 
-            editor.Styles[Style.BraceLight].BackColor = Color.LightGray;
-            editor.Styles[Style.BraceLight].ForeColor = Color.BlueViolet;
-            editor.Styles[Style.BraceBad].ForeColor = Color.Red;
+            editor.Styles[Style.BraceLight].BackColor = Color.BlueViolet;
+            editor.Styles[Style.BraceLight].ForeColor = Color.LightGray;
+            editor.Styles[Style.BraceBad].ForeColor = Color.Yellow;
+            editor.Styles[Style.BraceBad].BackColor = Color.Red;
 
             editor.Styles[ShiroLexer.StyleKeyword].ForeColor = Color.CornflowerBlue;
             editor.Styles[ShiroLexer.StyleString].ForeColor = Color.Cyan;
@@ -149,6 +153,8 @@ namespace ShIDE
             editor.Styles[ShiroLexer.StyleFunction].ForeColor = Color.LightSteelBlue;
             editor.Styles[ShiroLexer.StyleVariable].ForeColor = Color.OrangeRed;
         }
+
+        //Code Styling
         private void editor_StyleNeeded(object sender, StyleNeededEventArgs e)
         {
             //var startPos = editor.GetEndStyled();
@@ -174,6 +180,8 @@ namespace ShIDE
 
             return false;
         }
+
+        //Brace Matching
         private void editor_UpdateUI(object sender, UpdateUIEventArgs e)
         {
             var caretPos = editor.CurrentPosition;
@@ -206,6 +214,7 @@ namespace ShIDE
             }
         }
 
+        //Auto-indent
         private void editor_InsertCheck(object sender, InsertCheckEventArgs e)
         {
             if ((e.Text.EndsWith("\r") || e.Text.EndsWith("\n")))
@@ -226,13 +235,13 @@ namespace ShIDE
             }
         }
 
+        //Autocomplete trigger
         private void editor_CharAdded(object sender, CharAddedEventArgs e)
         {
             if (e.Char == '(')
                 if (!editor.AutoCActive)
                     editor.AutoCShow(0, ShiroLexer.GetAutoCompleteItems());
         }
-
         private void showAutocompleteMenu_Click(object sender, EventArgs e)
         {
             if (editor.AutoCActive)
@@ -251,65 +260,180 @@ namespace ShIDE
 
         #endregion
 
-        #region Document Management (editor tabs, save/load/new, etc.)
+        #region Code Navigation and Autocoding Stuff
 
-        private void ListDirectory(TreeView treeView, string path)
+        private void prevListMenu_Click(object sender, EventArgs e)
         {
-            treeView.Nodes.Clear();
-            var rootDirectoryInfo = new DirectoryInfo(path);
-            treeView.Nodes.Add(CreateDirectoryNode(rootDirectoryInfo));
+            var startPos = editor.CurrentPosition -1;
+            for (var i = startPos; i >= 0; i--)
+                if (editor.Text[i] == '(')
+                {
+                    if (ModifierKeys == (Keys.Shift | Keys.Control))
+                        editor.CurrentPosition = i;
+                    else
+                        editor.CurrentPosition = editor.SelectionStart = i;
+                    break;
+                }
         }
 
-        private static TreeNode CreateDirectoryNode(DirectoryInfo directoryInfo)
+        private void nextListMenu_Click(object sender, EventArgs e)
         {
-            var directoryNode = new TreeNode(directoryInfo.Name);
-            foreach (var directory in directoryInfo.GetDirectories())
-                directoryNode.Nodes.Add(CreateDirectoryNode(directory));
-            foreach (var file in directoryInfo.GetFiles())
-                directoryNode.Nodes.Add(new TreeNode(file.Name));
+            var startPos = editor.CurrentPosition + 1;
+            for(var i=startPos; i<editor.Text.Length; i++)
+                if(editor.Text[i] == '(')
+                {
+                    if(ModifierKeys == (Keys.Shift | Keys.Control))
+                        editor.CurrentPosition = i;
+                    else
+                        editor.CurrentPosition = editor.SelectionStart = i;
+                    break;
+                }
+        }
+
+        private void endOfListMenu_Click(object sender, EventArgs e)
+        {
+            int depth = 0;
+            var startPos = editor.CurrentPosition + 1;
+            for (var i = startPos; i < editor.Text.Length; i++)
+            {
+                var c = editor.Text[i];
+                if (c == '(')
+                    depth += 1;
+
+                if(c == ')')
+                {
+                    if(depth == 0)
+                    {
+                        if (ModifierKeys == (Keys.Shift | Keys.Control))
+                            editor.CurrentPosition = i+1;
+                        else
+                            editor.CurrentPosition = editor.SelectionStart = i+1;
+                        break;
+                    }
+                    else
+                        depth -= 1;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Document Management (editor tabs, save/load/new, etc.)
+
+        private void editorTabs_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                for (int i = 0; i < editorTabs.TabCount; i++)
+                {
+                    Rectangle r = editorTabs.GetTabRect(i);
+                    if (r.Contains(e.Location))
+                    {
+                        tabDocuments.Remove(editorTabs.TabPages[i].Text);
+                        savedDocuments.Remove(editorTabs.TabPages[i].Text);
+                        savedDocumentPaths.Remove(editorTabs.TabPages[i].Text);
+                        _previousTab = null;
+                        editorTabs.TabPages.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static TreeNode CreateProjectNode(string rootName, Token projectToken)
+        {
+            var directoryNode = new TreeNode(rootName);
+
+            foreach(var child in projectToken.Children[0].Children)
+            {
+                if(child.Children.HasProperty("path"))
+                {
+                    //It's a file
+                    var node = new TreeNode(child.Children.GetProperty("name").ToString());
+                    node.Tag = child.Children.GetProperty("path").ToString();
+                    directoryNode.Nodes.Add(node);
+                }
+                else
+                {
+                    //It's a folder
+                    var name = child.Children.GetProperty("name").ToString();
+                    directoryNode.Nodes.Add(CreateProjectNode(name, child.Children.GetProperty("files")));
+                }
+            }
+
+            //foreach (var directory in directoryInfo.GetDirectories())
+            //    directoryNode.Nodes.Add(CreateDirectoryNode(directory));
+
             return directoryNode;
         }
 
-        private void OpenFolder(string path)
+        private void OpenProject(string file)
         {
-            tree.Nodes.Add(CreateDirectoryNode(new DirectoryInfo(path)));
+            var content = File.ReadAllText(file);
+            var projectTree = Shiro.Eval(content);
+
+            if (!projectTree.Children.HasProperty("name") || !projectTree.Children.HasProperty("proj"))
+                MessageBox.Show("Invalid project file, missing name or project structure");
+            else
+            {
+                tree.Nodes.Clear();
+                tree.Nodes.Add(CreateProjectNode(projectTree.Children.GetProperty("name").ToString(), projectTree.Children.GetProperty("proj")));
+            }
         }
         internal void OpenFile(string file)
         {
-            var content = File.ReadAllText(file);
-
-            var tabName = Path.GetFileName(file);
-            savedDocuments.Add(tabName, content);
-            savedDocumentPaths.Add(tabName, file);
-
-            if (editorTabs.SelectedTab != null)
+            if (file.EndsWith(".shrp"))
+                OpenProject(file);
+            else
             {
-                var name = editorTabs.SelectedTab.Text;
-                tabDocuments[name] = editor.Document;
-                editor.AddRefDocument(tabDocuments[name]);
+                var content = File.ReadAllText(file);
+
+                var tabName = Path.GetFileName(file);
+                if (savedDocuments.ContainsKey(tabName))
+                {
+                    for(var i=0; i<editorTabs.TabPages.Count; i++)
+                    {
+                        if (editorTabs.TabPages[i].Text == tabName)
+                        {
+                            editorTabs.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                    return;
+                }
+                savedDocuments.Add(tabName, content);
+                savedDocumentPaths.Add(tabName, file);
+
+                if (editorTabs.SelectedTab != null)
+                {
+                    var name = editorTabs.SelectedTab.Text;
+                    tabDocuments[name] = editor.Document;
+                    editor.AddRefDocument(tabDocuments[name]);
+                }
+
+                editor.Document = Document.Empty;
+                editor.Text = content;
+                tabDocuments.Add(tabName, editor.Document);
+
+                editorTabs.TabPages.Add(new TabPage(tabName));
+                _previousTab = tabName;
+                _suppressTabChanged = true;
+                editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
+
+                saveStateTimer.Enabled = true;
             }
 
-            editor.Document = Document.Empty;
-            editor.Text = content;
-            tabDocuments.Add(tabName, editor.Document);
-
-            editorTabs.TabPages.Add(new TabPage(tabName));
-            _previousTab = tabName;
-            _suppressTabChanged = true;
-            editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
-
-            saveStateTimer.Enabled = true;
-        }
-
-        private void openFolder_Click(object sender, EventArgs e)
-        {
-
+            editor.Focus();
         }
 
         private void tree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             var node = e.Node;
-
+            var tag = node?.Tag?.ToString();
+            if(!string.IsNullOrEmpty(tag))
+            {
+                OpenFile(tag);
+            }
         }
 
         private string _previousTab = "new";
@@ -322,9 +446,15 @@ namespace ShIDE
                 return;
             }
 
+            if (editorTabs.SelectedTab == null)
+                return;
+
             var name = editorTabs.SelectedTab.Text;
-            tabDocuments[_previousTab] = editor.Document;
-            editor.AddRefDocument(tabDocuments[_previousTab]);
+            if (_previousTab != null)
+            {
+                tabDocuments[_previousTab] = editor.Document;
+                editor.AddRefDocument(tabDocuments[_previousTab]);
+            }
 
             editor.Document = tabDocuments[name];
             editor.ReleaseDocument(tabDocuments[name]);
@@ -334,9 +464,11 @@ namespace ShIDE
 
         private void newMenu_Click(object sender, EventArgs e)
         {
-            var name = editorTabs.SelectedTab.Text;
-            tabDocuments[name] = editor.Document;
-            editor.AddRefDocument(tabDocuments[name]);
+            var name = editorTabs?.SelectedTab?.Text;
+            if (name != null) { 
+                tabDocuments[name] = editor.Document;
+                editor.AddRefDocument(tabDocuments[name]);
+            }
 
             editor.Document = Document.Empty;
 
@@ -416,6 +548,17 @@ namespace ShIDE
             Interpreter.Output = s =>
             {
                 SafeWrite(s);
+            };
+            Interpreter.LoadModule = (m, s) => {
+                if (s.ToLower() == "shiro-project")
+                {
+                    if (!Shiro.IsFunctionName("sh-project"))
+                        new ShiroProject().RegisterAutoFunctions(Shiro);
+                }
+                else
+                    return Interpreter.DefaultModuleLoader(m, s);
+
+                return true;
             };
 
             cleanMenu_Click(null, null);

@@ -118,7 +118,7 @@ namespace Shiro
             return "nil";
         }
 
-        internal Token Eval(Interpreter shiro)
+        public Token Eval(Interpreter shiro)
         {
             if (IsParent)
             {

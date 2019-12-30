@@ -135,7 +135,12 @@ namespace Shiro
                 #region Tree/list manipulation
 
                 case "quote":
-                    return new Token(list.Quote())
+                    for (i = 1; i < list.Count; i++)
+                    {
+                        toke = list[i].Eval(this);
+                        ts.Add(toke);
+                    }
+                    return new Token(ts)
                     {
                         IsQuotedList = true
                     };
@@ -1298,6 +1303,39 @@ namespace Shiro
                     });
 
                     new Thread(tst).Start();
+                    return Token.Nil;
+
+                case "awaith":
+                case "hermeticawait":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'awaith', expected 2");
+
+                    s1 = list[1].ToString();
+                    toke = list[2];
+
+                    if (!toke.IsParent)
+                        Error("await's second parameter must be a list, not " + toke.ToString());
+
+                    Interpreter threadedInterpreter2 = new Interpreter();
+                    Symbols.BeginAwaiting(s1);
+
+                    var tst2 = new ThreadStart(() =>
+                    {
+                        Token res;
+                        try
+                        {
+                            res = threadedInterpreter2.Eval(toke.Children);
+                            Symbols.Deliver(s1, res);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Error(ex.Message);
+                        }
+
+                    });
+
+                    new Thread(tst2).Start();
                     return Token.Nil;
 
                 case "len":

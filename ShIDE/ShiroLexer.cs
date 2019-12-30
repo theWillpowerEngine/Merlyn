@@ -142,7 +142,7 @@ namespace ShIDE
                         {
                             var style = StyleDefault;
                             var identifier = scintilla.GetTextRange(startPos - length, length);
-                            if (keywords.Contains(identifier))
+                            if (keywords.Contains(identifier.ToLower()))
                                 style = StyleKeyword;
                             if (Shiro.IsFunctionName(identifier))
                                 style = StyleFunction;
@@ -164,14 +164,14 @@ namespace ShIDE
         public ShiroLexer(string keywords)
         {
             keywordString = keywords;
-            var list = Regex.Split(keywords ?? string.Empty, @"\s+").Where(l => !string.IsNullOrEmpty(l));
+            var list = Regex.Split(keywords ?? string.Empty, @"\s+").Where(l => !string.IsNullOrEmpty(l)).Select(s => s.ToLower());
             this.keywords = new HashSet<string>(list);
         }
 
         private static string keywordString;
         internal static string GetAutoCompleteItems()
         {
-            return keywordString +" " + Shiro.GetFunctionsForAutoComplete();
+            return keywordString + " " + Shiro.GetFunctionsForAutoComplete();
         }
     }
 }

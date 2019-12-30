@@ -363,6 +363,8 @@ keywords:
 	apply				;works like map but returns the original, unmunged list
 	kw / params
 	nth / range
+	await
+	awaith / hermetic-await
 
 	while				; (while (condition) (action))
 
