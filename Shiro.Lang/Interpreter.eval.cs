@@ -593,6 +593,15 @@ namespace Shiro
                         Error("Variable not found: " + s1);
                     return Token.Nil;
 
+                case "gv":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'gv', expected 1");
+                    if (Symbols.CanGetGlobal(s1 = list[1].Toke.ToString()))
+                        return Symbols.GetGlobal(s1);
+                    else
+                        Error("Variable not found: " + s1);
+                    return Token.Nil;
+
                 case "let":
                     if (!list.ValidateParamCount(1, true))
                         Error("Wrong number of parameters to keyword 'let', expected at least 2");

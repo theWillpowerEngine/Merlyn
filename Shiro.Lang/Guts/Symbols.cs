@@ -87,7 +87,36 @@ namespace Shiro.Guts
             return false;
         }
 
-		public void Set(string name, Token val)
+        public Token GetGlobal(string name)
+        {
+            if (SymbolTable.ContainsKey(name))
+            {
+                var awaiting = SymbolTable[name].IsBeingAwaited;
+                while (awaiting)
+                {
+                    Thread.Sleep(10);
+                    lock (SymbolTable[name])
+                    {
+                        awaiting = SymbolTable[name].IsBeingAwaited;
+                    }
+                }
+
+                return SymbolTable[name];
+            }
+
+
+            Interpreter.Error("Attempt to get value of non-existant global variable: " + name);
+            return Token.Nil;
+        }
+
+        public bool CanGetGlobal(string name)
+        {
+            if (SymbolTable.ContainsKey(name))
+                return true;
+            return false;
+        }
+
+        public void Set(string name, Token val)
         {
             if (!SymbolTable.ContainsKey(name))
                 SymbolTable.Add(name, val);

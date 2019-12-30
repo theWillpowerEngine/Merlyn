@@ -26,6 +26,7 @@
         (do
             (assert (= 1 $x) "let 1")
             (assert (= 2 (v y)) "let 2")
+            (assert (= 5 (gv y)) "gv works in let")
             (assert (def? x) "let 3")
             (assert (= '~3~' `~{+ $x $y}~`) "let 4 interp")
     ))
