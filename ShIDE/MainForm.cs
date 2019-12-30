@@ -359,10 +359,6 @@ namespace ShIDE
                     directoryNode.Nodes.Add(CreateProjectNode(name, child.Children.GetProperty("files")));
                 }
             }
-
-            //foreach (var directory in directoryInfo.GetDirectories())
-            //    directoryNode.Nodes.Add(CreateDirectoryNode(directory));
-
             return directoryNode;
         }
 
@@ -385,6 +381,14 @@ namespace ShIDE
                 OpenProject(file);
             else
             {
+                if(tabDocuments.Count == 1 && tabDocuments.Keys.ToList()[0] == "new")
+                {
+                    tabDocuments.Remove(editorTabs.TabPages[0].Text);
+                    savedDocuments.Remove(editorTabs.TabPages[0].Text);
+                    savedDocumentPaths.Remove(editorTabs.TabPages[0].Text);
+                    editorTabs.TabPages.Remove(editorTabs.TabPages[0]);
+                }
+
                 var content = File.ReadAllText(file);
 
                 var tabName = Path.GetFileName(file);
@@ -444,11 +448,11 @@ namespace ShIDE
         private bool _suppressTabChanged = false;
         private void editorTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Console.WriteLine("Event");
+//            Console.WriteLine("Event");
 
             if (_suppressTabChanged || editorTabs.Dragging)
             {
-                Console.WriteLine("Suppressed, was dragging: " + editorTabs.Dragging);
+//                Console.WriteLine("Suppressed, was dragging: " + editorTabs.Dragging);
                 _suppressTabChanged = false;
                 return;
             }
