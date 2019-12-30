@@ -54,6 +54,7 @@
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registerWindowsExplorerContextMenuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showResultMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.evalStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -70,6 +71,7 @@
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -114,7 +116,7 @@
             // 
             this.newMenu.Name = "newMenu";
             this.newMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newMenu.Size = new System.Drawing.Size(146, 22);
+            this.newMenu.Size = new System.Drawing.Size(180, 22);
             this.newMenu.Text = "&New";
             this.newMenu.Click += new System.EventHandler(this.newMenu_Click);
             // 
@@ -122,7 +124,7 @@
             // 
             this.openMenu.Name = "openMenu";
             this.openMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openMenu.Size = new System.Drawing.Size(146, 22);
+            this.openMenu.Size = new System.Drawing.Size(180, 22);
             this.openMenu.Text = "&Open";
             this.openMenu.Click += new System.EventHandler(this.openMenu_Click);
             // 
@@ -130,14 +132,14 @@
             // 
             this.saveMenu.Name = "saveMenu";
             this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveMenu.Size = new System.Drawing.Size(146, 22);
+            this.saveMenu.Size = new System.Drawing.Size(180, 22);
             this.saveMenu.Text = "&Save";
             this.saveMenu.Click += new System.EventHandler(this.saveMenu_Click);
             // 
             // saveAsMenu
             // 
             this.saveAsMenu.Name = "saveAsMenu";
-            this.saveAsMenu.Size = new System.Drawing.Size(146, 22);
+            this.saveAsMenu.Size = new System.Drawing.Size(180, 22);
             this.saveAsMenu.Text = "Save &As...";
             this.saveAsMenu.Click += new System.EventHandler(this.saveAsMenu_Click);
             // 
@@ -145,7 +147,8 @@
             // 
             this.evaluateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.evaluateMenu,
-            this.cleanMenu});
+            this.cleanMenu,
+            this.toolStripMenuItem3});
             this.evaluateToolStripMenuItem.Name = "evaluateToolStripMenuItem";
             this.evaluateToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
             this.evaluateToolStripMenuItem.Text = "E&valuate";
@@ -279,7 +282,8 @@
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.registerWindowsExplorerContextMenuToolStripMenuItem});
+            this.registerWindowsExplorerContextMenuToolStripMenuItem,
+            this.showResultMenu});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "&Options";
@@ -290,6 +294,14 @@
             this.registerWindowsExplorerContextMenuToolStripMenuItem.Size = new System.Drawing.Size(291, 22);
             this.registerWindowsExplorerContextMenuToolStripMenuItem.Text = "Register Windows Explorer Context Menu";
             this.registerWindowsExplorerContextMenuToolStripMenuItem.Click += new System.EventHandler(this.registerWindowsExplorerContextMenuToolStripMenuItem_Click);
+            // 
+            // showResultMenu
+            // 
+            this.showResultMenu.CheckOnClick = true;
+            this.showResultMenu.Name = "showResultMenu";
+            this.showResultMenu.Size = new System.Drawing.Size(291, 22);
+            this.showResultMenu.Text = "&Show Result of Eval";
+            this.showResultMenu.Click += new System.EventHandler(this.showResultMenu_Click);
             // 
             // statusStrip1
             // 
@@ -379,6 +391,7 @@
             // 
             // editorTabs
             // 
+            this.editorTabs.AllowDrop = true;
             this.editorTabs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.editorTabs.Location = new System.Drawing.Point(7, 4);
@@ -480,6 +493,11 @@
             // 
             this.saveStateTimer.Tick += new System.EventHandler(this.saveStateTimer_Tick);
             // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(178, 6);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -557,6 +575,8 @@
         private System.Windows.Forms.ToolStripMenuItem endOfListMenu;
         private System.Windows.Forms.ToolStripMenuItem selectToEOLMenu;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem showResultMenu;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
     }
 }
 

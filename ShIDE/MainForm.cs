@@ -36,8 +36,8 @@ namespace ShIDE
 
         #region Thread-safe UI Delegate Wrappers
 
-        private delegate void ShowInput();
-        private delegate void WriteConsole(string text);
+        private delegate void NoParamDelegate();
+        private delegate void OneStringParamDelegate(string text);
 
         public void Eval(string code, Action<Token> cb)
         {
@@ -49,6 +49,8 @@ namespace ShIDE
                         lock (ShiroLock)
                         {
                             res = Shiro.Eval(code);
+                            if (_showResult)
+                                SafeWrite($"[Result]  {res.ToString()}{Environment.NewLine}");
                         }
                         cb(res);
                     }
@@ -67,7 +69,7 @@ namespace ShIDE
         {
             if (txtInput.InvokeRequired)
             {
-                var d = new ShowInput(SafeShowInput);
+                var d = new NoParamDelegate(SafeShowInput);
                 txtInput.Invoke(d, new object[] { });
             }
             else
@@ -80,7 +82,7 @@ namespace ShIDE
         {
             if (txtInput.InvokeRequired)
             {
-                var d = new ShowInput(SafeClear);
+                var d = new NoParamDelegate(SafeClear);
                 txtInput.Invoke(d, new object[] { });
             }
             else
@@ -92,7 +94,7 @@ namespace ShIDE
         {
             if (console.InvokeRequired)
             {
-                var d = new WriteConsole(SafeWrite);
+                var d = new OneStringParamDelegate(SafeWrite);
                 console.Invoke(d, new object[] { text });
             }
             else
@@ -104,7 +106,7 @@ namespace ShIDE
         {
             if (console.InvokeRequired)
             {
-                var d = new WriteConsole(SafeError);
+                var d = new OneStringParamDelegate(SafeError);
                 console.Invoke(d, new object[] { Environment.NewLine + text + Environment.NewLine });
             }
             else
@@ -116,7 +118,7 @@ namespace ShIDE
         {
             if (console.InvokeRequired)
             {
-                var d = new ShowInput(SafeStyleEditor);
+                var d = new NoParamDelegate(SafeStyleEditor);
                 console.Invoke(d, new object[] { });
             }
             else
@@ -715,6 +717,13 @@ namespace ShIDE
             {
                 key.Close();
             }
+        }
+
+        protected bool _showResult = false;
+
+        private void showResultMenu_Click(object sender, EventArgs e)
+        {
+            _showResult = showResultMenu.Checked;
         }
     }
 }

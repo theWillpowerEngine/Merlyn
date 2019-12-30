@@ -39,7 +39,7 @@ namespace ShIDE
             shiro.RegisterAutoFunction("shp-folder", (i, toke) =>
             {
                 if (toke.Children.Count != 2)
-                    Interpreter.Error("shp-folder expects 21 parameters (a name and a list), not " + toke.Children.Count);
+                    Interpreter.Error("shp-folder expects 2 parameters (a name and a list), not " + toke.Children.Count);
 
                 var name = toke.Children[0].Eval(shiro).ToString();
                 var tree = toke.Children[1];
