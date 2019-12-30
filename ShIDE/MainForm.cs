@@ -332,8 +332,7 @@ namespace ShIDE
                         tabDocuments.Remove(editorTabs.TabPages[i].Text);
                         savedDocuments.Remove(editorTabs.TabPages[i].Text);
                         savedDocumentPaths.Remove(editorTabs.TabPages[i].Text);
-                        _previousTab = null;
-                        editorTabs.TabPages.RemoveAt(i);
+                        editorTabs.TabPages.Remove(editorTabs.TabPages[i]);
                         break;
                     }
                 }
@@ -413,6 +412,11 @@ namespace ShIDE
 
                 editor.Document = Document.Empty;
                 editor.Text = content;
+                if(tabDocuments.ContainsKey(tabName))
+                {
+                    editor.ReleaseDocument(tabDocuments[tabName]);
+                    tabDocuments.Remove(tabName);
+                }
                 tabDocuments.Add(tabName, editor.Document);
 
                 editorTabs.TabPages.Add(new TabPage(tabName));
@@ -440,8 +444,11 @@ namespace ShIDE
         private bool _suppressTabChanged = false;
         private void editorTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_suppressTabChanged)
+            Console.WriteLine("Event");
+
+            if (_suppressTabChanged || editorTabs.Dragging)
             {
+                Console.WriteLine("Suppressed, was dragging: " + editorTabs.Dragging);
                 _suppressTabChanged = false;
                 return;
             }
@@ -450,14 +457,18 @@ namespace ShIDE
                 return;
 
             var name = editorTabs.SelectedTab.Text;
+            if (_previousTab == name)
+                return;
+
             if (_previousTab != null)
             {
                 tabDocuments[_previousTab] = editor.Document;
                 editor.AddRefDocument(tabDocuments[_previousTab]);
             }
-
+            
             editor.Document = tabDocuments[name];
             editor.ReleaseDocument(tabDocuments[name]);
+            Console.WriteLine("Released " + name);
 
             _previousTab = name;
         }

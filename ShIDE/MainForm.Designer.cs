@@ -60,7 +60,7 @@
             this.tree = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.editor = new ScintillaNET.Scintilla();
-            this.editorTabs = new System.Windows.Forms.TabControl();
+            this.editorTabs = new ShIDE.Controls.DraggableTabControl();
             this.bottomTabs = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.txtInput = new System.Windows.Forms.TextBox();
@@ -534,7 +534,7 @@
 		private System.Windows.Forms.ToolStripMenuItem formatToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem autoDoMenu;
 		private System.Windows.Forms.ToolStripMenuItem quickParenMenu;
-        private System.Windows.Forms.TabControl editorTabs;
+        private ShIDE.Controls.DraggableTabControl editorTabs;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.ToolStripMenuItem newMenu;
