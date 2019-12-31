@@ -243,7 +243,12 @@ namespace Shiro
 
                 if (blockDepth > 0)
                 {
-                    if (c == '(')
+                    if (c == ';')
+                    {
+                        while (code[++i] != ';' && code[i] != '\r' && code[i] != '\n')
+                        { }
+                    }
+                    else if (c == '(')
                         blockDepth += 1;
                     else if (c == ')')
                     {
