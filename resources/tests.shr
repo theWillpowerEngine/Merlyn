@@ -95,5 +95,11 @@
 
     ;bug-fix test cases
     (assert-works (=> (sod o {say-hi: (=> (print "hello nurse"))})) "double-quotes in inline object bug")
+    (assert-works (=> (do
+        (sod x2 123)    ; (1 2 3))
+    )) "parentheses in comments confuses the reader bug")
+    (assert-works (=> (sod o {say-hi: (=> (print "hello nu))rse"))})) "parenthesis in string in reader bug")
+    (assert-works (=> (sod o {say-hi: (=> (print 'hello nu))rse'))})) "parenthesis in string in reader bug 2")
+    (assert-works (=> (sod o {say-hi: (=> (print `hello nu))rse {+ 2 2}`))})) "parenthesis in string in reader bug 3")
 
     (print 'Test run complete'))

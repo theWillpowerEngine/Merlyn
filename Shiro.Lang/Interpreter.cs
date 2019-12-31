@@ -101,13 +101,15 @@ namespace Shiro
         private Token ScanInlineObject(string code, bool includesCurlies = false)
         {
             //"Escape" lambdas as property values (ie {f: (print "Hello world")}
-            var jsonTemp = includesCurlies ? code :  "{" + code + "}";
+            var jsonTemp = includesCurlies ? code : "{" + code + "}";
             var json = "";
             int depthCount = 0;
+            char stringDelim = '#';
+
             for (var i = 0; i < jsonTemp.Length; i++)
             {
                 var c = jsonTemp[i];
-                if (c == '(')
+                if (c == '(' && stringDelim == '#')
                 {
                     if (depthCount == 0)
                         json += "\"(";
@@ -115,7 +117,7 @@ namespace Shiro
                         json += "(";
                     depthCount += 1;
                 }
-                else if (c == ')')
+                else if (c == ')' && stringDelim == '#')
                 {
                     depthCount -= 1;
                     if (depthCount == 0)
@@ -123,11 +125,42 @@ namespace Shiro
                     else
                         json += ")";
                 }
-                else if (c == '\"' && depthCount > 0)
-                    json += "\\\"";
-                else
+                else if (c == '"')
+                {
+                    if (depthCount > 0)
+                        json += "\\\"";
+                    else
+                        json += c;
+
+                    if (stringDelim == '"')
+                        stringDelim = '#';
+                    else
+                        stringDelim = '"';
+                }
+                else if (c == '\'')
+                {
                     json += c;
+
+                    if (stringDelim == '\'')
+                        stringDelim = '#';
+                    else
+                        stringDelim = '\'';
+                }
+                else if (c == '`')
+                {
+                    json += c;
+
+                    if (stringDelim == '`')
+                        stringDelim = '#';
+                    else
+                        stringDelim = '`';
+                }
+                else
+                        json += c;
             }
+
+            if (stringDelim != '#')
+                Error("Unterminated string in inline-object: " + json);
 
             try
             {
@@ -228,11 +261,17 @@ namespace Shiro
                     else if (c == stringDelim)
                     {
                         var wasAutoInterp = stringDelim == '`';
-                        stringDelim = '#';
-                        if(!wasAutoInterp)
+                        if (blockDepth > 0)
+                        {
+                            work += stringDelim;
+                            stringDelim = '#';
+                            continue;
+                        }
+                        else if (!wasAutoInterp)
                             retVal.Add(new Token(work));
                         else
                             retVal.Add(new Token(new Token[] { new Token("interpolate"), new Token(work) }));
+                        stringDelim = '#';
                         work = "";
                         continue;
                     }
@@ -245,8 +284,34 @@ namespace Shiro
                 {
                     if (c == ';')
                     {
-                        while (code[++i] != ';' && code[i] != '\r' && code[i] != '\n')
+                        try
+                        {
+                            while (code[++i] != ';' && code[i] != '\r' && code[i] != '\n')
+                            { }
+                        }
+                        catch (IndexOutOfRangeException)
                         { }
+                        continue;
+                    }
+                    if (c == '"' || c == '`')
+                    {
+                        stringDelim = c;
+                        work += c;
+                        continue;
+                    }
+                    else if (c == '\'')
+                    {
+                        if (code[i + 1] != '(')
+                        {
+                            stringDelim = c;
+                            work += c;
+                            continue;
+                        }
+                        else
+                        {
+                            work += c;
+                            continue;
+                        }
                     }
                     else if (c == '(')
                         blockDepth += 1;
@@ -262,6 +327,7 @@ namespace Shiro
 
                         blockDepth -= 1;
                     }
+
                     work += c;
                     continue;
                 }
