@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "math", "libs\math\math.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShIDE", "ShIDE\ShIDE.csproj", "{683172E4-2ECD-4BC7-95FF-72AE17292C65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "files", "libs\files\files.csproj", "{5BF8285C-CE2D-4B39-918D-AB0616727020}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,12 +48,17 @@ Global
 		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BF8285C-CE2D-4B39-918D-AB0616727020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BF8285C-CE2D-4B39-918D-AB0616727020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BF8285C-CE2D-4B39-918D-AB0616727020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BF8285C-CE2D-4B39-918D-AB0616727020}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3} = {D7AEC569-357D-4895-B66A-108ECAEF3FC8}
+		{5BF8285C-CE2D-4B39-918D-AB0616727020} = {D7AEC569-357D-4895-B66A-108ECAEF3FC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D3ABE8-F513-4B23-B30A-D7B78F8C16F5}

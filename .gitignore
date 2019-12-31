@@ -16,9 +16,9 @@
 
 /packages/**
 
-/libs/math/.vs/**
-/libs/math/obj/**
-/libs/math/bin/**
-/libs/math/packages/**
+/libs/*/.vs/**
+/libs/*/obj/**
+/libs/*/bin/**
+/libs/*/packages/**
 /libs/dist/**
 /resources/.~lock.Guide.odt#
