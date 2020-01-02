@@ -873,7 +873,6 @@ namespace Shiro
                         {
                             letId = Guid.NewGuid();
                             Symbols.Let("result", toke, letId);
-                            toke = list[2].Eval(this);
                             toke = finBlock.Eval(this);
                             Symbols.ClearLetId(letId);
                         }
@@ -906,7 +905,6 @@ namespace Shiro
                         {
                             letId = Guid.NewGuid();
                             Symbols.Let("result", toke, letId);
-                            toke = list[2].Eval(this);
                             toke = finBlock2.Eval(this);
                             Symbols.ClearLetId(letId);
                         }

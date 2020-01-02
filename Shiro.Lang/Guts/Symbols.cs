@@ -16,6 +16,15 @@ namespace Shiro.Guts
         private readonly Dictionary<string, Token> LetTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Token>> AutoSymbols = new Dictionary<string, Func<Token>>();
 
+        internal class LetScope
+        {
+            internal string Name, LetId;
+            internal Token Value;
+            internal string LetIdHiddenBy;
+        }
+
+        private readonly Stack<LetScope> LetScopeStack = new Stack<LetScope>();
+
         private readonly Dictionary<string, Token> Implementers = new Dictionary<string, Token>();
 
         private readonly Dictionary<string, Token> FunctionTable = new Dictionary<string, Token>();
@@ -126,18 +135,36 @@ namespace Shiro.Guts
 
         public void Let(string name, Token val, Guid letId)
         {
-            val.LetTableId = letId;     //I *think* this is good?
+            val.LetTableId = letId;
+
             if (!LetTable.ContainsKey(name))
                 LetTable.Add(name, val);
             else
+            {
+                LetScopeStack.Push(new LetScope()
+                {
+                    Name = name,
+                    Value = LetTable[name],
+                    LetId = LetTable[name].LetTableId.ToString(),
+                    LetIdHiddenBy = letId.ToString()
+                });
                 LetTable[name] = val;
+            }
         }
 
         public void ClearLetId(Guid letId)
         {
             var removeThese = LetTable.Keys.Where(k => LetTable[k].LetTableId == letId).ToArray().ToList();
-            foreach (var key in removeThese)
+            var replaceThese = new List<LetScope>();
+
+            while (LetScopeStack.Count > 0 && LetScopeStack.Peek().LetIdHiddenBy == letId.ToString())
+                replaceThese.Add(LetScopeStack.Pop());
+
+            foreach (var key in removeThese) 
                 LetTable.Remove(key);
+
+            foreach (var ls in replaceThese)
+                LetTable.Add(ls.Name, ls.Value);
         }
 
         public Token GetImplementer(string name)

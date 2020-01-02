@@ -29,6 +29,8 @@
             (assert (= 5 (gv y)) "gv works in let")
             (assert (def? x) "let 3")
             (assert (= '~3~' `~{+ $x $y}~`) "let 4 interp")
+            (let (y 123) (assert-eq 123 $y "nested let 1"))
+            (assert-eq 2 $y "nested let 2")
     ))
 
     (assert-not (def? x) "let scope undef")
