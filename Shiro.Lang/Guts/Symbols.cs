@@ -16,14 +16,14 @@ namespace Shiro.Guts
         private readonly Dictionary<string, Token> LetTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Token>> AutoSymbols = new Dictionary<string, Func<Token>>();
 
-        internal class LetScope
+        internal class LetOverride
         {
             internal string Name, LetId;
             internal Token Value;
             internal string LetIdHiddenBy;
         }
 
-        private readonly Stack<LetScope> LetScopeStack = new Stack<LetScope>();
+        private readonly Stack<LetOverride> LetOverrideStack = new Stack<LetOverride>();
 
         private readonly Dictionary<string, Token> Implementers = new Dictionary<string, Token>();
 
@@ -141,7 +141,7 @@ namespace Shiro.Guts
                 LetTable.Add(name, val);
             else
             {
-                LetScopeStack.Push(new LetScope()
+                LetOverrideStack.Push(new LetOverride()
                 {
                     Name = name,
                     Value = LetTable[name],
@@ -155,10 +155,10 @@ namespace Shiro.Guts
         public void ClearLetId(Guid letId)
         {
             var removeThese = LetTable.Keys.Where(k => LetTable[k].LetTableId == letId).ToArray().ToList();
-            var replaceThese = new List<LetScope>();
+            var replaceThese = new List<LetOverride>();
 
-            while (LetScopeStack.Count > 0 && LetScopeStack.Peek().LetIdHiddenBy == letId.ToString())
-                replaceThese.Add(LetScopeStack.Pop());
+            while (LetOverrideStack.Count > 0 && LetOverrideStack.Peek().LetIdHiddenBy == letId.ToString())
+                replaceThese.Add(LetOverrideStack.Pop());
 
             foreach (var key in removeThese) 
                 LetTable.Remove(key);
