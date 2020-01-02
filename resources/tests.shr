@@ -1,12 +1,12 @@
 ;Basic tests
 (do
     (cls)
-    (defn assert (test s) (pnb (if (! $test) (str "FAIL: " $s "%n") "")))
-    (defn assert-not (test s) (pnb (if $test (str "FAIL: " $s "%n") "")))
-    (defn assert-eq (t1 t2 s) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}"%n` "")))
-    (defn assert-throws (f s) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
-    (defn assert-fails (f s) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
-    (defn assert-works (f s) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` "")))
+    (defn assert (test s:str?) (pnb (if (! $test) (str "FAIL: " $s "%n") "")))
+    (defn assert-not (test s:str?) (pnb (if $test (str "FAIL: " $s "%n") "")))
+    (defn assert-eq (t1 t2 s:str?) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}"%n` "")))
+    (defn assert-throws (f:fn? s:str?) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
+    (defn assert-fails (f:fn? s:str?) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
+    (defn assert-works (f:fn? s:str?) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` "")))
 
     ;basic bools
     (assert true "Ok, it's a start")
@@ -92,6 +92,19 @@
     (.sod o name 'dan')
     (assert-eq 'Hi dan' (.c $o say-hi ()) 'this in object lambdas 2')
     (assert-eq 'blehdan' (.c $o with-parm 'bleh') 'this in object lambdas 4')
+
+    ;implementers and mixins
+    (impl IDoStuff { s:'string', n:123, f: (=> (s:str?) `{$s}-{$s}`)})
+    (sod ids (mixin IDoStuff { f2: (=> n (+ $n 1))}))
+    (sod notids { s:'string', n:123, f: (=> (s) `{$s}-{$s}`)})
+    (sod notids2 { s:'string', n:123, f: (=> (s:num?) `{$s}-{$s}`)})
+    (assert (IDoStuff? $ids) "autopredicate for implementer")
+    (assert (impl? $ids IDoStuff) "impl? also works")
+    (assert-not (IDoStuff? $notids) "quack helper considering predicates 1")
+    (assert-not (IDoStuff? $notids2) "quack helper considering predicates 2")
+    (assert-fails (=> (ids.f 123)) "param-predicats for lambdas")
+    (assert-works(=> (ids.f "Hello nurse")) "param-predicats for lambdas 2")
+    (assert-eq 2 (ids.f2 1) "mixins are mixing in")
 
     ;bug-fix test cases
     (assert-works (=> (sod o {say-hi: (=> (print "hello nurse"))})) "double-quotes in inline object bug")

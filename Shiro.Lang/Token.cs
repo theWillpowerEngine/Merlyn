@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shiro.Guts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,7 +74,7 @@ namespace Shiro
         public object Toke;
         public List<Token> Children;
         public Guid LetTableId = Guid.Empty;
-        public List<string> Params = null;
+        public List<Param> Params = null;
 
         public bool IsBeingAwaited = false;
 
@@ -142,7 +143,7 @@ namespace Shiro
 
             int i = 0;
             foreach (var pn in Params)
-                shiro.Symbols.Let(pn, args[i++].Eval(shiro), letId);
+                pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
 
             if(thisToke != null)
                 shiro.Symbols.Let("this", thisToke, letId);

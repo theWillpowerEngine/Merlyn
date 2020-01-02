@@ -113,6 +113,15 @@ namespace Shiro.Guts
 
                     if (node.Params.Count != ctNode.Params.Count)
                         return Token.False;
+
+                    for(var i=0; i<node.Params.Count; i++)
+                    {
+                        var np = node.Params[i];
+                        var ctp = ctNode.Params[i];
+
+                        if (!string.IsNullOrEmpty(np.Predicate) && np.Predicate != ctp.Predicate)
+                            return Token.False;
+                    }
                 }
             }
 

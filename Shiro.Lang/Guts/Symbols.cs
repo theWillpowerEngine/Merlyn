@@ -214,8 +214,9 @@ namespace Shiro.Guts
                     Interpreter.Error($"Incorrect number of params passed to function '{name}', expected {func.Params.Count}, found {args.Length} instead");
 
                 int i = 0;
+
                 foreach (var pn in func.Params)
-                    Let(pn, args[i++].Eval(shiro), letId);
+                    pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
 
                 var retVal = func.Eval(shiro);
                 ClearLetId(letId);

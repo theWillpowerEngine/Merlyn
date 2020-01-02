@@ -706,12 +706,20 @@ namespace Shiro
                 case "fn?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'fn?', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1];
                     s1 = toke.ToString();
                     if (Symbols.FuncExists(s1))
                         return Token.True;
                     if (toke.IsFunction)
                         return Token.True;
+
+                    toke = toke.Eval(this);
+                    s1 = toke.ToString();
+                    if (Symbols.FuncExists(s1))
+                        return Token.True;
+                    if (toke.IsFunction)
+                        return Token.True;
+
                     return Token.False;
 
                 case "nil?":
@@ -769,7 +777,7 @@ namespace Shiro
                     s1 = list[1].Toke.ToString();
                     toke = new Token();
                     toke.Children = new List<Token>();
-                    toke.Params = new List<string>();
+                    toke.Params = new List<Param>();
 
                     if (!list[2].IsParent)
                         Error("Parameter list for defn must be a list (even if empty or containing only one element)");
@@ -779,7 +787,7 @@ namespace Shiro
                         if (p.IsParent || p.IsNumeric)
                             Error("List or numeric value passed to parameter list for defn");
                         else
-                            toke.Params.Add(p.Toke.ToString());
+                            toke.Params.Add(new Param(p.Toke.ToString()));
                     }
 
                     if (!list[3].IsParent)
@@ -807,12 +815,12 @@ namespace Shiro
                                 if (e.IsParent)
                                     Error("Parameter list in lambda can't have lists in it");
 
-                                return e.ToString();
+                                return new Param(e.ToString());
                             }).ToList();
                         else
-                            lambda.Params = new List<string>(new string[] { list[1].Toke.ToString() });
+                            lambda.Params = new List<Param>(new Param[] { new Param(list[1].Toke.ToString()) });
                     } else
-                        lambda.Params = new List<string>();
+                        lambda.Params = new List<Param>();
                     return lambda;
 
                 #endregion
@@ -1396,6 +1404,22 @@ namespace Shiro
                             return hopefulLambda.EvalLambda(null, this, list.Quote().ToArray());
                         else
                             return hopefulLambda;
+                    }
+                    else if(s1.EndsWith("?"))
+                    {
+                        //Is it an implementer auto-predicate?
+                        s1 = s1.TrimEnd('?');
+                        if(Symbols.CanGetImplementer(s1) && list.Count == 2)
+                        {
+                            return new Token(new Token("impl?"), list[1], new Token(s1)).Eval(this);
+                        }
+                        else
+                        {
+                            if (list.Count != 2)
+                                Error("Wrong number of paramters passed to auto-predicate for implementer " + s1);
+                            else
+                                Error("Could not find implementer for auto-predicate: " + s1);
+                        }
                     }
                     else
                         Error("Unknown keyword/function: " + list[0].Toke);
