@@ -13,3 +13,10 @@ console app built-ins (includes compiled):
 
 	(print (str 'hello ' (do (pnb 'Enter your name: ') (input))))
 
+
+
+TODO
+
+	pub/sub		-	Awaited things pub, awaiting things sub
+	raise		-	"push" something into an Awaiting list.  Not sure exactly how this works yet.
+

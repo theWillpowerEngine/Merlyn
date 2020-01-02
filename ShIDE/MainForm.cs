@@ -30,10 +30,6 @@ namespace ShIDE
         private bool Inputting = false;
         private string Input = "";
 
-        private Dictionary<string, Document> tabDocuments = new Dictionary<string, Document>();
-        private Dictionary<string, string> savedDocuments = new Dictionary<string, string>();
-        private Dictionary<string, string> savedDocumentPaths = new Dictionary<string, string>();
-
         #region Thread-safe UI Delegate Wrappers
 
         private delegate void NoParamDelegate();
@@ -331,9 +327,7 @@ namespace ShIDE
                     Rectangle r = editorTabs.GetTabRect(i);
                     if (r.Contains(e.Location))
                     {
-                        tabDocuments.Remove(editorTabs.TabPages[i].Text);
-                        savedDocuments.Remove(editorTabs.TabPages[i].Text);
-                        savedDocumentPaths.Remove(editorTabs.TabPages[i].Text);
+                        DocumentManager.ReleaseDocument(editorTabs.TabPages[i].Text);
                         editorTabs.TabPages.Remove(editorTabs.TabPages[i]);
                         break;
                     }
@@ -383,50 +377,10 @@ namespace ShIDE
                 OpenProject(file);
             else
             {
-                if(tabDocuments.Count == 1 && tabDocuments.Keys.ToList()[0] == "new")
-                {
-                    tabDocuments.Remove(editorTabs.TabPages[0].Text);
-                    savedDocuments.Remove(editorTabs.TabPages[0].Text);
-                    savedDocumentPaths.Remove(editorTabs.TabPages[0].Text);
-                    editorTabs.TabPages.Remove(editorTabs.TabPages[0]);
-                }
-
                 var content = File.ReadAllText(file);
-
                 var tabName = Path.GetFileName(file);
-                if (savedDocuments.ContainsKey(tabName))
-                {
-                    for(var i=0; i<editorTabs.TabPages.Count; i++)
-                    {
-                        if (editorTabs.TabPages[i].Text == tabName)
-                        {
-                            editorTabs.SelectedIndex = i;
-                            break;
-                        }
-                    }
-                    return;
-                }
-                savedDocuments.Add(tabName, content);
-                savedDocumentPaths.Add(tabName, file);
 
-                if (editorTabs.SelectedTab != null)
-                {
-                    var name = editorTabs.SelectedTab.Text;
-                    tabDocuments[name] = editor.Document;
-                    editor.AddRefDocument(tabDocuments[name]);
-                }
-
-                editor.Document = Document.Empty;
-                editor.Text = content;
-                if(tabDocuments.ContainsKey(tabName))
-                {
-                    editor.ReleaseDocument(tabDocuments[tabName]);
-                    tabDocuments.Remove(tabName);
-                }
-                tabDocuments.Add(tabName, editor.Document);
-
-                editorTabs.TabPages.Add(new TabPage(tabName));
-                _previousTab = tabName;
+                editorTabs.TabPages.Add(new TabPage(DocumentManager.AddDocument(tabName, file, content)));
                 _suppressTabChanged = true;
                 editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
 
@@ -450,11 +404,8 @@ namespace ShIDE
         private bool _suppressTabChanged = false;
         private void editorTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
-//            Console.WriteLine("Event");
-
             if (_suppressTabChanged || editorTabs.Dragging)
             {
-//                Console.WriteLine("Suppressed, was dragging: " + editorTabs.Dragging);
                 _suppressTabChanged = false;
                 return;
             }
@@ -463,44 +414,12 @@ namespace ShIDE
                 return;
 
             var name = editorTabs.SelectedTab.Text;
-            if (_previousTab == name)
-                return;
-
-            if (_previousTab != null)
-            {
-                tabDocuments[_previousTab] = editor.Document;
-                editor.AddRefDocument(tabDocuments[_previousTab]);
-            }
-            
-            editor.Document = tabDocuments[name];
-            editor.ReleaseDocument(tabDocuments[name]);
-            Console.WriteLine("Released " + name);
-
-            _previousTab = name;
+            DocumentManager.Switch(name);
         }
 
         private void newMenu_Click(object sender, EventArgs e)
         {
-            var name = editorTabs?.SelectedTab?.Text;
-            if (name != null) { 
-                tabDocuments[name] = editor.Document;
-                editor.AddRefDocument(tabDocuments[name]);
-            }
-
-            editor.Document = Document.Empty;
-
-            var newName = "";
-            if (!tabDocuments.ContainsKeyInSomeFashion("new"))
-                tabDocuments.Add(newName = "new", editor.Document);
-            else
-            {
-                var idx = 1;
-                while (tabDocuments.ContainsKeyInSomeFashion("new " + idx))
-                    idx += 1;
-
-                tabDocuments.Add(newName = ("new " + idx), editor.Document);
-            }
-            editorTabs.TabPages.Add(new TabPage(newName));
+            editorTabs.TabPages.Add(new TabPage(DocumentManager.AddDocument("new")));
             _suppressTabChanged = true;
             editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
         }
@@ -508,7 +427,7 @@ namespace ShIDE
         private void saveMenu_Click(object sender, EventArgs e)
         {
             var name = editorTabs.SelectedTab.Text;
-            if (!savedDocuments.ContainsKey(name))
+            if (!DocumentManager.HasFileName(name))
             {
                 if (DialogResult.OK == saveFileDialog.ShowDialog())
                 {
@@ -516,22 +435,15 @@ namespace ShIDE
                     File.WriteAllText(file, editor.Text);
 
                     var tabName = Path.GetFileName(file);
-                    savedDocuments.Add(tabName, editor.Text);
-                    savedDocumentPaths.Add(tabName, file);
 
-                    editorTabs.SelectedTab.Text = tabName;
-
-                    var doc = tabDocuments[name];
-                    tabDocuments.Remove(name);
-                    tabDocuments.Add(tabName, doc);
+                    editorTabs.SelectedTab.Text = DocumentManager.Rename(name, tabName, file);
 
                     saveStateTimer.Enabled = true;
                 }
             }
             else
             {
-                File.WriteAllText(savedDocumentPaths[name], editor.Text);
-                savedDocuments[name] = editor.Text;
+                File.WriteAllText(DocumentManager.GetFileName(name), editor.Text);
 
                 saveStateTimer.Enabled = true;
             }
@@ -562,6 +474,7 @@ namespace ShIDE
         private void MainForm_Load(object sender, EventArgs e)
         {
             CurrentForm = this;
+            DocumentManager.Editor = editor;
             Interpreter.Output = s =>
             {
                 SafeWrite(s);
@@ -591,7 +504,7 @@ namespace ShIDE
             else
             {
                 editorTabs.TabPages.Add("new");
-                tabDocuments.Add("new", editor.Document);
+                DocumentManager.AddDocument("new");
             }
 
             editor.Focus();
