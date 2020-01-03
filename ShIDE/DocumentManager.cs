@@ -92,7 +92,7 @@ namespace ShIDE
             string actualName = newName;
 
             var i = 1;
-            while (Documents.ContainsKey(newName))
+            while (Documents.ContainsKey(actualName))
                 actualName = newName + " " + i++;
 
             Documents[actualName] = Documents[oldName];

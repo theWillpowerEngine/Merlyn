@@ -11,12 +11,16 @@ using ScintillaNET;
 using Shiro;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Shiro.Build;
 
 namespace ShIDE
 {
     public partial class MainForm : Form
     {
         internal static MainForm CurrentForm;
+
+        protected bool IsProjectOpen = false;
+        protected Token ProjectTree;
 
         public static Interpreter Shiro;
         private static object ShiroLock = new object();
@@ -372,6 +376,8 @@ namespace ShIDE
             {
                 tree.Nodes.Clear();
                 tree.Nodes.Add(CreateProjectNode(projectTree.Children.GetProperty(Shiro, "name").ToString(), projectTree.Children.GetProperty(Shiro, "proj")));
+                IsProjectOpen = true;
+                ProjectTree = projectTree;
             }
         }
         internal void OpenFile(string file)
@@ -640,6 +646,70 @@ namespace ShIDE
         private void showResultMenu_Click(object sender, EventArgs e)
         {
             _showResult = showResultMenu.Checked;
+        }
+
+        private void compileMenu_Click(object sender, EventArgs e)
+        {
+            //Tear down and setup the bin directory
+            if (!IsProjectOpen)
+                if (editorTabs.SelectedTab.Text.StartsWith("new"))
+                {
+                    MessageBox.Show("Please save this file before trying to compile it");
+                    return;
+                } else 
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(DocumentManager.GetFileName(editorTabs.SelectedTab.Text)));
+
+            var path = Directory.GetCurrentDirectory() + "\\bin";
+            try
+            {
+                if (Directory.Exists(path))
+                    Directory.Delete(path, true);
+                Directory.CreateDirectory(path);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Compilation failed -- it's probable that the bin directory or something in it is locked");
+                return;
+            }
+
+            AssemblyName[] a = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
+            foreach (AssemblyName an in a)
+                if (an.FullName.ToLower().Contains("shiro"))
+                {
+                    if (File.Exists(path + "\\Shiro.Lang.dll"))
+                        File.Delete(path + "\\Shiro.Lang.dll");
+
+                    var shiroPath = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
+                    File.Copy(shiroPath + "\\Shiro.Lang.dll", path + "\\Shiro.Lang.dll");
+                }
+
+            foreach (var file in Directory.GetFiles(Directory.GetCurrentDirectory()))
+            {
+                if (file.EndsWith(".dll"))
+                    File.Copy(file, file.Replace(Directory.GetCurrentDirectory(), path));
+            }
+
+            //Now do the compile
+            System.CodeDom.Compiler.CompilerError ce = null;
+            if (!IsProjectOpen)
+            {
+                //Single file compile, nice and easy
+                var c = new Compiler(editorTabs.SelectedTab.Text);
+                c.AddShiroModule(editorTabs.SelectedTab.Text, editor.Text);
+                c.Compile(editorTabs.SelectedTab.Text.Split('.')[0] + ".exe", path, out ce);
+            } else
+            {
+                //Project compile.  Slightly trickier
+                var pt = ProjectTree;
+
+            }
+
+            if (ce == null)
+                SafeWrite("Compile success");
+            else
+            {
+                SafeWrite("Compile failed: " + ce.ErrorText);
+            }
         }
     }
 }

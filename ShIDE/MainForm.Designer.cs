@@ -39,6 +39,7 @@
             this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.formatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoDoMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.quickParenMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,7 +72,7 @@
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.compileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -116,7 +117,7 @@
             // 
             this.newMenu.Name = "newMenu";
             this.newMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newMenu.Size = new System.Drawing.Size(180, 22);
+            this.newMenu.Size = new System.Drawing.Size(146, 22);
             this.newMenu.Text = "&New";
             this.newMenu.Click += new System.EventHandler(this.newMenu_Click);
             // 
@@ -124,7 +125,7 @@
             // 
             this.openMenu.Name = "openMenu";
             this.openMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openMenu.Size = new System.Drawing.Size(180, 22);
+            this.openMenu.Size = new System.Drawing.Size(146, 22);
             this.openMenu.Text = "&Open";
             this.openMenu.Click += new System.EventHandler(this.openMenu_Click);
             // 
@@ -132,14 +133,14 @@
             // 
             this.saveMenu.Name = "saveMenu";
             this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveMenu.Size = new System.Drawing.Size(180, 22);
+            this.saveMenu.Size = new System.Drawing.Size(146, 22);
             this.saveMenu.Text = "&Save";
             this.saveMenu.Click += new System.EventHandler(this.saveMenu_Click);
             // 
             // saveAsMenu
             // 
             this.saveAsMenu.Name = "saveAsMenu";
-            this.saveAsMenu.Size = new System.Drawing.Size(180, 22);
+            this.saveAsMenu.Size = new System.Drawing.Size(146, 22);
             this.saveAsMenu.Text = "Save &As...";
             this.saveAsMenu.Click += new System.EventHandler(this.saveAsMenu_Click);
             // 
@@ -148,7 +149,8 @@
             this.evaluateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.evaluateMenu,
             this.cleanMenu,
-            this.toolStripMenuItem3});
+            this.toolStripMenuItem3,
+            this.compileMenu});
             this.evaluateToolStripMenuItem.Name = "evaluateToolStripMenuItem";
             this.evaluateToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
             this.evaluateToolStripMenuItem.Text = "E&valuate";
@@ -168,6 +170,11 @@
             this.cleanMenu.Size = new System.Drawing.Size(181, 22);
             this.cleanMenu.Text = "&Clean Interpreter";
             this.cleanMenu.Click += new System.EventHandler(this.cleanMenu_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(178, 6);
             // 
             // formatToolStripMenuItem
             // 
@@ -493,10 +500,13 @@
             // 
             this.saveStateTimer.Tick += new System.EventHandler(this.saveStateTimer_Tick);
             // 
-            // toolStripMenuItem3
+            // compileMenu
             // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(178, 6);
+            this.compileMenu.Name = "compileMenu";
+            this.compileMenu.ShortcutKeys = System.Windows.Forms.Keys.F6;
+            this.compileMenu.Size = new System.Drawing.Size(181, 22);
+            this.compileMenu.Text = "Com&pile";
+            this.compileMenu.Click += new System.EventHandler(this.compileMenu_Click);
             // 
             // MainForm
             // 
@@ -577,6 +587,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem showResultMenu;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem compileMenu;
     }
 }
 
