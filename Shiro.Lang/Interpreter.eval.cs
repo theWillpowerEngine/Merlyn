@@ -304,12 +304,12 @@ namespace Shiro
                             t2 = t2.Eval(this);
                         s1 = t2.ToString();
 
-                        if (toke.Children == null || !toke.Children.HasProperty(s1))
+                        if (toke.Children == null || !toke.Children.HasProperty(this, s1))
                             Error($"Cannot dereference property {s1} off {toke.ToString()}");
                         else
                         {
                             toke2 = toke;
-                            toke = toke.Children.GetProperty(s1);
+                            toke = toke.Children.GetProperty(this, s1);
                         }
                     }
 
@@ -340,18 +340,18 @@ namespace Shiro
                             t2 = t2.Eval(this);
                         s1 = t2.ToString();
 
-                        if (toke.Children == null || !toke.Children.HasProperty(s1))
+                        if (toke.Children == null || !toke.Children.HasProperty(this, s1))
                             Error($"Cannot dereference property {s1} off {toke.ToString()}");
                         else
                         {
                             if(i < list.Count - 2)
-                                toke = toke.Children.GetProperty(s1);
+                                toke = toke.Children.GetProperty(this, s1);
                             //s1 will hold the name of the property we're working with
                         }
                     }
 
                     val = list[list.Count - 1].Eval(this);
-                    if (!toke.Children.SetProperty(s1, val))
+                    if (!toke.Children.SetProperty(this, s1, val))
                         Error("Could not find property " + name + " to set using .set.  Consider concat/pairing it, or using .sod instead.");
 
                     return Symbols.Get(name);
@@ -378,18 +378,18 @@ namespace Shiro
 
                         if (i < list.Count - 2)
                         {
-                            if (toke.Children == null || !toke.Children.HasProperty(s1))
+                            if (toke.Children == null || !toke.Children.HasProperty(this, s1))
                                 Error($"Cannot dereference property {s1} off {toke.ToString()}");
                             else
                             {
-                                toke = toke.Children.GetProperty(s1);
+                                toke = toke.Children.GetProperty(this, s1);
                             }
                         }
                     }
 
                     val = list[list.Count - 1].Eval(this);
-                    if (!toke.Children.SetProperty(s1, val))
-                        toke.Children.AddProperty(s1, val);
+                    if (!toke.Children.SetProperty(this, s1, val))
+                        toke.Children.AddProperty(this, s1, val);
 
                     return Symbols.Get(name);
 
@@ -407,12 +407,12 @@ namespace Shiro
                             t2 = t2.Eval(this);
                         s1 = t2.ToString();
 
-                        if (toke.Children == null || !toke.Children.HasProperty(s1))
+                        if (toke.Children == null || !toke.Children.HasProperty(this, s1))
                             Error($"Cannot dereference property {s1} off {toke.ToString()}");
                         else
                         {
                             toke2 = toke;
-                            toke = toke.Children.GetProperty(s1);
+                            toke = toke.Children.GetProperty(this, s1);
                         }
                     }
 
@@ -451,18 +451,18 @@ namespace Shiro
 
                         if (i < list.Count - 2)
                         {
-                            if (toke.Children == null || !toke.Children.HasProperty(s1))
+                            if (toke.Children == null || !toke.Children.HasProperty(this, s1))
                                 Error($"Cannot dereference property {s1} off {toke.ToString()}");
                             else
                             {
-                                toke = toke.Children.GetProperty(s1);
+                                toke = toke.Children.GetProperty(this, s1);
                             }
                         }
                     }
 
                     val = list[list.Count - 1].Eval(this);
-                    if (!toke.Children.HasProperty(s1))
-                        toke.Children.AddProperty(s1, val);
+                    if (!toke.Children.HasProperty(this, s1))
+                        toke.Children.AddProperty(this, s1, val);
                     else
                         Error($"Attempt to .def already existing property {s1}.  Let me introduce you to '.sod' instead.");
 
@@ -481,16 +481,16 @@ namespace Shiro
                             t2 = t2.Eval(this);
                         s1 = t2.ToString();
 
-                        if (toke.Children == null || !toke.Children.HasProperty(s1))
+                        if (toke.Children == null || !toke.Children.HasProperty(this, s1))
                             return Token.Nil;
                         else
-                            toke = toke.Children.GetProperty(s1);
+                            toke = toke.Children.GetProperty(this, s1);
                     }
                     return toke;
 
                 case "pair":
                     if(!list.ValidateParamCount(2))
-                        Error("Wrong number of parameters to keyword 'pair', expected at least 2");
+                        Error("Wrong number of parameters to keyword 'pair', expected 2");
 
                     s1 = list[1].Eval(this).ToString();
                     toke = list[2].Eval(this);
@@ -499,6 +499,19 @@ namespace Shiro
                         return new Token(new Token(s1, toke.Children));
                     else
                         return new Token(new Token(s1, toke.Toke));
+
+                case "enclose":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'enclose', expected 2");
+
+                    toke = list[1].Eval(this);
+                    toke2 = list[2].Eval(this);
+
+                    if (!toke.IsObject || !toke2.IsObject)
+                        Error($"Both parameters passed to enclose must be objects.  Instead I got these two things: {toke.ToString()} -AND- {toke2.ToString()}");
+
+                    toke2.TardEnclosure = toke;
+                    return toke2;
                 #endregion
 
                 #region Implementers and Mixins
@@ -549,7 +562,7 @@ namespace Shiro
                     if (!Symbols.CanGetImplementer(s1))
                         Error("impl? called with unknown implementer " + s1);
 
-                    return MiscHelper.DoesItQuack(toke, Symbols.GetImplementer(s1));
+                    return MiscHelper.DoesItQuack(this, toke, Symbols.GetImplementer(s1));
 
                 #endregion
 
@@ -632,8 +645,6 @@ namespace Shiro
                     {
                         Symbols.ClearLetId(letId);
                     }
-
-                    
                     return lastVal;
 
                 #endregion
@@ -1006,7 +1017,7 @@ namespace Shiro
                     if (!Server.Serving || Server.ConType != ConnectionType.HTTP)
                         Error("Cannot use 'route' keyword if we are not currently in an http server context");
                     request = Symbols.Get(Symbols.AutoVars.HttpRequest);
-                    s1 = request.Children.GetProperty("url").Toke.ToString();
+                    s1 = request.Children.GetProperty(this, "url").Toke.ToString();
                     
                     for (i = 1; i < list.Count; i += 2)
                     {
@@ -1023,7 +1034,7 @@ namespace Shiro
                             if (list[i].Params.Count != 1)
                                 Error("Anonymous Function passed as a potential route must take only a single parameter.  My best attempt to render the offending lambda is: " + list[i].ToString());
 
-                            var lr = list[i].EvalLambda(null, this, request.Children.GetProperty("url"));
+                            var lr = list[i].EvalLambda(null, this, request.Children.GetProperty(this, "url"));
                             if (lr.IsTrue)
                                 return list[i + 1].Eval(this);
                         }
@@ -1033,7 +1044,7 @@ namespace Shiro
                             if(!iHopeThisIsALambdaYouTool.IsFunction)
                                 Error("You passed a list as a potential route, it has to be a string or a lambda");
                             
-                            var lr = iHopeThisIsALambdaYouTool.EvalLambda(null, this, request.Children.GetProperty("url"));
+                            var lr = iHopeThisIsALambdaYouTool.EvalLambda(null, this, request.Children.GetProperty(this, "url"));
                             if (lr.IsTrue)
                                 return list[i + 1].Eval(this);
                         }
@@ -1051,8 +1062,8 @@ namespace Shiro
                         Error("Cannot use 'rest' keyword if we are not currently in an http server context");
                     
                     request = Symbols.Get(Symbols.AutoVars.HttpRequest);
-                    var restMethod = request.Children.GetProperty("method").Toke.ToString();
-                    s1 = request.Children.GetProperty("url").Toke.ToString();
+                    var restMethod = request.Children.GetProperty(this, "method").Toke.ToString();
+                    s1 = request.Children.GetProperty(this, "url").Toke.ToString();
                     s2 = list[2].Eval(this).ToString();
 
                     var restDataStore = list[1].Eval(this);
@@ -1071,7 +1082,7 @@ namespace Shiro
                         case "get":
                             eles = s1.Split('/');
                             id = eles[eles.Length - 1];
-                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(this, s2) && t.Children.GetProperty(this, s2).ToString() == id);
                             
                             if(restResult != null)
                             {
@@ -1087,7 +1098,7 @@ namespace Shiro
                         case "delete":
                             eles = s1.Split('/');
                             id = eles[eles.Length - 1];
-                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(this, s2) && t.Children.GetProperty(this, s2).ToString() == id);
 
                             if (restResult != null)
                             {
@@ -1102,10 +1113,10 @@ namespace Shiro
                             }
 
                         case "post":
-                            s1 = request.Children.GetProperty("body").Toke.ToString();
+                            s1 = request.Children.GetProperty(this, "body").Toke.ToString();
                             toke = ScanInlineObject(s1, true);
-                            id = toke.Children.GetProperty(s2).ToString();
-                            if(restDataStore.Children.Any(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id))
+                            id = toke.Children.GetProperty(this, s2).ToString();
+                            if(restDataStore.Children.Any(t => t.Children.HasProperty(this, s2) && t.Children.GetProperty(this, s2).ToString() == id))
                             {
                                 HttpHelper.ResponseStatus = 500;
                                 return new Token("A duplicate ID exists, did you mean to use PUT?");
@@ -1120,14 +1131,14 @@ namespace Shiro
                         case "put":
                             eles = s1.Split('/');
                             id = eles[eles.Length - 1];
-                            s1 = request.Children.GetProperty("body").Toke.ToString();
+                            s1 = request.Children.GetProperty(this, "body").Toke.ToString();
                             toke = ScanInlineObject(s1, true);
-                            if(id != toke.Children.GetProperty(s2).ToString())
+                            if(id != toke.Children.GetProperty(this, s2).ToString())
                             {
                                 HttpHelper.ResponseStatus = 500;
-                                return new Token("ID mismatch for PUT.  URL id was: " + id + ", object id was: " + toke.Children.GetProperty(s2).ToString());
+                                return new Token("ID mismatch for PUT.  URL id was: " + id + ", object id was: " + toke.Children.GetProperty(this, s2).ToString());
                             }
-                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(this, s2) && t.Children.GetProperty(this, s2).ToString() == id);
 
                             if (restResult != null)
                             {
@@ -1143,11 +1154,11 @@ namespace Shiro
                             }
 
                         case "patch":
-                            s1 = request.Children.GetProperty("body").Toke.ToString();
+                            s1 = request.Children.GetProperty(this, "body").Toke.ToString();
                             toke = ScanInlineObject(s1, true);
-                            id = toke.Children.GetProperty(s2).ToString();
+                            id = toke.Children.GetProperty(this, s2).ToString();
                             
-                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(s2) && t.Children.GetProperty(s2).ToString() == id);
+                            restResult = restDataStore.Children.FirstOrDefault(t => t.Children.HasProperty(this, s2) && t.Children.GetProperty(this, s2).ToString() == id);
 
                             if (restResult != null)
                             {

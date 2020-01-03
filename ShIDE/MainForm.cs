@@ -26,7 +26,7 @@ namespace ShIDE
             InitializeComponent();
         }
 
-        private ShiroLexer Lexer = new ShiroLexer("gv awaith hermeticAwait await len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
+        private ShiroLexer Lexer = new ShiroLexer("enclose gv awaith hermeticAwait await len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop qnop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll http content route status rest");
         private bool Inputting = false;
         private string Input = "";
 
@@ -341,18 +341,18 @@ namespace ShIDE
 
             foreach(var child in projectToken.Children[0].Children)
             {
-                if(child.Children.HasProperty("path"))
+                if(child.Children.HasProperty(Shiro, "path"))
                 {
                     //It's a file
-                    var node = new TreeNode(child.Children.GetProperty("name").ToString());
-                    node.Tag = child.Children.GetProperty("path").ToString();
+                    var node = new TreeNode(child.Children.GetProperty(Shiro, "name").ToString());
+                    node.Tag = child.Children.GetProperty(Shiro, "path").ToString();
                     directoryNode.Nodes.Add(node);
                 }
                 else
                 {
                     //It's a folder
-                    var name = child.Children.GetProperty("name").ToString();
-                    directoryNode.Nodes.Add(CreateProjectNode(name, child.Children.GetProperty("files")));
+                    var name = child.Children.GetProperty(Shiro, "name").ToString();
+                    directoryNode.Nodes.Add(CreateProjectNode(name, child.Children.GetProperty(Shiro, "files")));
                 }
             }
             return directoryNode;
@@ -363,12 +363,12 @@ namespace ShIDE
             var content = File.ReadAllText(file);
             var projectTree = Shiro.Eval(content);
 
-            if (!projectTree.Children.HasProperty("name") || !projectTree.Children.HasProperty("proj"))
+            if (!projectTree.Children.HasProperty(Shiro, "name") || !projectTree.Children.HasProperty(Shiro, "proj"))
                 MessageBox.Show("Invalid project file, missing name or project structure");
             else
             {
                 tree.Nodes.Clear();
-                tree.Nodes.Add(CreateProjectNode(projectTree.Children.GetProperty("name").ToString(), projectTree.Children.GetProperty("proj")));
+                tree.Nodes.Add(CreateProjectNode(projectTree.Children.GetProperty(Shiro, "name").ToString(), projectTree.Children.GetProperty(Shiro, "proj")));
             }
         }
         internal void OpenFile(string file)

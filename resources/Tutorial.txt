@@ -15,6 +15,22 @@ console app built-ins (includes compiled):
 
 
 
+
+
+	(do 
+		(sod o (enclose {_p: 1} {getP: (=> (this._p)), incP: (=> (.sod this _p (+ this._p 1)))}))
+		(print o.getP)
+		(o.incP)
+		(print o.getP)
+		(o.incP)
+		(print o.getP))
+
+
+
+
+
+
+
 TODO
 
 	pub/sub		-	Awaited things pub, awaiting things sub

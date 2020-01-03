@@ -86,15 +86,15 @@ namespace Shiro.Guts
                 foreach(var prop in mixin.Children)
                 {
                     var pn = prop.Name;
-                    if (!retVal.Children.HasProperty(pn))
-                        retVal.Children.AddProperty(pn, mixin.Children.GetProperty(pn).Clone());
+                    if (!retVal.Children.HasProperty(shiro, pn))
+                        retVal.Children.AddProperty(shiro, pn, mixin.Children.GetProperty(shiro, pn).Clone());
                 }
             }
 
             return retVal;
         }
 
-        internal static Token DoesItQuack(Token checkThis, Token mixin)
+        internal static Token DoesItQuack(Interpreter shiro, Token checkThis, Token mixin)
         {
             if (!checkThis.IsParent)
                 Interpreter.Error("Can't check to see if '" + checkThis.ToString() + "' implements anything because it's not a list");
@@ -102,11 +102,11 @@ namespace Shiro.Guts
             foreach (var prop in mixin.Children)
             {
                 var pn = prop.Name;
-                if (!checkThis.Children.HasProperty(pn))
+                if (!checkThis.Children.HasProperty(shiro, pn))
                     return Token.False;
 
-                var node = mixin.Children.GetProperty(pn);
-                var ctNode = checkThis.Children.GetProperty(pn);
+                var node = mixin.Children.GetProperty(shiro, pn);
+                var ctNode = checkThis.Children.GetProperty(shiro, pn);
                 if (node.IsFunction) {
                     if(!ctNode.IsFunction)
                         return Token.False;

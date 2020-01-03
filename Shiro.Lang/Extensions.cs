@@ -53,9 +53,15 @@ namespace Shiro
             return ret.ToString().Trim().TrimEnd(',') + "}";
         }
 
-        public static bool HasProperty(this List<Token> tokes, string name)
+        public static bool HasProperty(this List<Token> tokes, Interpreter shiro, string name)
         {
-            return tokes.Any(t => t.Name != null && t.Name.ToLower() == name.ToLower());
+            if (tokes.Any(t => t.Name != null && t.Name.ToLower() == name.ToLower()))
+                return true;
+
+            if (shiro.Symbols.CurrentEnclosure != null)
+                return shiro.Symbols.CurrentEnclosure.Children.HasProperty(shiro, name);
+
+            return false;
         }
 
         public static List<Token> Quote(this List<Token> tokes)
@@ -67,32 +73,41 @@ namespace Shiro
             return retVal;
         }
 
-        public static Token GetProperty(this List<Token> tokes, string name)
+        public static Token GetProperty(this List<Token> tokes, Interpreter shiro, string name)
         {
-            if (!tokes.HasProperty(name))
+            if (!tokes.HasProperty(shiro, name))
                 return Token.Nil;
 
-            return tokes.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
+            var toke = tokes.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
+            if (toke != null)
+                return toke;
+
+            if (shiro.Symbols.CurrentEnclosure != null)
+                return shiro.Symbols.CurrentEnclosure.Children.GetProperty(shiro, name);
+
+            return Token.Nil;
         }
-        public static bool SetProperty(this List<Token> tokes, string name, Token val)
+        public static bool SetProperty(this List<Token> tokes, Interpreter shiro, string name, Token val)
         {
-            if (!tokes.HasProperty(name))
+            if (!tokes.HasProperty(shiro, name))
                 return false;
+
+            var toke = tokes.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
+            if (toke == null)
+                toke = shiro.Symbols.CurrentEnclosure.Children.First(t => t.Name != null && t.Name.ToLower() == name.ToLower());
 
             if (val.IsParent)
             {
-                var toke = tokes.First(t => t.Name != null && t.Name.ToLower() == name.ToLower());
                 toke.Children = val.Children;
                 toke.Params = val.Params;
-
             }
             else
-                tokes.First(t => t.Name != null && t.Name.ToLower() == name.ToLower()).Toke = val.Toke;
+                toke.Toke = val.Toke;
             return true;
         }
-        public static void AddProperty(this List<Token> tokes, string name, Token val)
+        public static void AddProperty(this List<Token> tokes, Interpreter shiro, string name, Token val)
         {
-            if (tokes.HasProperty(name))
+            if (tokes.HasProperty(shiro, name))
                 throw new Exception("Token List AddProperty called when the property already exists.  Property was: " + name);
 
            tokes.Add(val.Clone(name));

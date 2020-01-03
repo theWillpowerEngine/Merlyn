@@ -94,7 +94,16 @@
     (.sod o name 'dan')
     (assert-eq 'Hi dan' (.c $o say-hi ()) 'this in object lambdas 2')
     (assert-eq 'blehdan' (.c $o with-parm 'bleh') 'this in object lambdas 4')
-
+    
+    (sod loser (enclose {_p: 1} {getP: (=> (this._p)), incP: (=> (.sod this _p (+ this._p 1)))}))
+    (assert-fails (=> (print loser._p)) "enclosures hide reads")
+    (assert-fails (=> (sod loser _p 100)) "enclosures prevent writing")
+    (assert-eq 1 loser.getP "can set and get enclosed variables in appropriate lambdas 1")
+    (loser.incP)
+    (assert-eq 2 loser.getP "can set and get enclosed variables in appropriate lambdas 2")
+    (loser.incP)
+    (assert-eq 3 loser.getP "can set and get enclosed variables in appropriate lambdas 3")
+    
     ;implementers and mixins
     (impl IDoStuff { s:'string', n:123, f: (=> (s:str?) `{$s}-{$s}`)})
     (sod ids (mixin IDoStuff { f2: (=> n (+ $n 1))}))

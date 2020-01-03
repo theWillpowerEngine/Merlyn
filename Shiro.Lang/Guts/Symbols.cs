@@ -16,6 +16,10 @@ namespace Shiro.Guts
         private readonly Dictionary<string, Token> LetTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Token>> AutoSymbols = new Dictionary<string, Func<Token>>();
 
+        private Stack<Token> TardEnclosures = new Stack<Token>();       //Stupid control freaks and their stupid private variables
+
+        public Token CurrentEnclosure => TardEnclosures.Count > 0 ? TardEnclosures.Peek() : null;
+
         internal class LetOverride
         {
             internal string Name, LetId;
@@ -165,6 +169,16 @@ namespace Shiro.Guts
 
             foreach (var ls in replaceThese)
                 LetTable.Add(ls.Name, ls.Value);
+        }
+
+        public Token PopTardEnclosure()
+        {
+            return TardEnclosures.Pop();
+        }
+
+        public void PushTardEnclosure(Token tardEnclosure)
+        {
+            TardEnclosures.Push(tardEnclosure);
         }
 
         public Token GetImplementer(string name)
