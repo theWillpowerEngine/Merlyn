@@ -5,13 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 using Shiro;
 using Shiro.Interop;
+using Shiro.Support;
 
 namespace ShIDE
 {
     public class ShiroProject : ShiroPlugin
     {
+        public static string ProjectFileDirectory = "";
+
         public override void RegisterAutoFunctions(Interpreter shiro)
         {
+            shiro.RegisterAutoFunction("sh-install", (i, toke) =>
+            {
+                if (toke.Children.Count != 1)
+                    Interpreter.Error("sh-install expects 1 parameters , not " + toke.Children.Count);
+
+                var name = toke.Children[0].Eval(shiro).ToString();
+
+                return Libraries.Install(Program.LibDirectory, ProjectFileDirectory, name) ? Token.True : Token.False;
+            });
+
             shiro.RegisterAutoFunction("sh-project", (i, toke) =>
             {
                 if (toke.Children.Count != 2)

@@ -1,0 +1,5 @@
+;lol
+(do 
+    (sod x {f: (=> (v) (print `f was called with {$v}`))})
+    (.c $x f 2)
+)

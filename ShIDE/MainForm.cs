@@ -360,6 +360,9 @@ namespace ShIDE
 
         private void OpenProject(string file)
         {
+            ShiroProject.ProjectFileDirectory = Path.GetDirectoryName(file);
+            Directory.SetCurrentDirectory(ShiroProject.ProjectFileDirectory);
+
             var content = File.ReadAllText(file);
             var projectTree = Shiro.Eval(content);
 

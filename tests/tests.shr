@@ -1,13 +1,8 @@
 ;Basic tests
 (do
+    (import test)
     (cls)
-    (defn assert (test s:str?) (pnb (if (! $test) (str "FAIL: " $s "%n") "")))
-    (defn assert-not (test s:str?) (pnb (if $test (str "FAIL: " $s "%n") "")))
-    (defn assert-eq (t1 t2 s:str?) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}"%n` "")))
-    (defn assert-throws (f:fn? s:str?) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
-    (defn assert-fails (f:fn? s:str?) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` "")))
-    (defn assert-works (f:fn? s:str?) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` "")))
-
+    
     ;basic bools
     (assert true "Ok, it's a start")
     (assert 1 "Truthiness 1")
@@ -126,7 +121,8 @@
     (assert-works (=> (sod o {say-hi: (=> (print 'hello nu))rse'))})) "parenthesis in string in reader bug 2")
     (assert-works (=> (sod o {say-hi: (=> (print `hello nu))rse {+ 2 2}`))})) "parenthesis in string in reader bug 3")
 
-    ;error checking
-    (assert-fails (=> ("dan"->(print "dan"))) "arrow must have param list")
+    ;check reader shortcuts
+    (assert-read-fail ' (=> ("dan"->(print "dan")))' "arrow must have param list")
+    (assert-read-fail ' (=> (()->123))' "arrow must have command list")
 
     (print 'Test run complete'))

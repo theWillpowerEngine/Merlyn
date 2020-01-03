@@ -15,8 +15,6 @@ console app built-ins (includes compiled):
 
 
 
-
-
 	(do 
 		(sod o (enclose {_p: 1} {getP: (=> (this._p)), incP: (=> (.sod this _p (+ this._p 1)))}))
 		(print o.getP)
@@ -27,12 +25,8 @@ console app built-ins (includes compiled):
 
 
 
-
-
-
-
 TODO
 
-	pub/sub		-	Awaited things pub, awaiting things sub
-	raise		-	"push" something into an Awaiting list.  Not sure exactly how this works yet.
+	pub/sub		-	Awaited things pub, awaiting things sub     (or vice versa too?)
+	
 

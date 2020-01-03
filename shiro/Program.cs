@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
 using Shiro;
+using Shiro.Support;
 using Shiro.Build;
 
 namespace Shiro.Cons
@@ -38,36 +39,18 @@ namespace Shiro.Cons
             switch (args[0])
             {
                 case "install":
-                    path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\libs\\" + args[1];
-                    
-                    if (Directory.Exists(path))
-                    {
-                        foreach (var file in Directory.GetFiles(path))
-                            File.Copy(file, Path.Combine(Directory.GetCurrentDirectory(), Path.GetFileName(file)));
-
-                        Console.WriteLine("Installed built-in library: " + args[1]);
-                    } else
-                    {
-                        Console.WriteLine("Couldn't find library to install: " + args[1]);
-                    }
+                    if (Libraries.Install(Assembly.GetExecutingAssembly().Location, Directory.GetCurrentDirectory(), args[1]))
+                        Console.WriteLine("Library " + args[1] + " was successfully installed.");
+                    else
+                        Console.WriteLine("Library " + args[1] + " failed to install.");
                     KeepREPLing = false;
                     break;
 
                 case "uninstall":
-                    path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\libs\\" + args[1];
-
-                    if (Directory.Exists(path))
-                    {
-                        foreach (var file in Directory.GetFiles(path))
-                            if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), Path.GetFileName(file))))
-                                File.Delete(Path.Combine(Directory.GetCurrentDirectory(), Path.GetFileName(file)));
-
-                        Console.WriteLine("Uninstalled built-in library: " + args[1]);
-                    }
+                    if(Libraries.Uninstall(Assembly.GetExecutingAssembly().Location, Directory.GetCurrentDirectory(), args[1]))
+                        Console.WriteLine("Library " + args[1] + " was successfully uninstalled.");
                     else
-                    {
-                        Console.WriteLine("Couldn't find library to uninstall: " + args[1]);
-                    }
+                        Console.WriteLine("Library " + args[1] + " failed to uninstall.");
                     KeepREPLing = false;
                     break;
 

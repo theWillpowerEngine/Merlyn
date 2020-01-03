@@ -17,7 +17,7 @@ namespace Shiro.Build
 
         public Compiler(string startModule)
         {
-            Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("Shiro.Cons.Merges.CompiledBase.txt");
+            Stream st = Assembly.GetExecutingAssembly().GetManifestResourceStream("Shiro.Support.Merges.CompiledBase.txt");
             st.Seek(0, SeekOrigin.Begin);
             StreamReader sr = new StreamReader(st);
             code = sr.ReadToEnd();

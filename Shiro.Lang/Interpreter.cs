@@ -185,7 +185,8 @@ namespace Shiro
             var blockDepth = 0;
             var objectDepth = 0;
             char stringDelim = '#';
-            bool isAutoV = false;
+            bool isAutoV = false,
+                 isAutoLambda = false;
 
             Action appendWork = () =>
             {
@@ -199,6 +200,8 @@ namespace Shiro
                         isAutoV = false;
                         retVal.Add(new Token(new Token[] { new Token("v"), new Token(work) }));
                     }
+                    else if (isAutoLambda)
+                        Error("The element following an auto-lambda must be a list, not " + work);
                     else if (work == "nil")
                         retVal.Add(Token.Nil);
                     else if (work == "true" || work == "True" || work == "TRUE")
@@ -320,7 +323,21 @@ namespace Shiro
                         if (blockDepth == 1)
                         {
                             blockDepth = 0;
-                            retVal.Add(Scan(work));
+
+                            var scanned = Scan(work);
+                            if(!isAutoLambda)
+                                retVal.Add(scanned);
+                            else
+                            {
+                                isAutoLambda = false;
+                                var paramList = retVal[retVal.Count - 1];
+                                retVal.RemoveAt(retVal.Count - 1);
+
+                                if (!scanned.IsParent)
+                                    Error("The element following an auto-lamda arrow must be a list, not " + scanned.ToString());
+
+                                retVal.Add(new Token(new Token[] { new Token("fn"), paramList, scanned }));
+                            }
                             work = "";
                             continue;
                         }
@@ -418,6 +435,22 @@ namespace Shiro
                     case '$':
                         appendWork();
                         isAutoV = true;
+                        break;
+
+                    //Reader shortcut:  Arrow Lambdas
+                    case '-':
+                        if (code[i + 1] == '>')
+                        {
+                            appendWork();
+                            i += 1;
+
+                            if (!retVal[retVal.Count - 1].IsParent)
+                                Error("Arrow Lambda shortcut must be preceded by parameter list, not " + retVal[retVal.Count - 1].ToString());
+
+                            isAutoLambda = true;
+                        }
+                        else
+                            work += c;
                         break;
 
                     default:

@@ -10,7 +10,9 @@ namespace ShIDE
 {
 	static class Program
 	{
-		internal static string ThingToOpen = null;
+        public static string LibDirectory = @"D:\Code\Shiro\dist";
+
+        internal static string ThingToOpen = null;
 
         internal class PipeMessage
         {

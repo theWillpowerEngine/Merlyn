@@ -58,7 +58,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compiler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -66,12 +65,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Merges\CompiledBase.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Shiro.Lang\Shiro.Lang.csproj">
       <Project>{af0fd65c-e75b-4d87-9f39-c5351a08ac75}</Project>
       <Name>Shiro.Lang</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shiro.Support\Shiro.Support.csproj">
+      <Project>{fe513040-610d-40eb-a7ac-20177a288774}</Project>
+      <Name>Shiro.Support</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
