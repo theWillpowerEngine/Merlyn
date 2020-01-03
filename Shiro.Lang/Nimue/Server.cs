@@ -41,7 +41,12 @@ namespace Shiro.Nimue
 
             while (Serving)
             {
-                //Blocking
+                while(!listener.Pending())
+                {
+                    Thread.Sleep(10);
+                    shiro.DispatchPublications();
+                }
+
                 TcpClient client = listener.AcceptTcpClient();
 
                 var conn = new Connection(client);

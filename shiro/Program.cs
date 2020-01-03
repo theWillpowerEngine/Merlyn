@@ -39,7 +39,9 @@ namespace Shiro.Cons
             switch (args[0])
             {
                 case "install":
-                    if (Libraries.Install(Assembly.GetExecutingAssembly().Location, Directory.GetCurrentDirectory(), args[1]))
+                    Console.WriteLine($"Lib: {Assembly.GetExecutingAssembly().Location}");
+                    Console.WriteLine($"WD:  {Directory.GetCurrentDirectory()}");
+                    if (Libraries.Install(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Directory.GetCurrentDirectory(), args[1]))
                         Console.WriteLine("Library " + args[1] + " was successfully installed.");
                     else
                         Console.WriteLine("Library " + args[1] + " failed to install.");
@@ -47,7 +49,7 @@ namespace Shiro.Cons
                     break;
 
                 case "uninstall":
-                    if(Libraries.Uninstall(Assembly.GetExecutingAssembly().Location, Directory.GetCurrentDirectory(), args[1]))
+                    if(Libraries.Uninstall(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Directory.GetCurrentDirectory(), args[1]))
                         Console.WriteLine("Library " + args[1] + " was successfully uninstalled.");
                     else
                         Console.WriteLine("Library " + args[1] + " failed to uninstall.");

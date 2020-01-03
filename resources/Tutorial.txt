@@ -24,9 +24,28 @@ console app built-ins (includes compiled):
 		(print o.getP))
 
 
+	; The snippets just keep becoming cooler, lol
+	(do
+		(await res (do 
+			(sub "Dan" (try ()->(sendAll `The Admin says: {$val}`) ()))
+			(telnet 4676 
+				(if (= $input "quit") 
+					(do (print "quitting")(stop "Quit as instructed"))
+					(print $input)))))
+    
+		(while (awaiting? res) (pub "Dan" (input)))
+    
+		(print `Finished with {$res}`))
+
+
 
 TODO
 
+	awaiting?
+
 	pub/sub		-	Awaited things pub, awaiting things sub     (or vice versa too?)
+
+	queue name are case insensitive.
+	val is the name of the thing being published
 	
 

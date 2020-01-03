@@ -74,6 +74,7 @@ namespace Shiro.Guts
                 var awaiting = SymbolTable[name].IsBeingAwaited;
                 while(awaiting)
                 {
+                    _shiro.DispatchPublications();
                     Thread.Sleep(10);
                     lock(SymbolTable[name])
                     {
@@ -107,6 +108,7 @@ namespace Shiro.Guts
                 var awaiting = SymbolTable[name].IsBeingAwaited;
                 while (awaiting)
                 {
+                    _shiro.DispatchPublications();
                     Thread.Sleep(10);
                     lock (SymbolTable[name])
                     {
@@ -116,7 +118,6 @@ namespace Shiro.Guts
 
                 return SymbolTable[name];
             }
-
 
             Interpreter.Error("Attempt to get value of non-existant global variable: " + name);
             return Token.Nil;
@@ -296,9 +297,13 @@ namespace Shiro.Guts
         internal void Deliver(string s1, Token res)
         {
             lock(SymbolTable[s1])
-            {
                 SymbolTable[s1] = res;
-            }
+        }
+
+        internal bool IsVarBeingAwaited(string s1)
+        {
+            lock (SymbolTable[s1])
+                return SymbolTable[s1].IsBeingAwaited;
         }
     }
 }

@@ -121,6 +121,20 @@
     (assert-works (=> (sod o {say-hi: (=> (print 'hello nu))rse'))})) "parenthesis in string in reader bug 2")
     (assert-works (=> (sod o {say-hi: (=> (print `hello nu))rse {+ 2 2}`))})) "parenthesis in string in reader bug 3")
 
+    ;insanity
+    (do (await res (do 
+        (sod finished false)
+        (sub "Dan" (sod finished true))
+        (while (! $finished) (nop))
+        "Let's just return something"
+        ))
+     
+        (assert (awaiting? res) "awaiting? works")
+        (pub "Dan" 123)
+        (assert-eq "Let's just return something" $res "Interrim assert.  If we sit here forever life sucks")
+        (assert (! (awaiting? res)) "We can shut shit down, and awaiting? works 2")        
+    )
+
     ;check reader shortcuts
     (assert-read-fail ' (=> ("dan"->(print "dan")))' "arrow must have param list")
     (assert-read-fail ' (=> (()->123))' "arrow must have command list")

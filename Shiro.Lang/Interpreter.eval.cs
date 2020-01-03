@@ -706,6 +706,16 @@ namespace Shiro
 
                 #region Conditional Elements
 
+                case "awaiting?":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'awaiting?', expected 1");
+
+                    s1 = list[1].Toke.ToString();
+                    if (!Symbols.CanGet(s1))
+                        Error("Can't check if unknown variable " + s1 + " is being awaited.");
+
+                    return Symbols.IsVarBeingAwaited(s1) ? Token.True : Token.False;
+
                 case "list?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'list?', expected 1");
@@ -1297,7 +1307,7 @@ namespace Shiro
                     return new Token(s1);
                 #endregion
 
-                #region Misc
+                #region Async / Threads
 
                 case "await":
                     if (!list.ValidateParamCount(2))
@@ -1364,6 +1374,30 @@ namespace Shiro
                     new Thread(tst2).Start();
                     return Token.Nil;
 
+                case "pub":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'pub', expected 2");
+
+                    s1 = list[1].Eval(this).ToString();
+                    toke = list[2].Eval(this);
+
+                    Conduit.Publish(s1, toke);
+                    return toke;
+
+                case "sub":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'sub', expected 2");
+
+                    s1 = list[1].Eval(this).ToString();
+                    toke = list[2];
+
+                    Conduit.Subscribe(s1, this, toke);
+                    return toke;
+
+                #endregion
+
+                #region Misc
+
                 case "len":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'len', expected 1");
@@ -1375,12 +1409,7 @@ namespace Shiro
                     return new Token(toke.ToString().Length.ToString());
 
                 case "nop":
-                    Output("No Op encountered" + Environment.NewLine);
-                    if (list.Count > 1)
-                        return list[1];
-                    return Token.Nil;
-
-                case "qnop":
+                    DispatchPublications();
                     if (list.Count > 1)
                         return list[1];
                     return Token.Nil;

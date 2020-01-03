@@ -45,8 +45,10 @@
     <Compile Include="Guts\Param.cs" />
     <Compile Include="Guts\ShiroException.cs" />
     <Compile Include="Guts\Symbols.cs" />
+    <Compile Include="Guts\ThreadConduit.cs" />
     <Compile Include="Interop\Loader.cs" />
     <Compile Include="Interop\ShiroPlugin.cs" />
+    <Compile Include="Interpreter.reader.cs" />
     <Compile Include="Interpreter.eval.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="Nimue\Connection.cs" />
