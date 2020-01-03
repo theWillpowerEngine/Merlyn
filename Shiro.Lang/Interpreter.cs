@@ -64,7 +64,6 @@ namespace Shiro
             return true;
         }
 
-
         private class PublishedThing
         {
             internal Token Eval, Val;

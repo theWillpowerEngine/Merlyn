@@ -1471,6 +1471,7 @@ namespace Shiro
         {
             var scanned = Scan(code);
             var retVal = scanned.Eval(this);
+            //DispatchPublications();       //maybe...  we'll talk about it
             return retVal;
         }
     }
