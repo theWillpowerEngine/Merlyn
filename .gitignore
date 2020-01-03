@@ -8,6 +8,10 @@
 /shide/bin/**
 /shide/packages/**
 
+/Shiro.Support/.vs/**
+/Shiro.Support/obj/**
+/Shiro.Support/bin/**
+
 /Shiro.Lang/.vs/**
 /Shiro.Lang/obj/**
 /Shiro.Lang/bin/**
