@@ -1,5 +1,0 @@
-(do 
-		(sod data '({id: 1, name: "Dan", age: 35} {id: 2, name: "Dhiraj", age: 28}))
-		(http 8676 (route
-			"api*" (rest $data id)
-			"quit" (stop $data))))
