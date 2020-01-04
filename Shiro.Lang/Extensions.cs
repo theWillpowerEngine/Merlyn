@@ -12,6 +12,28 @@ namespace Shiro
     {
         public static bool RunningAsCompiledCode = false;       //Yeah this should be somewhere else, w/e IDC
 
+        public static bool LookAhead(this string s, int pos, string lookFor)
+        {
+            for (var i=pos+1; i < s.Length; i++)
+            {
+                var c = s[i];
+                if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+                    continue;
+
+                if (c == lookFor[0])
+                {
+                    if (s.Length >= pos + i + lookFor.Length)
+                        foreach (var c2 in lookFor)
+                            if (s[i++] != c2)
+                                return false;
+
+                    return true;
+                }
+                else
+                    return false;
+            }
+            return false;
+        }
         public static string ToFlatString(this List<Token> tokes)
         {
             StringBuilder ret = new StringBuilder("(");

@@ -7,6 +7,7 @@ using System.IO;
 using System.Web.Script.Serialization;
 using Shiro.Guts;
 using Shiro.Interop;
+using System.Threading;
 
 namespace Shiro
 {
@@ -16,7 +17,7 @@ namespace Shiro
         internal Symbols Symbols;
         internal Loader Loader = new Loader();
 
-        private static ThreadConduit _tc = null;
+        private static ThreadConduit _tc = new ThreadConduit();
         internal static ThreadConduit Conduit
         {
             get
@@ -25,6 +26,10 @@ namespace Shiro
                     _tc = new ThreadConduit();
                 return _tc;
             }
+        }
+        public void CleanUpQueues()
+        {
+            _tc = new ThreadConduit();
         }
 
         public Interpreter()
@@ -90,6 +95,7 @@ namespace Shiro
 
         internal void DispatchPublications()
         {
+            Thread.Sleep(0);
             lock (PublishLock)
             {
                 foreach(var pt in PublishedThings)

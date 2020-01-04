@@ -50,7 +50,7 @@ namespace Shiro
                 var c = jsonTemp[i];
                 if (c == '(' && stringDelim == '#')
                 {
-                    if (depthCount == 0)
+                    if (depthCount == 0 && !json.Trim().EndsWith("->"))
                         json += "\"(";
                     else
                         json += "(";
@@ -59,7 +59,7 @@ namespace Shiro
                 else if (c == ')' && stringDelim == '#')
                 {
                     depthCount -= 1;
-                    if (depthCount == 0)
+                    if (depthCount == 0 && !jsonTemp.LookAhead(i, "->"))
                         json += ")\"";
                     else
                         json += ")";
@@ -95,7 +95,7 @@ namespace Shiro
                         stringDelim = '`';
                 }
                 else
-                        json += c;
+                    json += c;
             }
 
             if (stringDelim != '#')

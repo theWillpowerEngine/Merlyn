@@ -41,11 +41,4 @@ console app built-ins (includes compiled):
 
 TODO
 
-	awaiting?
-
-	pub/sub		-	Awaited things pub, awaiting things sub     (or vice versa too?)
-
-	queue name are case insensitive.
-	val is the name of the thing being published
-	
 

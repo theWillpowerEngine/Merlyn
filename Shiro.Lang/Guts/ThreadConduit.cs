@@ -8,6 +8,8 @@ namespace Shiro.Guts
 {
     internal class ThreadConduit
     {
+        private object QueueLock = new object();
+
         private class QueueItem
         {
             internal List<Subscription> Subscriptions = new List<Subscription>();
@@ -31,8 +33,9 @@ namespace Shiro.Guts
 
         internal Guid Subscribe(string queue, Interpreter i, Token list)
         {
-            if (!Queues.ContainsKey(queue.ToLower()))
-                Queues.Add(queue.ToLower(), new QueueItem());
+            lock(QueueLock)
+                if (!Queues.ContainsKey(queue.ToLower()))
+                    Queues.Add(queue.ToLower(), new QueueItem());
 
             var sub = new Subscription(i, list);
             lock (Queues[queue.ToLower()].Lock)
@@ -44,8 +47,9 @@ namespace Shiro.Guts
 
         internal void Publish(string queue, Token toke, string awaitDelivery = null, Interpreter awaitDeliveryInterpreter = null)
         {
-            if (!Queues.ContainsKey(queue.ToLower()))
-                return;
+            lock(QueueLock)
+                if (!Queues.ContainsKey(queue.ToLower()))
+                    Interpreter.Error("No one is subscribed to the queue '" + queue + "'.  You might have to give your async-list more time to get setup, or else use the queue? predicate.");
 
             lock (Queues[queue.ToLower()].Lock)
             {
@@ -62,6 +66,12 @@ namespace Shiro.Guts
                     sub.Shiro.Symbols.ClearLetId(letId);
                 }
             }
+        }
+
+        internal bool HasQueue(string queue)
+        {
+            lock(QueueLock)
+                return Queues.ContainsKey(queue.ToLower());
         }
     }
 }

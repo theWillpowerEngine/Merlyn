@@ -25,6 +25,8 @@ namespace Shiro
             if (!string.IsNullOrEmpty(list[0].Name))
                 return new Token(list);
 
+            DispatchPublications();
+
             if (list[0].IsParent)
             {
                 var evalled = list[0].Eval(this);
@@ -716,6 +718,14 @@ namespace Shiro
 
                     return Symbols.IsVarBeingAwaited(s1) ? Token.True : Token.False;
 
+                case "queue?":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'queue?', expected 1");
+
+                    s1 = list[1].Toke.ToString();
+
+                    return Conduit.HasQueue(s1) ? Token.True : Token.False;
+
                 case "list?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'list?', expected 1");
@@ -1328,6 +1338,7 @@ namespace Shiro
                         try
                         {
                             res = threadedInterpreter.Eval(toke.Children);
+                            DispatchPublications();
                             Symbols.Deliver(s1, res);
 
                         }
@@ -1471,7 +1482,6 @@ namespace Shiro
         {
             var scanned = Scan(code);
             var retVal = scanned.Eval(this);
-            //DispatchPublications();       //maybe...  we'll talk about it
             return retVal;
         }
     }

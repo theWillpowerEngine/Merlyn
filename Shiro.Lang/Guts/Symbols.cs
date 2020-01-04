@@ -75,7 +75,6 @@ namespace Shiro.Guts
                 while(awaiting)
                 {
                     _shiro.DispatchPublications();
-                    Thread.Sleep(10);
                     lock(SymbolTable[name])
                     {
                         awaiting = SymbolTable[name].IsBeingAwaited;
@@ -109,7 +108,6 @@ namespace Shiro.Guts
                 while (awaiting)
                 {
                     _shiro.DispatchPublications();
-                    Thread.Sleep(10);
                     lock (SymbolTable[name])
                     {
                         awaiting = SymbolTable[name].IsBeingAwaited;
