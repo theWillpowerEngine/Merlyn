@@ -1424,7 +1424,7 @@ namespace Shiro
                     s1 = list[1].Eval(this).ToString();
                     toke = list[2];
 
-                    Conduit.Subscribe(s1, this, toke);
+                    MySubscriptions.Add(Conduit.Subscribe(s1, this, toke), s1);
                     return toke;
 
                 #endregion

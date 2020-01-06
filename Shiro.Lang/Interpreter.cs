@@ -29,8 +29,11 @@ namespace Shiro
         }
         public void CleanUpQueues()
         {
-            _tc = new ThreadConduit();
             PublishedThings = new List<PublishedThing>();
+            foreach(var id in MySubscriptions.Keys)
+            {
+                Conduit.Unsubscribe(MySubscriptions[id], id);
+            }
         }
 
         public Interpreter()
@@ -81,6 +84,7 @@ namespace Shiro
 
         private List<PublishedThing> PublishedThings = new List<PublishedThing>();
         private object PublishLock = new object();
+        private Dictionary<Guid, string> MySubscriptions = new Dictionary<Guid, string>();
 
         internal void Publish(Token eval, Token val, string awaitDelivery = null, Interpreter awaitDeliveryInterpreter = null)
         {

@@ -45,6 +45,22 @@ namespace Shiro.Guts
             return sub.SubscriptionId;
         }
 
+        internal void Unsubscribe(string queue, Guid subId)
+        {
+            lock (QueueLock)
+                if (!Queues.ContainsKey(queue.ToLower()))
+                    Interpreter.Error("Bizarre attempt to unsubscribe from queue: " + queue + " in a situation where that queue doesn't exist.  I fucked up somewhere this is not your fault.");
+
+            lock (Queues[queue.ToLower()].Lock)
+            {
+                Queues[queue.ToLower()].Subscriptions.Remove(Queues[queue.ToLower()].Subscriptions.First(s => s.SubscriptionId == subId));
+            }
+
+            if (Queues[queue.ToLower()].Subscriptions.Count == 0)
+                lock (QueueLock)
+                    Queues.Remove(queue.ToLower());
+        }
+
         internal void Publish(string queue, Token toke, string awaitDelivery = null, Interpreter awaitDeliveryInterpreter = null)
         {
             lock(QueueLock)
