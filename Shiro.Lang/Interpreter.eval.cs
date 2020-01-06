@@ -1359,6 +1359,7 @@ namespace Shiro
                             res = threadedInterpreter.Eval(toke.Children);
                             DispatchPublications();
                             Symbols.Deliver(s1, res);
+                            threadedInterpreter.CleanUpQueues();
 
                         }
                         catch (Exception ex)
@@ -1391,7 +1392,9 @@ namespace Shiro
                         try
                         {
                             res = threadedInterpreter2.Eval(toke.Children);
+                            DispatchPublications();
                             Symbols.Deliver(s1, res);
+                            threadedInterpreter2.CleanUpQueues();
 
                         }
                         catch (Exception ex)
