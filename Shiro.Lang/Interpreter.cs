@@ -100,6 +100,9 @@ namespace Shiro
 
         internal void DispatchPublications()
         {
+            if (PublishedThings.Count == 0)
+                return;
+
             Thread.Sleep(0);
             lock (PublishLock)
             {

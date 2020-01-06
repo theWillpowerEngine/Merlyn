@@ -8,7 +8,7 @@ TODO (tests)
 	switch
 
 	Add a bugfix test for the duplicating-queues-of-doom bug:
-			(do
+		(do
 			(cls)
 			(defn make-command (cmd val) (pair "cmd" $cmd))
 			(awaith res (do 
@@ -18,13 +18,14 @@ TODO (tests)
 					(throw `Unknown command: {val}`)
 				))
 				(sod done false)
-				(while (! done) (nop))))
+				(while (! $done) (nop))))
  
 			(while (! (queue? "Command")) (nop))
 			(pub "Command" (make-command "Hello" ()))
 			(print (awaiting? res))     ;True
 			(pub "Command" (make-command "quit" ()))
-			(print `Final result was {$res}`))
+			(print `Final result was {$res}`)
+		)
         
 
 
