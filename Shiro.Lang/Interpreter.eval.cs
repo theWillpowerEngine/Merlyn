@@ -951,7 +951,7 @@ namespace Shiro
 
                 case "while":
                     if (!list.ValidateParamCount(2))
-                        Error("Wrong number of parameters of keywod 'while', expected 2");
+                        Error("Wrong number of parameters of keyword 'while', expected 2");
 
                     var condition = list[1];
                     var action = list[2];
@@ -961,6 +961,25 @@ namespace Shiro
                         lastVal = action.Eval(this);
                     }
                     return lastVal;
+
+                case "switch":
+                    if (!list.ValidateParamCount(3, true))
+                        Error("'switch' keyword requires a minimum of 3 params (a value and a single case)");
+
+                    bool doesSwitchHaveDefault = !((list.Count - 1) % 2 != 0);
+                    s1 = list[1].Eval(this).ToString();     //Get value to check against
+                   
+                    for (i = 2; i < list.Count - 1; i += 2)
+                    {
+                        s2 = list[i].Eval(this).ToString();
+                        if(s1 == s2)
+                            return list[i + 1].Eval(this);
+                    }
+
+                    if (!doesSwitchHaveDefault)
+                        return Token.Nil;
+
+                    return list[list.Count - 1].Eval(this);
 
                 #endregion
 
@@ -1478,10 +1497,17 @@ namespace Shiro
             return Token.Nil;
         }
 
-        public Token Eval(string code)
+        protected Token InnerEval(string code)
         {
             var scanned = Scan(code);
             var retVal = scanned.Eval(this);
+            return retVal;
+        }
+        public Token Eval(string code, bool cleanUpAfter = true)
+        {
+            var retVal = InnerEval(code);
+            if(cleanUpAfter)
+                CleanUpQueues();
             return retVal;
         }
     }

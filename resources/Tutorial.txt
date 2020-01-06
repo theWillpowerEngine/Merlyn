@@ -1,44 +1,37 @@
-This file is now for anything that might be relevant to the written guide that I haven't written in it yet.
+TODO (Docs)
 
-Everything from the old coded-out example has been moved over to the guide already.
-
-
+	switch
 
 
-console app built-ins (includes compiled):
+TODO (tests)
 
-	cls / input
-	
-  examples:
+	switch
 
-	(print (str 'hello ' (do (pnb 'Enter your name: ') (input))))
-
-
-
-	(do 
-		(sod o (enclose {_p: 1} {getP: (=> (this._p)), incP: (=> (.sod this _p (+ this._p 1)))}))
-		(print o.getP)
-		(o.incP)
-		(print o.getP)
-		(o.incP)
-		(print o.getP))
-
-
-	; The snippets just keep becoming cooler, lol
-	(do
-		(await res (do 
-			(sub "Dan" (try ()->(sendAll `The Admin says: {$val}`) ()))
-			(telnet 4676 
-				(if (= $input "quit") 
-					(do (print "quitting")(stop "Quit as instructed"))
-					(print $input)))))
-    
-		(while (awaiting? res) (pub "Dan" (input)))
-    
-		(print `Finished with {$res}`))
-
+	Add a bugfix test for the duplicating-queues-of-doom bug:
+			(do
+			(cls)
+			(defn make-command (cmd val) (pair "cmd" $cmd))
+			(awaith res (do 
+				(sub "Command" (switch (lower val.cmd)
+					"quit" (do (print "quitting") (sod done true))
+					"hello" (print "Hello Nurse")
+					(throw `Unknown command: {val}`)
+				))
+				(sod done false)
+				(while (! done) (nop))))
+ 
+			(while (! (queue? "Command")) (nop))
+			(pub "Command" (make-command "Hello" ()))
+			(print (awaiting? res))     ;True
+			(pub "Command" (make-command "quit" ()))
+			(print `Final result was {$res}`))
+        
 
 
 TODO
 
+	Add CTOR (Implementer-named function)
+	new keyword
+	atom keyword (prevent interpreter from evaluation-slicing)
 
+	shIDE is sometimes weird with the working directory (seems mostly in debug mode, but figure out a final solution)

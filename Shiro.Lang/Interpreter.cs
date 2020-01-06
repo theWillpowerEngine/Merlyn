@@ -30,6 +30,7 @@ namespace Shiro
         public void CleanUpQueues()
         {
             _tc = new ThreadConduit();
+            PublishedThings = new List<PublishedThing>();
         }
 
         public Interpreter()
@@ -65,7 +66,7 @@ namespace Shiro
             else
                 code = File.ReadAllText(s + ".shr");
 
-            m.Eval(code);
+            m.InnerEval(code);
             return true;
         }
 

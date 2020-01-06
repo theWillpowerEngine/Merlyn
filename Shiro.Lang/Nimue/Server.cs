@@ -122,7 +122,7 @@ namespace Shiro.Nimue
 				}
 				catch (ApplicationException aex)
 				{
-					shiro.Eval($"print 'Server error: {aex.Message.Replace("'", "%'")}'");
+					shiro.Eval($"print 'Server error: {aex.Message.Replace("'", "%'")}'", false);
 				}
 				finally
 				{

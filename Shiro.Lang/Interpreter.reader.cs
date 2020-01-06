@@ -28,7 +28,7 @@ namespace Shiro
                 {
                     object o = dict[key].ToString().TypeCoerce();
                     if (o is string && o.ToString().Trim().StartsWith("("))
-                        retVal.Children.Add(Eval(o as string).Clone(key));
+                        retVal.Children.Add(InnerEval(o as string).Clone(key));
                     else 
                         retVal.Children.Add(new Token(key, o));
                 }

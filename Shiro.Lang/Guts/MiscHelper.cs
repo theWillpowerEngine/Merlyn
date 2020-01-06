@@ -41,7 +41,7 @@ namespace Shiro.Guts
                         else
                         {
                             isCode = false;
-                            var val = shiro.Eval(code).ToString();
+                            var val = shiro.Eval(code, false).ToString();
                             retVal.Append(val);
                             code = "";
                         }

@@ -28,7 +28,7 @@ namespace test
 (defn assert-eq (t1 t2 s:str?) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}%n` '')))
 (defn assert-throws (f:fn? s:str?) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` '')))
 (defn assert-fails (f:fn? s:str?) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` '')))
-(defn assert-works (f:fn? s:str?) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` ''))))");
+(defn assert-works (f:fn? s:str?) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` ''))))", false);
         }
 	}
 }

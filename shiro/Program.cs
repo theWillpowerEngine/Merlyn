@@ -196,7 +196,7 @@ namespace Shiro.Cons
                     Interpreter.LoadModule = (m, s) => {
                         if (modules.ContainsKey(s.ToLower()))
                         {
-                            shiro.Eval(modules[s.ToLower()]);
+                            shiro.Eval(modules[s.ToLower()], false);
                             return true;
                         }
 
