@@ -116,11 +116,14 @@ namespace Shiro
             
             lock (PublishLock)
             {
-                foreach(var pt in PublishedThings)
+                while(PublishedThings.Count > 0)
                 {
+                    var pt = PublishedThings[0];
                     Guid letId = Guid.NewGuid();
 
-                    Symbols.Let("val", pt.Val.Clone(), letId);
+                    PublishedThings.RemoveAt(0);
+
+                    Symbols.Let("val", pt.Val, letId);
                     var res = pt.Eval.Eval(this, true);
                     Symbols.ClearLetId(letId);
 

@@ -25,8 +25,10 @@ namespace Shiro
             if (!string.IsNullOrEmpty(list[0].Name))
                 return new Token(list);
 
-            if(!atomic)
+            if (!atomic)
                 DispatchPublications();
+            else
+                Thread.Sleep(0);
 
             if (list[0].IsParent)
             {

@@ -77,20 +77,7 @@ namespace Shiro.Guts
                 subs = Queues[queue.ToLower()].Subscriptions.Select(s => s).ToList();
 
             foreach (var sub in subs)
-            {
-                Guid letId = Guid.NewGuid();
-
-                sub.Shiro.Symbols.Let("val", toke.Clone(), letId);
-                var res = sub.List.Eval(sub.Shiro, true);
-
-                if (sub.Shiro.Symbols == null)
-                    Unsubscribe(queue, sub.SubscriptionId);
-                else
-                    sub.Shiro.Symbols.ClearLetId(letId);
-
-                if (awaitDelivery != null && awaitDeliveryInterpreter != null)
-                    awaitDeliveryInterpreter.Symbols.Deliver(awaitDelivery, res.Clone());
-            }
+                sub.Shiro.Publish(sub.List, toke.Clone(), awaitDelivery, awaitDeliveryInterpreter);
         }
 
         internal bool HasQueue(string queue)

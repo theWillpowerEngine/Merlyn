@@ -2,32 +2,15 @@ TODO (Docs)
 
 	switch
 	try can now just take a single list
+	show the lambda-let recipe so that people can figure out how to do simple local scopes out of "closure" type variables
+	sub evaluations are ALWAYS atomic
 
 
 TODO (tests)
 
 	switch
 
-	Add a bugfix test for the duplicating-queues-of-doom bug:
-		(do
-			(cls)
-			(defn make-command (cmd val) (pair "cmd" $cmd))
-			(awaith res (do 
-				(sub "Command" (switch (lower val.cmd)
-					"quit" (do (print "quitting") (sod done true))
-					"hello" (print "Hello Nurse")
-					(throw `Unknown command: {val}`)
-				))
-				(sod done false)
-				(while (! $done) (nop))))
- 
-			(while (! (queue? "Command")) (nop))
-			(pub "Command" (make-command "Hello" ()))
-			(print (awaiting? res))     ;True
-			(pub "Command" (make-command "quit" ()))
-			(print `Final result was {$res}`)
-		)
-        
+      
 
 
 TODO
