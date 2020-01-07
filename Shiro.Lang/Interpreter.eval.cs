@@ -1464,6 +1464,26 @@ namespace Shiro
                     MySubscriptions.Add(Conduit.Subscribe(s1, this, toke), s1);
                     return toke;
 
+                case "atom":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'atom', expected 1");
+
+                    _atomicEvaluation = true;
+                    try
+                    {
+                        toke = list[1].Eval(this, true);
+                    }
+                    catch (Exception)
+                    {
+                        _atomicEvaluation = false;
+                        throw;
+                    }
+                    finally
+                    {
+                        _atomicEvaluation = false;
+                    }
+                    return toke;
+
                 #endregion
 
                 #region Misc
@@ -1546,6 +1566,7 @@ namespace Shiro
         public Token Eval(string code, bool cleanUpAfter = true)
         {
             var retVal = InnerEval(code);
+            DispatchPublications();
             if(cleanUpAfter)
                 CleanUpQueues();
             return retVal;

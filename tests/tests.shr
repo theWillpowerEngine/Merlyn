@@ -144,6 +144,16 @@
         (assert (error? $y) "async error handling 2")
         (assert-eq "fuck off" x.message "ShiroException unwrapping in async error handling")
     )
+    
+    (sod l '())
+    (defn add-l (i) (sod l (concat $l $i)))
+    (do 
+        (sub "Odd" (add-l $val))
+        (add-l 1)
+        (pub "Odd" 2)
+        (atom (do (add-l 3) (pub "Odd" 4) (add-l 5))))
+        
+    (assert-eq '(1 2 3 5 4) $l "atomic lists are atomic")    
 
     ;check reader shortcuts
     (assert-read-fail ' (=> ("dan"->(print "dan")))' "arrow must have param list")

@@ -107,11 +107,13 @@ namespace Shiro
                 });
         }
 
+        protected bool _atomicEvaluation = false;
+
         internal void DispatchPublications()
         {
             Thread.Sleep(0);
 
-            if (PublishedThings.Count == 0)
+            if (_atomicEvaluation || PublishedThings.Count == 0)
                 return;
             
             lock (PublishLock)
@@ -124,7 +126,9 @@ namespace Shiro
                     PublishedThings.RemoveAt(0);
 
                     Symbols.Let("val", pt.Val, letId);
+                    _atomicEvaluation = true;
                     var res = pt.Eval.Eval(this, true);
+                    _atomicEvaluation = false;
                     Symbols.ClearLetId(letId);
 
                     if (pt.WantsDelivery)
