@@ -11,11 +11,19 @@ using System.Threading;
 
 namespace Shiro
 {
-    public partial class Interpreter
+    public partial class Interpreter : IDisposable
     {
         public static string Version = "0.2.6";
+        public Guid InterpreterId = Guid.NewGuid();
         internal Symbols Symbols;
         internal Loader Loader = new Loader();
+
+        void IDisposable.Dispose()
+        {
+            CleanUpQueues();
+            Symbols = null;
+            Loader = null;
+        }
 
         private static ThreadConduit _tc = new ThreadConduit();
         internal static ThreadConduit Conduit
@@ -34,6 +42,7 @@ namespace Shiro
             {
                 Conduit.Unsubscribe(MySubscriptions[id], id);
             }
+            MySubscriptions.Clear();
         }
 
         public Interpreter()
@@ -100,10 +109,11 @@ namespace Shiro
 
         internal void DispatchPublications()
         {
+            Thread.Sleep(0);
+
             if (PublishedThings.Count == 0)
                 return;
-
-            Thread.Sleep(0);
+            
             lock (PublishLock)
             {
                 foreach(var pt in PublishedThings)
@@ -111,7 +121,7 @@ namespace Shiro
                     Guid letId = Guid.NewGuid();
 
                     Symbols.Let("val", pt.Val.Clone(), letId);
-                    var res = pt.Eval.Eval(this);
+                    var res = pt.Eval.Eval(this, true);
                     Symbols.ClearLetId(letId);
 
                     if (pt.WantsDelivery)

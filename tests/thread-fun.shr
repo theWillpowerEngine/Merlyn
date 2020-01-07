@@ -1,0 +1,37 @@
+(do
+    (cls)
+    (sub "Incremental" (print `Job completed for {$val}`))
+    
+    (defn make-worker (n) (let (done false name $n) (await $name (do
+        (sub $name (do (print `{$name} received work: {$val}`) (if (= $val "done") 
+            (do (print "got done")(sod done true))
+            (do 
+                (pub "Incremental" (print `worker {$name} handled {$val}`))
+				(nop)
+                (try ()->(pub "GetWork" $name))))))
+        
+        (print `{$name} is about to get work`)
+        (pub "GetWork" $name)
+        (while (! $done) (nop))
+        (print `{$name} is shutting down`)))))
+    
+    ; Controller
+    (awaith res (do 
+        (sod l '(1 2 3 4 5 6 7))
+        (sub "GetWork" (do (print `Work requested by {$val}`)(if (len $l)
+            (do 
+                (sod i (kw $l))
+                (sod l (params $l))
+                (pub $val $i))
+            (do (pub $val "done") (sod done true)))))
+        (sod done false)
+        (while (! $done) (nop))))
+        
+	(while (! (queue? "GetWork")) (nop))
+    (print `Controller thread is standing by: {awaiting? res}`)
+    
+    (make-worker "queue1")
+    ;(make-worker "queue2")
+    ;TODO:  Figure out WTF
+    
+    (print `Final result was {$res}`))

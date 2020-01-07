@@ -1,6 +1,7 @@
 TODO (Docs)
 
 	switch
+	try can now just take a single list
 
 
 TODO (tests)
@@ -34,5 +35,6 @@ TODO
 	Add CTOR (Implementer-named function)
 	new keyword
 	atom keyword (prevent interpreter from evaluation-slicing)
+	figure out how you want to handle exceptions and throws in threads
 
 	shIDE is sometimes weird with the working directory (seems mostly in debug mode, but figure out a final solution)

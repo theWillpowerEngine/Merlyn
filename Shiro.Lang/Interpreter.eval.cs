@@ -16,7 +16,7 @@ namespace Shiro
     {
         private Token _bestGuessAtThisForLambda = null;     //I have a feeling let-scopes just "make this work" but I also have a feeling my initial feeling is wrong.
 
-        public Token Eval(List<Token> list)
+        public Token Eval(List<Token> list, bool atomic = false)
         {
             if (list == null || list.Count == 0)
                 return Token.Nil;
@@ -25,7 +25,8 @@ namespace Shiro
             if (!string.IsNullOrEmpty(list[0].Name))
                 return new Token(list);
 
-            DispatchPublications();
+            if(!atomic)
+                DispatchPublications();
 
             if (list[0].IsParent)
             {
@@ -167,7 +168,12 @@ namespace Shiro
                         Error("Wrong number of parameters to keyword 'kw', expected 1");
                     lastVal = list[1].Eval(this);
                     if (lastVal.IsParent)
-                        return lastVal.Children[0];
+                    {
+                        if (lastVal.Children.Count == 0)
+                            return Token.Nil;
+                        else
+                            return lastVal.Children[0];
+                    }
                     return lastVal;
                 case "params":
                     if (!list.ValidateParamCount(1))
@@ -634,16 +640,16 @@ namespace Shiro
                         Symbols.Let(s1, toke, letId);
                     }
 
-                    try
+                    //try
                     {
                         for (i = 2; i < list.Count; i++)
                             lastVal = list[i].Eval(this);
                     }
-                    catch (Exception ex)
-                    {
-                        Error(ex.Message);
-                    }
-                    finally
+                    //catch (Exception ex)
+                    //{
+                    //    Error(ex.Message);
+                    //}
+                   // finally
                     {
                         Symbols.ClearLetId(letId);
                     }
@@ -911,8 +917,8 @@ namespace Shiro
                     return toke;
 
                 case "try":
-                    if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
-                        Error("Wrong number of parameters to keyword 'try', expected 2 or 3");
+                    if (!list.ValidateParamCount(1) && !list.ValidateParamCount(2) && !list.ValidateParamCount(3))
+                        Error("Wrong number of parameters to keyword 'try', expected 1, 2 or 3");
 
                     toke = list[1];
                     var finBlock2 = list.Count == 4 ? list[3] : null;
@@ -925,10 +931,13 @@ namespace Shiro
                     }
                     catch (Exception ex)
                     {
-                        letId = Guid.NewGuid();
-                        Symbols.Let("ex", new Token(ex.Message), letId);
-                        toke = list[2].Eval(this);
-                        Symbols.ClearLetId(letId);
+                        if (list.Count >= 3)
+                        {
+                            letId = Guid.NewGuid();
+                            Symbols.Let("ex", new Token(ex.Message), letId);
+                            toke = list[2].Eval(this);
+                            Symbols.ClearLetId(letId);
+                        }
                     }
                     finally
                     {
@@ -1348,28 +1357,29 @@ namespace Shiro
                     if (!toke.IsParent)
                         Error("await's second parameter must be a list, not " + toke.ToString());
 
-                    Interpreter threadedInterpreter = new Interpreter(Symbols);
+                    var newSym = new Symbols(null);
+                    newSym.CloneFrom(Symbols);
+
                     Symbols.BeginAwaiting(s1);
 
-                    var tst = new ThreadStart(() =>
+                    var tst = new ParameterizedThreadStart((sym) =>
                     {
                         Token res;
-                        try
+                        //try
                         {
-                            res = threadedInterpreter.Eval(toke.Children);
-                            DispatchPublications();
-                            Symbols.Deliver(s1, res);
-                            threadedInterpreter.CleanUpQueues();
-
+                            using (var threadedInterpreter = new Interpreter((Symbols)sym)) { 
+                                res = threadedInterpreter.Eval(toke.Children);
+                                Symbols.Deliver(s1, res);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Error(ex.Message);
-                        }
+                        //catch (Exception ex)
+                        //{
+                        //    Error(ex.Message);
+                        //}
 
                     });
 
-                    new Thread(tst).Start();
+                    new Thread(tst).Start(newSym);
                     return Token.Nil;
 
                 case "awaith":
@@ -1381,26 +1391,25 @@ namespace Shiro
                     toke = list[2];
 
                     if (!toke.IsParent)
-                        Error("await's second parameter must be a list, not " + toke.ToString());
+                        Error("awaith's second parameter must be a list, not " + toke.ToString());
 
-                    Interpreter threadedInterpreter2 = new Interpreter();
                     Symbols.BeginAwaiting(s1);
 
                     var tst2 = new ThreadStart(() =>
                     {
                         Token res;
-                        try
+                        //try
                         {
-                            res = threadedInterpreter2.Eval(toke.Children);
-                            DispatchPublications();
-                            Symbols.Deliver(s1, res);
-                            threadedInterpreter2.CleanUpQueues();
-
+                            using (var threadedInterpreter = new Interpreter())
+                            {
+                                res = threadedInterpreter.Eval(toke.Children);
+                                Symbols.Deliver(s1, res);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Error(ex.Message);
-                        }
+                        //catch (Exception ex)
+                        //{
+                       //     Error(ex.Message);
+                        //}
 
                     });
 

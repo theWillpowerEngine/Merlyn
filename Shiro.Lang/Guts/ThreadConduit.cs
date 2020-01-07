@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Shiro.Guts
@@ -21,6 +22,8 @@ namespace Shiro.Guts
             internal Token List;
             internal Interpreter Shiro;
             internal Guid SubscriptionId = Guid.NewGuid();
+
+            internal Guid InterpreterId => Shiro.InterpreterId;
 
             internal Subscription(Interpreter i, Token t)
             {
@@ -49,11 +52,12 @@ namespace Shiro.Guts
         {
             lock (QueueLock)
                 if (!Queues.ContainsKey(queue.ToLower()))
-                    Interpreter.Error("Bizarre attempt to unsubscribe from queue: " + queue + " in a situation where that queue doesn't exist.  I fucked up somewhere this is not your fault.");
+                    return;
 
             lock (Queues[queue.ToLower()].Lock)
             {
-                Queues[queue.ToLower()].Subscriptions.Remove(Queues[queue.ToLower()].Subscriptions.First(s => s.SubscriptionId == subId));
+                if(Queues[queue.ToLower()].Subscriptions.Any(s => s.SubscriptionId == subId))
+                    Queues[queue.ToLower()].Subscriptions.Remove(Queues[queue.ToLower()].Subscriptions.First(s => s.SubscriptionId == subId));
             }
 
             if (Queues[queue.ToLower()].Subscriptions.Count == 0)
@@ -67,20 +71,25 @@ namespace Shiro.Guts
                 if (!Queues.ContainsKey(queue.ToLower()))
                     Interpreter.Error("No one is subscribed to the queue '" + queue + "'.  You might have to give your async-list more time to get setup, or else use the queue? predicate.");
 
+            List<Subscription> subs = null;
+
             lock (Queues[queue.ToLower()].Lock)
+                subs = Queues[queue.ToLower()].Subscriptions.Select(s => s).ToList();
+
+            foreach (var sub in subs)
             {
-                foreach (var sub in Queues[queue.ToLower()].Subscriptions)
-                {
-                    Guid letId = Guid.NewGuid();
+                Guid letId = Guid.NewGuid();
 
-                    sub.Shiro.Symbols.Let("val", toke.Clone(), letId);
-                    var res = sub.List.Eval(sub.Shiro);
+                sub.Shiro.Symbols.Let("val", toke.Clone(), letId);
+                var res = sub.List.Eval(sub.Shiro, true);
 
-                    if(awaitDelivery != null && awaitDeliveryInterpreter != null)
-                        awaitDeliveryInterpreter.Symbols.Deliver(awaitDelivery, res.Clone());
-
+                if (sub.Shiro.Symbols == null)
+                    Unsubscribe(queue, sub.SubscriptionId);
+                else
                     sub.Shiro.Symbols.ClearLetId(letId);
-                }
+
+                if (awaitDelivery != null && awaitDeliveryInterpreter != null)
+                    awaitDeliveryInterpreter.Symbols.Deliver(awaitDelivery, res.Clone());
             }
         }
 

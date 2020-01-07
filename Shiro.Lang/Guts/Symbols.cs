@@ -48,7 +48,12 @@ namespace Shiro.Guts
             foreach (var key in s.SymbolTable.Keys)
                 SymbolTable.Add(key, s.SymbolTable[key].Clone());
             foreach (var key in s.LetTable.Keys)
-                LetTable.Add(key, s.LetTable[key].Clone());
+            {
+                if (SymbolTable.ContainsKey(key))
+                    LetTable.Add(key, s.LetTable[key].Clone());
+                else
+                    SymbolTable.Add(key, s.LetTable[key].Clone());      //lets go in the global scope of the resulting symbol table for ghetto closure scope
+            }
             foreach (var key in s.AutoSymbols.Keys)
                 if(!AutoSymbols.ContainsKey(key))
                     AutoSymbols.Add(key, s.AutoSymbols[key]);
@@ -138,36 +143,43 @@ namespace Shiro.Guts
 
         public void Let(string name, Token val, Guid letId)
         {
+            val = val.Clone();
             val.LetTableId = letId;
 
-            if (!LetTable.ContainsKey(name))
-                LetTable.Add(name, val);
-            else
+            lock (LetTable)
             {
-                LetOverrideStack.Push(new LetOverride()
+                if (!LetTable.ContainsKey(name))
+                    LetTable.Add(name, val);
+                else
                 {
-                    Name = name,
-                    Value = LetTable[name],
-                    LetId = LetTable[name].LetTableId.ToString(),
-                    LetIdHiddenBy = letId.ToString()
-                });
-                LetTable[name] = val;
+                    LetOverrideStack.Push(new LetOverride()
+                    {
+                        Name = name,
+                        Value = LetTable[name],
+                        LetId = LetTable[name].LetTableId.ToString(),
+                        LetIdHiddenBy = letId.ToString()
+                    });
+                    LetTable[name] = val;
+                }
             }
         }
 
         public void ClearLetId(Guid letId)
         {
-            var removeThese = LetTable.Keys.Where(k => LetTable[k].LetTableId == letId).ToArray().ToList();
-            var replaceThese = new List<LetOverride>();
+            lock (LetTable)
+            {
+                var removeThese = LetTable.Keys.Where(k => LetTable[k].LetTableId == letId).ToArray().ToList();
+                var replaceThese = new List<LetOverride>();
 
-            while (LetOverrideStack.Count > 0 && LetOverrideStack.Peek().LetIdHiddenBy == letId.ToString())
-                replaceThese.Add(LetOverrideStack.Pop());
+                while (LetOverrideStack.Count > 0 && LetOverrideStack.Peek().LetIdHiddenBy == letId.ToString())
+                    replaceThese.Add(LetOverrideStack.Pop());
 
-            foreach (var key in removeThese) 
-                LetTable.Remove(key);
+                foreach (var key in removeThese)
+                    LetTable.Remove(key);
 
-            foreach (var ls in replaceThese)
-                LetTable.Add(ls.Name, ls.Value);
+                foreach (var ls in replaceThese)
+                    LetTable.Add(ls.Name, ls.Value);
+            }
         }
 
         public Token PopTardEnclosure()

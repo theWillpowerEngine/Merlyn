@@ -88,6 +88,9 @@ namespace Shiro
 
         public static List<Token> Quote(this List<Token> tokes)
         {
+            if (tokes.Count == 0)
+                return tokes;
+
             var retVal = new List<Token>();
             retVal.AddRange(tokes);
             retVal.RemoveAt(0);

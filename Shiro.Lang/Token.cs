@@ -123,11 +123,11 @@ namespace Shiro
             return "nil";
         }
 
-        public Token Eval(Interpreter shiro)
+        public Token Eval(Interpreter shiro, bool atomic = false)
         {
             if (IsParent)
             {
-                var res = shiro.Eval(Children);
+                var res = shiro.Eval(Children, atomic);
                 return res;
             }                
                
