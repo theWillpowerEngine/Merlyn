@@ -101,14 +101,16 @@ namespace Shiro
         public Token Clone(string name = null)
         {
             if (IsParent)
-                return new Token(name ?? Name, Children)
+                return new Token(name ?? Name, Children.ToArray().ToList())
                 {
                     Params = Params,     
                     TardEnclosure = TardEnclosure
                     //Don't clone IsBeingAwaited because only one of them is getting delivered
                 };
             else
-                return new Token(name ?? Name, Toke);
+                return new Token(Toke?.ToString()) {
+                    Name = name 
+                };
         }
 
         public new string ToString()

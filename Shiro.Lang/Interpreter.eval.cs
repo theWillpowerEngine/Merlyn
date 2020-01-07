@@ -954,7 +954,7 @@ namespace Shiro
                 case "do":
 					for(i =1; i<list.Count;i++)
 					{
-						lastVal = list[i].Eval(this);
+						lastVal = list[i].Eval(this, atomic);
 					}
 					return lastVal;
 

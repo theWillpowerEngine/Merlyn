@@ -34,4 +34,5 @@
     ;(make-worker "queue2")
     ;TODO:  Figure out WTF
     
-    (print `Final result was {$res}`))
+    (print `Final result was {$res}`)
+    (input))
