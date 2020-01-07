@@ -13,7 +13,7 @@ namespace Shiro
 {
     public partial class Interpreter : IDisposable
     {
-        public static string Version = "0.2.6";
+        public static string Version = "0.3.0";
         public Guid InterpreterId = Guid.NewGuid();
         internal Symbols Symbols;
         internal Loader Loader = new Loader();
@@ -125,7 +125,7 @@ namespace Shiro
 
                     PublishedThings.RemoveAt(0);
 
-                    Symbols.Let("val", pt.Val, letId);
+                    Symbols.Let("val", pt.Val.Clone(), letId);
                     _atomicEvaluation = true;
                     var res = pt.Eval.Eval(this, true);
                     _atomicEvaluation = false;

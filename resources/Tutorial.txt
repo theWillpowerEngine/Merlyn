@@ -1,16 +1,7 @@
-TODO (Docs)
-
-	switch
-	try can now just take a single list
-	explain error? and how to check errored-out awaits
-	undef
-	atom
-
 TODO (tests)
 
 	switch
 	error?
-	atom (lol, good luck padawan)
 
 TODO
 
@@ -18,3 +9,5 @@ TODO
 	new keyword
 
 	shIDE is sometimes weird with the working directory (seems mostly in debug mode, but figure out a final solution)
+
+

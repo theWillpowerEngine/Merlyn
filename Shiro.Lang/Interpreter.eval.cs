@@ -1002,13 +1002,45 @@ namespace Shiro
                         Error("'switch' keyword requires a minimum of 3 params (a value and a single case)");
 
                     bool doesSwitchHaveDefault = !((list.Count - 1) % 2 != 0);
-                    s1 = list[1].Eval(this).ToString();     //Get value to check against
+                    toke = list[1].Eval(this);
+                    s1 = toke.ToString();
                    
                     for (i = 2; i < list.Count - 1; i += 2)
                     {
-                        s2 = list[i].Eval(this).ToString();
-                        if(s1 == s2)
-                            return list[i + 1].Eval(this);
+                        if (!list[i].IsParent && !list[i].IsFunction)
+                        {
+                            s2 = list[i].Toke.ToString();
+                            if (s1 == s2)
+                                return list[i + 1].Eval(this);
+
+                            try
+                            {
+                                toke2 = new Token(new Token(s2), toke).Eval(this);
+                            }
+                            catch (Exception) { toke2 = Token.Nil; }
+
+                            if (toke2.IsTrue)
+                                return list[i + 1].Eval(this);
+                        }
+                        else if (list[i].IsFunction)
+                        {
+                            if (list[i].Params.Count != 1)
+                                Error("Anonymous function passed as a potential switch case must take only a single parameter.  My best attempt to render the offending lambda is: " + list[i].ToString());
+
+                            var lr = list[i].EvalLambda(null, this, toke);
+                            if (lr.IsTrue)
+                                return list[i + 1].Eval(this);
+                        }
+                        else
+                        {
+                            toke2 = list[i].Eval(this);
+                            if (!toke2.IsFunction)
+                                Error("I don't know how to use " + toke2.ToString() + " as a switch case.");
+
+                            var lr = toke2.EvalLambda(null, this, toke);
+                            if (lr.IsTrue)
+                                return list[i + 1].Eval(this);
+                        }
                     }
 
                     if (!doesSwitchHaveDefault)
