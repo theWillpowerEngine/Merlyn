@@ -607,6 +607,20 @@ namespace Shiro
                     Symbols.Set(s1, lastVal = list[2].Eval(this));
                     return lastVal;
 
+                case "undef":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'undef', expected 1");
+                    if (list[1].IsParent)
+                        Error("First argument to 'undef' must be a name, not any kind of list");
+
+                    s1 = list[1].Toke.ToString();
+                    if (!Symbols.CanGet(s1))
+                        return Token.Nil;
+
+                    lastVal = Symbols.Get(s1);
+                    Symbols.UnSet(s1);
+                    return lastVal;
+
                 case "v":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'v', expected 1");
@@ -642,16 +656,16 @@ namespace Shiro
                         Symbols.Let(s1, toke, letId);
                     }
 
-                    //try
+                    try
                     {
                         for (i = 2; i < list.Count; i++)
                             lastVal = list[i].Eval(this);
                     }
-                    //catch (Exception ex)
-                    //{
-                    //    Error(ex.Message);
-                    //}
-                   // finally
+                    catch (Exception ex)
+                    {
+                        Error(ex.Message);
+                    }
+                    finally
                     {
                         Symbols.ClearLetId(letId);
                     }
@@ -733,6 +747,16 @@ namespace Shiro
                     s1 = list[1].Toke.ToString();
 
                     return Conduit.HasQueue(s1) ? Token.True : Token.False;
+
+                case "error?":
+                    if (!list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'error?', expected 1");
+
+                    toke = list[1].Eval(this);
+                    if (toke.IsObject && toke.Children.HasProperty(this, "error"))
+                        return Token.True;
+
+                    return Token.False;
 
                 case "list?":
                     if (!list.ValidateParamCount(1))
@@ -1367,17 +1391,17 @@ namespace Shiro
                     var tst = new ParameterizedThreadStart((sym) =>
                     {
                         Token res;
-                        //try
+                        try
                         {
                             using (var threadedInterpreter = new Interpreter((Symbols)sym)) { 
                                 res = threadedInterpreter.Eval(toke.Children);
                                 Symbols.Deliver(s1, res);
                             }
                         }
-                        //catch (Exception ex)
-                        //{
-                        //    Error(ex.Message);
-                        //}
+                        catch (Exception ex)
+                        {
+                            Symbols.Deliver(s1, Token.Error(this, ex.Message));
+                        }
 
                     });
 
@@ -1400,7 +1424,7 @@ namespace Shiro
                     var tst2 = new ThreadStart(() =>
                     {
                         Token res;
-                        //try
+                        try
                         {
                             using (var threadedInterpreter = new Interpreter())
                             {
@@ -1408,11 +1432,13 @@ namespace Shiro
                                 Symbols.Deliver(s1, res);
                             }
                         }
-                        //catch (Exception ex)
-                        //{
-                       //     Error(ex.Message);
-                        //}
-
+                        catch (Exception ex)
+                        {
+                            if(ex is ShiroException)
+                                Symbols.Deliver(s1, Token.Error(this, (ex as ShiroException).Exception.ToString()));
+                            else
+                                Symbols.Deliver(s1, Token.Error(this, ex.Message));
+                        }
                     });
 
                     new Thread(tst2).Start();

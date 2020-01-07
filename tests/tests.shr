@@ -17,6 +17,7 @@
 
     ;let-scope
     (sod y 5)
+    (undef x)
     (let (x 1 y 2) 
         (do
             (assert (= 1 $x) "let 1")
@@ -134,6 +135,14 @@
         (pub "Dan" 123)
         (assert-eq "Let's just return something" $res "Interrim assert.  If we sit here forever life sucks")
         (assert (! (awaiting? res)) "We can shut shit down, and awaiting? works 2")        
+    )
+    
+    (do
+        (awaith x (throw "fuck off"))
+        (awaith y ((+ 2 2) (+ 3 4)))
+        (assert (error? $x) "async error handling 1")
+        (assert (error? $y) "async error handling 2")
+        (assert-eq "fuck off" x.message "ShiroException unwrapping in async error handling")
     )
 
     ;check reader shortcuts

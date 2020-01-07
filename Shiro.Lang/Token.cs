@@ -28,6 +28,18 @@ namespace Shiro
             Toke = "false",
             Children = null
         };
+
+        public static Token Error(Interpreter shiro, string msg)
+        {
+            var ret = new Token();
+            ret.Toke = null;
+            ret.Children = new List<Token>();
+
+            ret.Children.AddProperty(shiro, "error", True);
+            ret.Children.AddProperty(shiro, "message", new Token(msg));
+
+            return ret;
+        }
         #endregion
 
         #region CTORs

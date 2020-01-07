@@ -4,11 +4,13 @@ TODO (Docs)
 	try can now just take a single list
 	show the lambda-let recipe so that people can figure out how to do simple local scopes out of "closure" type variables
 	sub evaluations are ALWAYS atomic
-
+	explain error? and how to check errored-out awaits
+	undef
 
 TODO (tests)
 
 	switch
+	error?
 
       
 
@@ -18,6 +20,6 @@ TODO
 	Add CTOR (Implementer-named function)
 	new keyword
 	atom keyword (prevent interpreter from evaluation-slicing)
-	figure out how you want to handle exceptions and throws in threads
+	
 
 	shIDE is sometimes weird with the working directory (seems mostly in debug mode, but figure out a final solution)

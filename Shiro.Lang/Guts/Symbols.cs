@@ -140,6 +140,11 @@ namespace Shiro.Guts
             else
                 SymbolTable[name] = val;
         }
+        public void UnSet(string name)
+        {
+            if (SymbolTable.ContainsKey(name))
+                SymbolTable.Remove(name);
+        }
 
         public void Let(string name, Token val, Guid letId)
         {
