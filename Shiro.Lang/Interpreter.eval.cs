@@ -586,6 +586,8 @@ namespace Shiro
                             args.Add(Token.Nil);
 
                         toke = MiscHelper.MixIn(this, new Token(new List<Token>()), new string[] { s1 });
+                        if(impl.TardEnclosure != null)
+                            toke.TardEnclosure = impl.TardEnclosure.Clone();
                         ctor.EvalLambda(toke, this, args.ToArray());
                         return toke;
                     }

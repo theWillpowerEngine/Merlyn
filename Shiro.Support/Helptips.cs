@@ -160,7 +160,7 @@ namespace Shiro.Support
                     return "(mixin <implementer name>... <object>)";
 
                 case "new":
-                    return "(new <implementer name>)";
+                    return "(new <implementer name> [<param>...])";
 
                 case "nop":
                     return "(nop)  ; does nothing.  Processes pending queues unless in an atom";
