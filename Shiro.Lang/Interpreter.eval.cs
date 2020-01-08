@@ -612,7 +612,7 @@ namespace Shiro
                     if (!Symbols.CanGetImplementer(s1))
                         Error("impl? called with unknown implementer " + s1);
 
-                    return MiscHelper.DoesItQuack(this, toke, Symbols.GetImplementer(s1));
+                    return MiscHelper.DoesItQuack(this, toke, Symbols.GetImplementer(s1), s1);
 
                 #endregion
 

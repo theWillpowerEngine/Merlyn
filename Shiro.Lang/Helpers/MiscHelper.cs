@@ -97,7 +97,7 @@ namespace Shiro.Guts
             return retVal;
         }
 
-        internal static Token DoesItQuack(Interpreter shiro, Token checkThis, Token mixin)
+        internal static Token DoesItQuack(Interpreter shiro, Token checkThis, Token mixin, string implName)
         {
             if (!checkThis.IsParent)
                 Interpreter.Error("Can't check to see if '" + checkThis.ToString() + "' implements anything because it's not a list");
@@ -105,6 +105,9 @@ namespace Shiro.Guts
             foreach (var prop in mixin.Children)
             {
                 var pn = prop.Name;
+                if (pn == implName)
+                    continue;           //Ignore CTOR
+
                 if (!checkThis.Children.HasProperty(shiro, pn))
                     return Token.False;
 
