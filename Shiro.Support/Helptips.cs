@@ -14,16 +14,29 @@ namespace Shiro.Support
 		{
 			switch(word.ToLower())
 			{
-				case "awaiting?":
+                case "await":
+                    return "(await <name> (<async list>))";
+
+                case "awaith":
+                case "hermeticAwait":
+                    return "(awaith <name> (<async list>))";
+
+                case "awaiting?":
 					return "(awaiting? <name>)";
 
 				case "atom":
 					return "(atom (...))";
 
-				case "error?":
+                case "enclose":
+                    return "(enclose {<privates>} {<rest of object>})";
+                    
+                case "error?":
 					return "(error? <value>)";
 
-				case "pub":
+                case "gv":
+                    return "(gv <name>)";
+
+                case "pub":
 					return "(pub '<queue name>' <value>)";
 					
 				case "queue?":
@@ -38,10 +51,13 @@ namespace Shiro.Support
 				case "undef":
 					return "(undef <name>)";
 
-				default:
-					return word;
+                case "v":
+                    return "(v <name>)  ; consider the $<name> reader shortcut instead";
 
-				// enclose gv awaith hermeticAwait await len tcp impl implementer mixin impl? quack ? try catch throw .c.call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v. .? +-* / = ! != > < <= >= list ? obj ? num ? str ? def ? fn ? nil ? let nop defn filter map apply kw params nth range while contains upper lower split fn => .s.set.d.def.sod telnet send sendTo sendAll stop http content route status rest
+                default:
+                    return Shiro.GetHelpTipFor(word) ?? word;
+
+				// len tcp impl implementer mixin impl? quack ? try catch throw .c.call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v. .? +-* / = ! != > < <= >= list ? obj ? num ? str ? def ? fn ? nil ? let nop defn filter map apply kw params nth range while contains upper lower split fn => .s.set.d.def.sod telnet send sendTo sendAll stop http content route status rest
 			}
 		}
 	}

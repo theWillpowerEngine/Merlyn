@@ -141,6 +141,7 @@ namespace Shiro.Guts
             else
                 SymbolTable[name] = val;
         }
+
         public void UnSet(string name)
         {
             if (SymbolTable.ContainsKey(name))
@@ -326,6 +327,29 @@ namespace Shiro.Guts
         {
             lock (SymbolTable[s1])
                 return SymbolTable[s1].IsBeingAwaited;
+        }
+
+        internal string GetHelpTipFor(string word)
+        {
+            if (AutoFunctionHelpTips.ContainsKey(word))
+                return AutoFunctionHelpTips[word];
+
+            if (FunctionTable.ContainsKey(word))
+            {
+                var ret = new StringBuilder("(");
+                ret.Append(word);
+
+                foreach (var parm in FunctionTable[word].Params)
+                {
+                    ret.Append(" <");
+                    ret.Append(parm.Predicate == null ? parm.Name : (parm.Name + ":" + parm.Predicate));
+                    ret.Append(">");
+                }
+                ret.Append(")");
+                return ret.ToString();
+            }
+
+            return null;
         }
     }
 }

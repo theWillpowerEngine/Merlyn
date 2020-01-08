@@ -164,5 +164,13 @@ namespace Shiro
         {
             return Symbols.GetFunctionsForAutoComplete();
         }
+
+        public string GetHelpTipFor(string word)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+                return null;
+
+            return Symbols.GetHelpTipFor(word);
+        }
     }
 }
