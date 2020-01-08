@@ -296,7 +296,7 @@ namespace ShIDE
             var pos = e.Position;
             var wordStart = editor.WordStartPosition(pos, false);
             var wordEnd = editor.WordEndPosition(pos, false);
-            var word = editor.GetTextRange(wordStart, wordEnd - wordStart);
+            var word = editor.GetTextRange(wordStart, wordEnd - wordStart).Trim().TrimStart('(');
 
             string tip = "";
             if (!string.IsNullOrEmpty(word) && !string.IsNullOrEmpty(tip = Helptips.GetFor(word)))
