@@ -257,7 +257,7 @@ namespace Shiro.Support
                     return $"({word} <port #> (<command-handler>) [(<on-connect>)])";
 
                 default:
-                    return Shiro.GetHelpTipFor(word) ?? word;
+                    return Shiro.GetHelpTipFor(word) ?? null;
 			}
 		}
 	}

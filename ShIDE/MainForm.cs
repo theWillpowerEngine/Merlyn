@@ -570,6 +570,32 @@ namespace ShIDE
 
         #region Simple Menu Handlers
 
+        private void showHelptipMenu_Click(object sender, EventArgs e)
+        {
+            var startPos = editor.CurrentPosition - 1;
+            var depth = 0;
+            for (var i = startPos; i >= 0; i--)
+                if (editor.Text[i] == '(')
+                {
+                    if (depth != 0)
+                        depth -= 1;
+                    else
+                    {
+                        if (!editor.WordChars.Contains("-"))
+                            editor.WordChars += "?-+=></*.";
+
+                        var word = editor.GetWordFromPosition(i + 1);
+                        string tip = "";
+                        if (!string.IsNullOrEmpty(word) && !string.IsNullOrEmpty(tip = Helptips.GetFor(word)))
+                            editor.CallTipShow(editor.CurrentPosition, tip);
+
+                        return;
+                    }
+                }
+                else if (editor.Text[i] == ')')
+                    depth += 1;
+        }
+
         private string _activeFindThing = null;
         private void findMenu_Click(object sender, EventArgs e)
         {
@@ -606,6 +632,14 @@ namespace ShIDE
                 else
                     _activeFindThing = null;
             }
+        }
+
+        private void highlightSelectionMenu_Click(object sender, EventArgs e)
+        {
+            var word = editor.SelectedText;
+            if (string.IsNullOrWhiteSpace(word))
+                return;
+            HighlightWord(word);
         }
 
         private void undoMenu_Click(object sender, EventArgs e)
