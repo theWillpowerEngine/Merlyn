@@ -139,8 +139,6 @@ namespace ShIDE
         {
             editor.StyleResetDefault();
 
-            editor.WordChars += "?-+=></*.";
-
             editor.Styles[Style.Default].Font = "Consolas";
             editor.Styles[Style.Default].Size = 11;
             editor.Styles[Style.Default].BackColor = Color.FromArgb(25, 25, 25);
@@ -293,6 +291,9 @@ namespace ShIDE
         //Hover tips
         private void editor_DwellStart(object sender, DwellEventArgs e)
         {
+            if(!editor.WordChars.Contains("-"))
+                editor.WordChars += "?-+=></*.";
+
             var pos = e.Position;
             var wordStart = editor.WordStartPosition(pos, false);
             var wordEnd = editor.WordEndPosition(pos, false);
