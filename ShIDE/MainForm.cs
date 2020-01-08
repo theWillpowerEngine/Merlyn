@@ -139,7 +139,7 @@ namespace ShIDE
         {
             editor.StyleResetDefault();
 
-            editor.WordChars += "?-+=></*";
+            editor.WordChars += "?-+=></*.";
 
             editor.Styles[Style.Default].Font = "Consolas";
             editor.Styles[Style.Default].Size = 11;
