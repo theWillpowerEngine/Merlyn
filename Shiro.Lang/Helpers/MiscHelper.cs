@@ -86,6 +86,9 @@ namespace Shiro.Guts
                 foreach(var prop in mixin.Children)
                 {
                     var pn = prop.Name;
+                    if (pn == name)
+                        continue;       //Skip constructors
+
                     if (!retVal.Children.HasProperty(shiro, pn))
                         retVal.Children.AddProperty(shiro, pn, mixin.Children.GetProperty(shiro, pn).Clone());
                 }

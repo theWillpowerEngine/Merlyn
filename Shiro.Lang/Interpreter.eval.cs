@@ -586,7 +586,7 @@ namespace Shiro
                             args.Add(Token.Nil);
 
                         toke = MiscHelper.MixIn(this, new Token(new List<Token>()), new string[] { s1 });
-                        toke.Children.GetProperty(this, s1).EvalLambda(toke, this, args.ToArray());
+                        ctor.EvalLambda(toke, this, args.ToArray());
                         return toke;
                     }
                     else
