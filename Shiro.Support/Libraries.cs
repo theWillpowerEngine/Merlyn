@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Shiro.Support
@@ -37,6 +38,28 @@ namespace Shiro.Support
             else
             {
                 return false;
+            }
+        }
+
+        public static List<string> GetAvailable(string libDir)
+        {
+            var path = libDir + "\\libs";
+
+            if (Directory.Exists(path))
+            {
+                var retVal = new List<string>();
+
+                foreach (var folder in Directory.GetDirectories(path))
+                {
+                    var eles = folder.Split('\\');
+                    retVal.Add(eles[eles.Length - 1]);
+                }
+                retVal.Sort();
+                return retVal;
+            }
+            else
+            {
+                return new List<string>();
             }
         }
     }
