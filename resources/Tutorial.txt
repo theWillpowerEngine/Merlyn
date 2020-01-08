@@ -10,4 +10,5 @@ TODO
 
 	shIDE is sometimes weird with the working directory (seems mostly in debug mode, but figure out a final solution)
 
+	Finish Helptips (<cry>)
 

@@ -12,6 +12,8 @@ using Shiro;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Shiro.Build;
+using Microsoft.VisualBasic;
+using Shiro.Support;
 
 namespace ShIDE
 {
@@ -136,6 +138,9 @@ namespace ShIDE
         private void SetupScintilla()
         {
             editor.StyleResetDefault();
+
+            editor.WordChars += "?-+=></*";
+
             editor.Styles[Style.Default].Font = "Consolas";
             editor.Styles[Style.Default].Size = 11;
             editor.Styles[Style.Default].BackColor = Color.FromArgb(25, 25, 25);
@@ -157,6 +162,11 @@ namespace ShIDE
             editor.Styles[ShiroLexer.StyleComment].ForeColor = Color.MediumOrchid;
             editor.Styles[ShiroLexer.StyleFunction].ForeColor = Color.LightSteelBlue;
             editor.Styles[ShiroLexer.StyleVariable].ForeColor = Color.OrangeRed;
+
+            editor.MouseDwellTime = 750;
+            editor.Styles[Style.CallTip].SizeF = 10.25f;
+            editor.Styles[Style.CallTip].ForeColor = Color.BlueViolet;
+            editor.Styles[Style.CallTip].BackColor = Color.AntiqueWhite;
         }
 
         //Code Styling
@@ -260,6 +270,78 @@ namespace ShIDE
             {
                 if (!editor.AutoCActive)
                     editor.AutoCShow(lenEntered, ShiroLexer.GetAutoCompleteItems());
+            }
+        }
+
+        //Highlight double-clicked word
+        private void editor_DoubleClick(object sender, DoubleClickEventArgs e)
+        {
+            var text = editor.SelectedText;
+            if (!string.IsNullOrEmpty(text))
+                HighlightWord(text);
+        }
+        private void editor_Click(object sender, EventArgs e)
+        {
+            ClearHighlights();
+        }
+
+        private void editor_KeyPress(object sender, KeyEventArgs e)
+        {
+            ClearHighlights();
+        }
+
+        //Hover tips
+        private void editor_DwellStart(object sender, DwellEventArgs e)
+        {
+            var pos = e.Position;
+            var wordStart = editor.WordStartPosition(pos, false);
+            var wordEnd = editor.WordEndPosition(pos, false);
+            var word = editor.GetTextRange(wordStart, wordEnd - wordStart);
+
+            string tip = "";
+            if (!string.IsNullOrEmpty(word) && !string.IsNullOrEmpty(tip = Helptips.GetFor(word)))
+                editor.CallTipShow(e.Position, tip);
+        }
+
+        private void editor_DwellEnd(object sender, DwellEventArgs e)
+        {
+            editor.CallTipCancel();
+        }
+
+        //Helper to highlight words
+        const int HIGHLIGHT_INDICATOR= 8;
+        private void ClearHighlights()
+        {
+            editor.IndicatorCurrent = HIGHLIGHT_INDICATOR;
+            editor.IndicatorClearRange(0, editor.TextLength);
+        }
+
+        private void HighlightWord(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            ClearHighlights();
+
+            // Update indicator appearance
+            editor.Indicators[HIGHLIGHT_INDICATOR].Style = IndicatorStyle.StraightBox;
+            editor.Indicators[HIGHLIGHT_INDICATOR].Under = true;
+            editor.Indicators[HIGHLIGHT_INDICATOR].ForeColor = Color.Aqua;
+            editor.Indicators[HIGHLIGHT_INDICATOR].OutlineAlpha = 90;
+            editor.Indicators[HIGHLIGHT_INDICATOR].Alpha = 70;
+
+            // Search the document
+            editor.TargetStart = 0;
+            editor.TargetEnd = editor.TextLength;
+            editor.SearchFlags = SearchFlags.None;
+            while (editor.SearchInTarget(text) != -1)
+            {
+                // Mark the search results with the current indicator
+                editor.IndicatorFillRange(editor.TargetStart, editor.TargetEnd - editor.TargetStart);
+
+                // Search the remainder of the document
+                editor.TargetStart = editor.TargetEnd;
+                editor.TargetEnd = editor.TextLength;
             }
         }
 
@@ -483,6 +565,67 @@ namespace ShIDE
 
         #endregion
 
+        #region Simple Menu Handlers
+
+        private string _activeFindThing = null;
+        private void findMenu_Click(object sender, EventArgs e)
+        {
+            string text = Interaction.InputBox("What would you like to find?", "Find", editor.SelectedText ?? "", -1, -1);
+            if (!string.IsNullOrEmpty(text))
+            {
+                HighlightWord(text);
+
+                editor.TargetStart = 0;
+                editor.TargetEnd = editor.TextLength;
+                editor.SearchFlags = SearchFlags.None;
+                
+                if (editor.SearchInTarget(text) != -1)
+                {
+                    _activeFindThing = text;
+                    editor.GotoPosition(editor.TargetStart);
+                }
+            }
+        }
+        private void findOrGoNextMenu_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_activeFindThing))
+                findMenu_Click(sender, e);
+            else
+            {
+                HighlightWord(_activeFindThing);
+
+                editor.TargetStart = editor.CurrentPosition+1;
+                editor.TargetEnd = editor.TextLength;
+                editor.SearchFlags = SearchFlags.None;
+
+                if (editor.SearchInTarget(_activeFindThing) != -1)
+                    editor.GotoPosition(editor.TargetStart);
+                else
+                    _activeFindThing = null;
+            }
+        }
+
+        private void undoMenu_Click(object sender, EventArgs e)
+        {
+            editor.Undo();
+        }
+
+        private void cutMenu_Click(object sender, EventArgs e)
+        {
+            editor.Cut();
+        }
+
+        private void copyMenu_Click(object sender, EventArgs e)
+        {
+            editor.Copy();
+        }
+
+        private void pasteMenu_Click(object sender, EventArgs e)
+        {
+            editor.Paste();
+        }
+        #endregion
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             CurrentForm = this;
@@ -559,7 +702,7 @@ namespace ShIDE
             lock (ShiroLock)
             {
                 Shiro = new Interpreter();
-                ShiroLexer.Shiro = Shiro;
+                ShiroLexer.Shiro = Helptips.Shiro = Shiro;
                 Shiro.CleanUpQueues();
                 Shiro.RegisterAutoFunction("cls", (i, t) =>
                 {

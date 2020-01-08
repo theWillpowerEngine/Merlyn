@@ -29,3 +29,4 @@
 /libs/*/packages/**
 /libs/dist/**
 /resources/.~lock.Guide.odt#
+/obj/Debug/math.csproj.FileListAbsolute.txt
