@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
-using Shiro.Interop;
 using Shiro;
 
 namespace files
 {
-	public class Library : ShiroPlugin
-	{
+	public class Library : Interpreter.ShiroPlugin
+    {
 		public override void RegisterAutoFunctions(Interpreter shiro)
 		{
             shiro.RegisterAutoFunction("read-file", (i, toke) =>
@@ -15,7 +14,7 @@ namespace files
                 var fileName = t.ToString();
 
                 return new Token(File.ReadAllText(fileName));
-            });
+            }, "(read-file <file name>)");
 
             shiro.RegisterAutoFunction("write-file", (i, toke) =>
             {
@@ -26,7 +25,7 @@ namespace files
 
                 File.WriteAllText(fileName, contents.ToString());
                 return contents;
-            });
+            }, "(write-file <file name> <value>)");
 
             shiro.RegisterAutoFunction("append-file", (i, toke) =>
             {
@@ -37,7 +36,7 @@ namespace files
 
                 File.AppendAllText(fileName, contents.ToString());
                 return contents;
-            });
+            }, "(append-file <file name> <value>)");
 
             shiro.RegisterAutoFunction("nuke-file", (i, toke) =>
             {
@@ -49,7 +48,7 @@ namespace files
 
                 File.Delete(fileName);
                 return Token.True;
-            });
+            }, "(nuke-file <file name>)");
 
             shiro.RegisterAutoFunction("file?", (i, toke) =>
             {
@@ -57,7 +56,7 @@ namespace files
                 var fileName = t.ToString();
 
                 return File.Exists(fileName) ? Token.True : Token.False;
-            });
+            }, "(file? <file name>)");
 
             shiro.RegisterAutoFunction("dir?", (i, toke) =>
             {
@@ -65,7 +64,7 @@ namespace files
                 var fileName = t.ToString();
 
                 return Directory.Exists(fileName) ? Token.True : Token.False;
-            });
+            }, "(dir? <directory name>)");
 
             shiro.RegisterAutoFunction("mkdir", (i, toke) =>
             {
@@ -77,7 +76,7 @@ namespace files
 
                 Directory.CreateDirectory(fileName);
                 return Directory.Exists(fileName) ? Token.True : Token.False;
-            });
+            }, "(mkdir <directory name>)");
 
             shiro.RegisterAutoFunction("rmdir", (i, toke) =>
             {
@@ -89,7 +88,7 @@ namespace files
 
                 Directory.Delete(fileName);
                 return Token.True;
-            });
+            }, "(rmdir <directory name>)  ; evaluates to true or false");
         }
 	}
 }

@@ -8,7 +8,7 @@ using Shiro.Nimue;
 
 namespace Shiro.Guts
 {
-    internal class Symbols
+    public class Symbols
     {
         private Interpreter _shiro;
 
@@ -33,8 +33,9 @@ namespace Shiro.Guts
 
         private readonly Dictionary<string, Token> FunctionTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Interpreter, Token, Token>> AutoFunctions = new Dictionary<string, Func<Interpreter, Token, Token>>();
+        private readonly Dictionary<string, string> AutoFunctionHelpTips = new Dictionary<string, string>();
 
-        internal bool IsAwaiting => SymbolTable.Values.Any(t => t.IsBeingAwaited);
+        public bool IsAwaiting => SymbolTable.Values.Any(t => t.IsBeingAwaited);
 
         internal static class AutoVars
         {
@@ -242,12 +243,18 @@ namespace Shiro.Guts
                 FunctionTable[name] = val;
         }
 
-        public void AddAutoFunc(string name, Func<Interpreter, Token, Token> val)
+        public void AddAutoFunc(string name, Func<Interpreter, Token, Token> val, string helpTip)
         {
             if (!AutoFunctions.ContainsKey(name))
+            {
                 AutoFunctions.Add(name, val);
+                AutoFunctionHelpTips.Add(name, helpTip ?? ";no help tip specified.  Bad Library Writer.  Bad!");
+            }
             else
+            {
                 AutoFunctions[name] = val;
+                AutoFunctionHelpTips[name] = helpTip ?? ";no help tip specified.  Bad Library Writer.  Bad!";
+            }
         }
 
         public Token CallFunc(string name, Interpreter shiro, params Token[] args)
@@ -302,20 +309,20 @@ namespace Shiro.Guts
             AutoSymbols.Add("IsServing", () => Server.Serving ? Token.True : Token.False);
         }
 
-        internal void BeginAwaiting(string s1)
+        public void BeginAwaiting(string s1)
         {
             var val = Token.Nil.Clone();
             val.IsBeingAwaited = true;
             Set(s1, val);
         }
 
-        internal void Deliver(string s1, Token res)
+        public void Deliver(string s1, Token res)
         {
             lock(SymbolTable[s1])
                 SymbolTable[s1] = res;
         }
 
-        internal bool IsVarBeingAwaited(string s1)
+        public bool IsVarBeingAwaited(string s1)
         {
             lock (SymbolTable[s1])
                 return SymbolTable[s1].IsBeingAwaited;

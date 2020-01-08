@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Shiro.Guts;
-using Shiro.Interop;
 using Shiro.Nimue;
 
 namespace Shiro
@@ -299,7 +298,7 @@ namespace Shiro
 
                 #endregion
 
-                #region "Object" manipulation
+                #region Objects
 
                 case ".":
                     if (!list.ValidateParamCount(2, true))
@@ -560,6 +559,45 @@ namespace Shiro
                         mixins.Add(s1);
                     }
                     return MiscHelper.MixIn(this, toke, mixins.ToArray());
+
+                case "new":
+                    if (!list.ValidateParamCount(1, true))
+                        Error("Wrong number of parameters to keyword 'new', expected at least 1");
+
+                    s1 = list[1].Eval(this, atomic).ToString();
+                    if (!Symbols.CanGetImplementer(s1))
+                        Error($"Can't create a new {s1}, implementer not found.");
+
+                    var args = new List<Token>();
+                    for (i = 2; i < list.Count; i++)
+                        args.Add(list[i].Eval(this, atomic));
+
+                    var impl = Symbols.GetImplementer(s1);
+                    if(impl.Children.HasProperty(this, s1))
+                    {
+                        var ctor = impl.Children.GetProperty(this, s1);
+                        if (!ctor.IsFunction)
+                            Error($"Constructor for {s1} must be an object-lambda, not {ctor.ToString()}.");
+
+                        if (ctor.Params.Count < args.Count)
+                            Error($"Too many params passed to constructor for {s1}, expected a max of {ctor.Params.Count}, got {args.Count} instead.");
+
+                        while (ctor.Params.Count > args.Count)
+                            args.Add(Token.Nil);
+
+                        toke = MiscHelper.MixIn(this, new Token(new List<Token>()), new string[] { s1 });
+                        toke.Children.GetProperty(this, s1).EvalLambda(toke, this, args.ToArray());
+                        return toke;
+                    }
+                    else
+                    {
+                        //Default, empty CTOR
+                        if (args.Count == 0)
+                            return MiscHelper.MixIn(this, new Token(new List<Token>()), new string[] { s1 });
+
+                        Error($"Not constructor found for {s1} and you supplied {args.Count} parameters so the default can't be used.");
+                    }
+                    return Token.Nil;
 
                 case "impl?":
                 case "quack?":      //lol

@@ -145,16 +145,16 @@ namespace Shiro.Cons
                     {
                         Console.Clear();
                         return Token.Nil;
-                    });
+                    }, "(cls)");
                     shiro.RegisterAutoFunction("input", (i, t) =>
                     {
                         return new Token(Console.ReadLine());
-                    });
+                    }, "(input)    ; blocking");
                     shiro.RegisterAutoFunction("exit", (i, t) =>
                     {
                         KeepREPLing = false;
                         return Token.Nil;
-                    });
+                    }, "(exit)");
 
                     var code = "";
                     while (KeepREPLing)

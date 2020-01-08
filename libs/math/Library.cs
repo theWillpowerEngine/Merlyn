@@ -1,11 +1,10 @@
 ﻿using System;
-using Shiro.Interop;
 using Shiro;
 
 namespace math
 {
-	public class Library : ShiroPlugin
-	{
+	public class Library : Interpreter.ShiroPlugin
+    {
 		public override void RegisterAutoFunctions(Interpreter shiro)
 		{
 			shiro.RegisterAutoFunction("sqrt", (i, toke) =>
@@ -21,7 +20,7 @@ namespace math
 
 				Interpreter.Error("Internal error in sqrt -- there must be a new numeric type that I didn't handle.");
 				return Token.Nil;
-			});
+			}, "(sqrt <number>)");
 
             shiro.RegisterAutoFunction("abs", (i, toke) =>
             {
@@ -36,7 +35,7 @@ namespace math
 
                 Interpreter.Error("Internal error in abs -- there must be a new numeric type that I didn't handle.");
                 return Token.Nil;
-            });
+            }, "(abs <number>)");
 
             shiro.RegisterAutoFunction("int", (i, toke) =>
             {
@@ -51,7 +50,7 @@ namespace math
 
                 Interpreter.Error("Internal error in int -- there must be a new numeric type that I didn't handle.");
                 return Token.Nil;
-            });
+            }, "(sqrt <decimal>)");
 
             shiro.RegisterAutoFunction("int?", (i, toke) =>
             {
@@ -61,7 +60,7 @@ namespace math
                     return Token.True;
 
                 return Token.False;
-            });
+            }, "(int? <value>)");
 
             shiro.RegisterAutoFunction("dec?", (i, toke) =>
             {
@@ -71,7 +70,7 @@ namespace math
                     return Token.True;
 
                 return Token.False;
-            });
+            }, "(dec? <value>)");
 
             shiro.RegisterAutoFunction("rand", (i, toke) =>
             {
@@ -81,7 +80,7 @@ namespace math
 
                 int upper = (int)t.Toke;
                 return new Token(new Random().Next(0, upper).ToString());
-            });
+            }, "(rand <upper-bound-as-number>)");
         }
 	}
 }

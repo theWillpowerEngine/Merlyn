@@ -1,12 +1,17 @@
+TODO (docs)
+	
+	new and CTORs
+
+
 TODO (tests)
 
 	switch
 	error?
+	new and different CTOR permutations (default, extra parms error, not enough parms nil-autofill)
+
+	inherit (SSL std library)
 
 TODO
-
-	Add CTOR (Implementer-named function)
-	new keyword
 
 	shIDE is sometimes weird with the working directory (seems mostly in debug mode, but figure out a final solution)
 

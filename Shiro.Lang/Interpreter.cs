@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Web.Script.Serialization;
 using Shiro.Guts;
-using Shiro.Interop;
 using System.Threading;
 
 namespace Shiro
@@ -17,6 +16,15 @@ namespace Shiro
         public Guid InterpreterId = Guid.NewGuid();
         internal Symbols Symbols;
         internal Loader Loader = new Loader();
+
+        public abstract class ShiroPlugin
+        {
+            public abstract void RegisterAutoFunctions(Interpreter shiro);
+            protected Symbols GetSym(Interpreter shiro)
+            {
+                return shiro.Symbols;
+            }
+        }
 
         void IDisposable.Dispose()
         {
@@ -139,9 +147,9 @@ namespace Shiro
             }
         }
 
-        public void RegisterAutoFunction(string name, Func<Interpreter, Token, Token> func)
+        public void RegisterAutoFunction(string name, Func<Interpreter, Token, Token> func, string helpTip = null)
         {
-            Symbols.AddAutoFunc(name, func);
+            Symbols.AddAutoFunc(name, func, helpTip);
         }
         public bool IsFunctionName(string name)
         {

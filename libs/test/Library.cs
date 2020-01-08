@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
-using Shiro.Interop;
 using Shiro;
 
 namespace test
 {
-	public class Library : ShiroPlugin
-	{
+	public class Library : Interpreter.ShiroPlugin
+    {
 		public override void RegisterAutoFunctions(Interpreter shiro)
 		{
             shiro.RegisterAutoFunction("assert-read-fail", (i, toke) =>
@@ -21,7 +20,7 @@ namespace test
                 }
                 Interpreter.Output(toke.Children[1].ToString() + Environment.NewLine);
                 return Token.False;                
-            });
+            }, "(assert-read-fail <string to try to read> <assert failure message>)");
 
             shiro.Eval(@"(do (defn assert (test s:str?) (pnb (if (! $test) (str 'FAIL: ' $s '%n') '')))
 (defn assert-not (test s:str?) (pnb (if $test (str 'FAIL: ' $s '%n') '')))

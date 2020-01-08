@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace Shiro.Interop
+namespace Shiro.Guts
 {
 	internal class Loader
 	{
@@ -23,7 +23,7 @@ namespace Shiro.Interop
 				var a = Assembly.LoadFrom(Directory.GetCurrentDirectory() + "\\" + name + ".dll");
 				LoadedDLLs.Add(name.ToLower(), a);
 
-				var plugins = GetEnumerableOfType<ShiroPlugin>(a).ToList();
+				var plugins = GetEnumerableOfType<Interpreter.ShiroPlugin>(a).ToList();
 				foreach(var plugin in plugins)
 					plugin.RegisterAutoFunctions(shiro);
 

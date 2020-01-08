@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Shiro;
-using Shiro.Interop;
 using Shiro.Support;
 
 namespace ShIDE
 {
-    public class ShiroProject : ShiroPlugin
+    public class ShiroProject : Interpreter.ShiroPlugin
     {
         public static string ProjectFileDirectory = "";
 

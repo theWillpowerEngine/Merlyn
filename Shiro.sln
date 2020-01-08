@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "libs\test\test.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shiro.Support", "Shiro.Support\Shiro.Support.csproj", "{FE513040-610D-40EB-A7AC-20177A288774}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "std", "libs\std\std.csproj", "{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{FE513040-610D-40EB-A7AC-20177A288774}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE513040-610D-40EB-A7AC-20177A288774}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE513040-610D-40EB-A7AC-20177A288774}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +77,7 @@ Global
 		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3} = {D7AEC569-357D-4895-B66A-108ECAEF3FC8}
 		{5BF8285C-CE2D-4B39-918D-AB0616727020} = {D7AEC569-357D-4895-B66A-108ECAEF3FC8}
 		{724D45D5-D9CD-44F4-8CC0-9B2E12C2020B} = {D7AEC569-357D-4895-B66A-108ECAEF3FC8}
+		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A} = {D7AEC569-357D-4895-B66A-108ECAEF3FC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D3ABE8-F513-4B23-B30A-D7B78F8C16F5}
