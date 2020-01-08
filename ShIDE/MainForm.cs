@@ -139,6 +139,8 @@ namespace ShIDE
         {
             editor.StyleResetDefault();
 
+            editor.AutoCTypeSeparator = '|';
+
             editor.Styles[Style.Default].Font = "Consolas";
             editor.Styles[Style.Default].Size = 11;
             editor.Styles[Style.Default].BackColor = Color.FromArgb(25, 25, 25);
