@@ -42,6 +42,10 @@ namespace Shiro.Support
                 case "!":
                     return $"(! <value>)";
 
+                case "and":
+                case "or":
+                    return $"({word} <value> <value>...)";
+
                 case "apply":
                 case "map":
                     return $"({word} <command> <list>)";

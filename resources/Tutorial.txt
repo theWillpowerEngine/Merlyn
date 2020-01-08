@@ -1,13 +1,14 @@
 TODO (docs)
 	
-	new and CTORs
-
 TODO (tests)
 
 	switch
 	error?
 	new and different CTOR permutations (default, extra parms error, not enough parms nil-autofill)
+	and / or
+	
 	inherit (SSL std library)
+
 
 TODO
 

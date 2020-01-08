@@ -766,6 +766,25 @@ namespace Shiro
                         Error("Wrong number of parameters to keyword '<=', expected 2");
                     return MathHelper.Not(MathHelper.GreaterThan(list[1].Eval(this), list[2].Eval(this)));
 
+                case "and":
+                    if (!list.ValidateParamCount(2, true))
+                        Error("Wrong number of parameters to keyword 'and', expected at least 2");
+
+                    for(i=1; i<list.Count; i++)
+                        if (!list[i].Eval(this, atomic).IsTrue)
+                            return Token.False;
+
+                    return Token.True;
+
+                case "or":
+                    if (!list.ValidateParamCount(2, true))
+                        Error("Wrong number of parameters to keyword 'or', expected at least 2");
+
+                    for (i = 1; i < list.Count; i++)
+                        if (list[i].Eval(this, atomic).IsTrue)
+                            return Token.True;
+
+                    return Token.False;
                 #endregion
 
                 #region Conditional Elements
