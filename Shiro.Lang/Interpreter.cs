@@ -159,6 +159,10 @@ namespace Shiro
         {
             return Symbols.CanGet(name);
         }
+        public bool IsImplementerName(string name)
+        {
+            return Symbols.CanGetImplementer(name);
+        }
 
         public string GetFunctionsForAutoComplete()
         {
@@ -170,7 +174,7 @@ namespace Shiro
             if (string.IsNullOrWhiteSpace(word))
                 return null;
 
-            return Symbols.GetHelpTipFor(word);
+            return Symbols.GetHelpTipFor(word) ?? (word.EndsWith("?") && Symbols.CanGetImplementer(word.TrimEnd('?')) ? $"({word} <value>)  ;implementer autopredicate" : null);
         }
     }
 }

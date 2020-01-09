@@ -148,6 +148,8 @@ namespace Shiro.Sense
                                 style = StyleFunction;
                             if (Shiro.IsVariableName(identifier.TrimStart('$')))
                                 style = StyleVariable;
+                            if (Shiro.IsImplementerName(identifier.TrimEnd('?')))
+                                style = StyleFunction;
 
                             scintilla.SetStyling(length, style);
                             length = 0;

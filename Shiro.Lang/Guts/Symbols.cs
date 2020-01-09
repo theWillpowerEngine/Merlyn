@@ -299,6 +299,9 @@ namespace Shiro.Guts
             foreach (var f in AutoFunctions.Keys)
                 sb.Append(f + " ");
 
+            foreach (var f in Implementers.Keys)
+                sb.Append(f + "? ");
+
             return sb.ToString().Trim();
         }
 
