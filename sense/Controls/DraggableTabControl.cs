@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ShIDE.Controls
+namespace Shiro.Sense.Controls
 {
     public class DraggableTabControl : TabControl
     {

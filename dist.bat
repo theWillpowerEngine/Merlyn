@@ -2,7 +2,7 @@ RMDIR /s /q dist
 MKDIR dist
 
 cd dist
-mkdir shIDE
+mkdir Sense
 
 copy ..\shiro\bin\* .
 
@@ -15,6 +15,6 @@ cd libs
 xcopy ..\..\libs\dist . /s /e
 
 cd ..
-cd shIDE
+cd Sense
 
-copy ..\..\shide\bin\dist\* .
+copy ..\..\sense\bin\dist\* .

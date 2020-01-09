@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Shiro;
 using Shiro.Support;
 
-namespace ShIDE
+namespace Shiro.Sense
 {
     public class ShiroProject : Interpreter.ShiroPlugin
     {

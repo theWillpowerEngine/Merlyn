@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ShIDE
+namespace Shiro.Sense
 {
     public class ShiroLexer
     {

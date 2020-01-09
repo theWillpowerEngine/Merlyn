@@ -15,7 +15,7 @@ using Shiro.Build;
 using Microsoft.VisualBasic;
 using Shiro.Support;
 
-namespace ShIDE
+namespace Shiro.Sense
 {
     public partial class MainForm : Form
     {
@@ -665,6 +665,7 @@ namespace ShIDE
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            Text += " interpreter version " + Interpreter.Version;
             CurrentForm = this;
             DocumentManager.Editor = editor;
             Interpreter.Output = s =>

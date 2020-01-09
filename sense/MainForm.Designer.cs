@@ -1,4 +1,4 @@
-﻿namespace ShIDE
+﻿namespace Shiro.Sense
 {
 	partial class MainForm
 	{
@@ -57,6 +57,7 @@
             this.quickParenMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.showAutocompleteMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.showHelptipMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.navigateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nextListMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.prevListMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,7 +76,7 @@
             this.tree = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.editor = new ScintillaNET.Scintilla();
-            this.editorTabs = new ShIDE.Controls.DraggableTabControl();
+            this.editorTabs = new Shiro.Sense.Controls.DraggableTabControl();
             this.bottomTabs = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.txtInput = new System.Windows.Forms.TextBox();
@@ -85,7 +86,6 @@
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
-            this.showHelptipMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -131,7 +131,7 @@
             // 
             this.newMenu.Name = "newMenu";
             this.newMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newMenu.Size = new System.Drawing.Size(180, 22);
+            this.newMenu.Size = new System.Drawing.Size(146, 22);
             this.newMenu.Text = "&New";
             this.newMenu.Click += new System.EventHandler(this.newMenu_Click);
             // 
@@ -139,7 +139,7 @@
             // 
             this.openMenu.Name = "openMenu";
             this.openMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openMenu.Size = new System.Drawing.Size(180, 22);
+            this.openMenu.Size = new System.Drawing.Size(146, 22);
             this.openMenu.Text = "&Open";
             this.openMenu.Click += new System.EventHandler(this.openMenu_Click);
             // 
@@ -147,14 +147,14 @@
             // 
             this.saveMenu.Name = "saveMenu";
             this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveMenu.Size = new System.Drawing.Size(180, 22);
+            this.saveMenu.Size = new System.Drawing.Size(146, 22);
             this.saveMenu.Text = "&Save";
             this.saveMenu.Click += new System.EventHandler(this.saveMenu_Click);
             // 
             // saveAsMenu
             // 
             this.saveAsMenu.Name = "saveAsMenu";
-            this.saveAsMenu.Size = new System.Drawing.Size(180, 22);
+            this.saveAsMenu.Size = new System.Drawing.Size(146, 22);
             this.saveAsMenu.Text = "Save &As...";
             this.saveAsMenu.Click += new System.EventHandler(this.saveAsMenu_Click);
             // 
@@ -175,7 +175,7 @@
             // 
             this.undoMenu.Name = "undoMenu";
             this.undoMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.undoMenu.Size = new System.Drawing.Size(180, 22);
+            this.undoMenu.Size = new System.Drawing.Size(144, 22);
             this.undoMenu.Text = "&Undo";
             this.undoMenu.Click += new System.EventHandler(this.undoMenu_Click);
             // 
@@ -187,7 +187,7 @@
             this.toolStripMenuItem4,
             this.highlightSelectionMenu});
             this.findToolStripMenuItem.Name = "findToolStripMenuItem";
-            this.findToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.findToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.findToolStripMenuItem.Text = "&Search";
             // 
             // findMenu
@@ -223,13 +223,13 @@
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(141, 6);
             // 
             // cutMenu
             // 
             this.cutMenu.Name = "cutMenu";
             this.cutMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.cutMenu.Size = new System.Drawing.Size(180, 22);
+            this.cutMenu.Size = new System.Drawing.Size(144, 22);
             this.cutMenu.Text = "Cu&t";
             this.cutMenu.Click += new System.EventHandler(this.cutMenu_Click);
             // 
@@ -237,7 +237,7 @@
             // 
             this.copyMenu.Name = "copyMenu";
             this.copyMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyMenu.Size = new System.Drawing.Size(180, 22);
+            this.copyMenu.Size = new System.Drawing.Size(144, 22);
             this.copyMenu.Text = "&Copy";
             this.copyMenu.Click += new System.EventHandler(this.copyMenu_Click);
             // 
@@ -245,7 +245,7 @@
             // 
             this.pasteMenu.Name = "pasteMenu";
             this.pasteMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteMenu.Size = new System.Drawing.Size(180, 22);
+            this.pasteMenu.Size = new System.Drawing.Size(144, 22);
             this.pasteMenu.Text = "&Paste";
             this.pasteMenu.Click += new System.EventHandler(this.pasteMenu_Click);
             // 
@@ -329,6 +329,14 @@
             this.showAutocompleteMenu.Size = new System.Drawing.Size(247, 22);
             this.showAutocompleteMenu.Text = "Show &Autocomplete";
             this.showAutocompleteMenu.Click += new System.EventHandler(this.showAutocompleteMenu_Click);
+            // 
+            // showHelptipMenu
+            // 
+            this.showHelptipMenu.Name = "showHelptipMenu";
+            this.showHelptipMenu.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.showHelptipMenu.Size = new System.Drawing.Size(247, 22);
+            this.showHelptipMenu.Text = "Show &Helptip";
+            this.showHelptipMenu.Click += new System.EventHandler(this.showHelptipMenu_Click);
             // 
             // navigateToolStripMenuItem
             // 
@@ -625,14 +633,6 @@
             // 
             this.saveStateTimer.Tick += new System.EventHandler(this.saveStateTimer_Tick);
             // 
-            // showHelptipMenu
-            // 
-            this.showHelptipMenu.Name = "showHelptipMenu";
-            this.showHelptipMenu.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.showHelptipMenu.Size = new System.Drawing.Size(247, 22);
-            this.showHelptipMenu.Text = "Show &Helptip";
-            this.showHelptipMenu.Click += new System.EventHandler(this.showHelptipMenu_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -645,7 +645,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
-            this.Text = "ShIDE, a shiro code editor";
+            this.Text = "SENSE: the Elegant New Shiro Editor v0.2 -";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.menuStrip1.ResumeLayout(false);
@@ -687,7 +687,7 @@
 		private System.Windows.Forms.ToolStripMenuItem formatToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem autoDoMenu;
 		private System.Windows.Forms.ToolStripMenuItem quickParenMenu;
-        private ShIDE.Controls.DraggableTabControl editorTabs;
+        private Shiro.Sense.Controls.DraggableTabControl editorTabs;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.ToolStripMenuItem newMenu;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShIDE
+namespace Shiro.Sense
 {
     internal static class Extensions
     {

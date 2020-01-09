@@ -3,10 +3,10 @@
 /shiro/bin/**
 /shiro/packages/**
 
-/shide/.vs/**
-/shide/obj/**
-/shide/bin/**
-/shide/packages/**
+/sense/.vs/**
+/sense/obj/**
+/sense/bin/**
+/sense/packages/**
 
 /Shiro.Support/.vs/**
 /Shiro.Support/obj/**

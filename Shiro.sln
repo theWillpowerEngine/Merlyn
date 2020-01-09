@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shiro Libraries", "Shiro Li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "math", "libs\math\math.csproj", "{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShIDE", "ShIDE\ShIDE.csproj", "{683172E4-2ECD-4BC7-95FF-72AE17292C65}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "files", "libs\files\files.csproj", "{5BF8285C-CE2D-4B39-918D-AB0616727020}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "libs\test\test.csproj", "{724D45D5-D9CD-44F4-8CC0-9B2E12C2020B}"
@@ -30,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shiro.Support", "Shiro.Support\Shiro.Support.csproj", "{FE513040-610D-40EB-A7AC-20177A288774}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "std", "libs\std\std.csproj", "{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sense", "sense\Sense.csproj", "{683172E4-2ECD-4BC7-95FF-72AE17292C65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,10 +49,6 @@ Global
 		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F47BA9AC-8CB9-45A2-AC13-3001B3CBE1E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5BF8285C-CE2D-4B39-918D-AB0616727020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5BF8285C-CE2D-4B39-918D-AB0616727020}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BF8285C-CE2D-4B39-918D-AB0616727020}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -69,6 +65,10 @@ Global
 		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D05089A8-4E20-401F-BCBD-FEAFEB8EF90A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{683172E4-2ECD-4BC7-95FF-72AE17292C65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
