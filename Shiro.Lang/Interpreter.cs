@@ -63,6 +63,11 @@ namespace Shiro
             Symbols.CloneFrom(s);
         }
 
+        public static Interpreter CloneFrom(Interpreter i)
+        {
+            return new Interpreter(i.Symbols);
+        }
+
         public static Action<string> Error = (msg) =>
         {
             throw new ApplicationException(msg);
@@ -74,6 +79,11 @@ namespace Shiro
 		};
 
         public static Func<Interpreter, string, bool> LoadModule = DefaultModuleLoader;
+
+        public int QueueDepth
+        {
+            get => PublishedThings.Count;
+        }
 
         public static bool DefaultModuleLoader(Interpreter m, string s)
         {
@@ -94,9 +104,11 @@ namespace Shiro
         {
             internal Token Eval, Val;
             internal string DeliverTo;
+            internal Action<Token> AlternateDelivery;
             internal Interpreter ShiroToDeliverTo;
 
-            internal bool WantsDelivery => DeliverTo != null && ShiroToDeliverTo != null;
+            internal bool WantsShiroDelivery => DeliverTo != null && ShiroToDeliverTo != null;
+            internal bool WantsCSharpDelivery => AlternateDelivery != null;
         }
 
         private List<PublishedThing> PublishedThings = new List<PublishedThing>();
@@ -112,6 +124,17 @@ namespace Shiro
                     Val = val,
                     DeliverTo = awaitDelivery,
                     ShiroToDeliverTo = awaitDeliveryInterpreter
+                });
+        }
+
+        public void EvalAsync(Token eval, Token val, Action<Token> cb)
+        {
+            lock (PublishLock)
+                PublishedThings.Add(new PublishedThing()
+                {
+                    Eval = eval,
+                    Val = val,
+                    AlternateDelivery = cb
                 });
         }
 
@@ -139,8 +162,11 @@ namespace Shiro
                     _atomicEvaluation = false;
                     Symbols.ClearLetId(letId);
 
-                    if (pt.WantsDelivery)
+                    if (pt.WantsShiroDelivery)
                         pt.ShiroToDeliverTo.Symbols.Deliver(pt.DeliverTo, res.Clone());
+
+                    if (pt.WantsCSharpDelivery)
+                        pt.AlternateDelivery(res.Clone());
                 }
 
                 PublishedThings.Clear();
