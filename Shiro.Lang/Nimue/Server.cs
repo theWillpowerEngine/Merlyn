@@ -7,12 +7,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Shiro.Guts;
+using Shiro.Support;
 
 namespace Shiro.Nimue
 {
     internal static class Server
     {
         internal static bool Serving = false;
+
+        private static InterpreterPool _pool = null;
 
         internal static ConnectionType ConType
         {
@@ -174,7 +177,8 @@ namespace Shiro.Nimue
             HandlerToken = commandHandler;
             ConnectHandlerToken = connectHandler;
 
-            lock(Locks.ShiroLock)
+            _pool = new InterpreterPool((int)s.Symbols.Get(Symbols.AutoVars.NimuePoolSize).Toke, s);
+            lock (Locks.ShiroLock)
                 shiro = s;
 
             Serving = true;
@@ -219,6 +223,7 @@ namespace Shiro.Nimue
             HandlerToken = commandHandler;
             ConnectHandlerToken = null;
 
+            _pool = new InterpreterPool((int)s.Symbols.Get(Symbols.AutoVars.NimuePoolSize).Toke, s);
             lock (Locks.ShiroLock)
                 shiro = s;
 
