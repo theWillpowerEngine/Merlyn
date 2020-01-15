@@ -171,6 +171,17 @@ namespace Shiro.Guts
             }
         }
 
+        public void ReLet(string name, Token val)
+        {
+            if (!LetTable.ContainsKey(name))
+                Interpreter.Error("Can't relet " + name + ", no such variable exists in the current let-scope.");
+
+            val = val.Clone();
+            val.LetTableId = LetTable[name].LetTableId;
+            lock (LetTable)
+                LetTable[name] = val;
+        }
+
         public void ClearLetId(Guid letId)
         {
             lock (LetTable)

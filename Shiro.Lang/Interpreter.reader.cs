@@ -262,6 +262,10 @@ namespace Shiro
                         {
                             blockDepth = 0;
 
+                            //reader shortcut:  Auto-lets
+                            if (work.Trim().StartsWith("["))
+                                work = $"(let {work.Replace('[', '(').Replace("]", ") (")}))";
+
                             var scanned = Scan(work);
                             if(!isAutoLambda)
                                 retVal.Add(scanned);

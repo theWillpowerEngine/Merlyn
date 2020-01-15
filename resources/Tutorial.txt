@@ -15,5 +15,3 @@ TODO
 	Make .shrp files work with shiro (and work fully with SENSE).  Make imports work with project-relative paths if being run in a project context.
 
 	shIDE is sometimes weird with the working directory (seems mostly in debug mode, but figure out a final solution)
-
-	Nimue is vaguely single threaded if the service involves long-running, blocking operations.  Oops

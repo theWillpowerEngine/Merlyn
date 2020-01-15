@@ -32,6 +32,18 @@
     (assert-not (def? x) "let scope undef")
     (assert (def? y) "let scope hiding")
     (assert (= 5 $y) "let scope hiding 2")
+    
+    ([x 4 y 10] do
+        (assert-eq $x 4 "auto-let")
+        (assert-eq $y 10 "auto-let 2")
+        (relet x 600)
+        (assert-eq $x 600 "relet")
+        (assert-fails ()->(relet bob 123) "Can't relet things that aren't let"))
+        
+    (assert-not (def? x) "autolet undef")
+    (assert (def? y) "autolet hiding")
+    (assert (= 5 $y) "autolet hiding 2")
+
 
     ;lists
     (sod l '(1 2 3 4 5 6 7 8 9 10))
@@ -110,7 +122,7 @@
     (assert-not (IDoStuff? $notids) "quack helper considering predicates 1")
     (assert-not (IDoStuff? $notids2) "quack helper considering predicates 2")
     (assert-fails (=> (ids.f 123)) "param-predicats for lambdas")
-    (assert-works(=> (ids.f "Hello nurse")) "param-predicats for lambdas 2")
+    (assert-works (=> (ids.f "Hello nurse")) "param-predicates for lambdas 2")
     (assert-eq 2 (ids.f2 1) "mixins are mixing in")
 
     ;bug-fix test cases

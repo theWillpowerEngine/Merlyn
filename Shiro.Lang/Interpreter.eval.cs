@@ -711,6 +711,14 @@ namespace Shiro
                     }
                     return lastVal;
 
+                case "relet":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'relet', expected 2");
+                    
+                    s1 = list[1].Toke.ToString();
+                    Symbols.ReLet(s1, lastVal = list[2].Eval(this));
+                    return lastVal;
+
                 #endregion
 
                 #region Math and CondOps
