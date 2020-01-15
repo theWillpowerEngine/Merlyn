@@ -77,7 +77,7 @@ namespace Shiro
 
         public static bool HasProperty(this List<Token> tokes, Interpreter shiro, string name)
         {
-            if (tokes.Any(t => t.Name != null && t.Name.ToLower() == name.ToLower()))
+            if (tokes != null && tokes.Any(t => t.Name != null && t.Name.ToLower() == name.ToLower()))
                 return true;
 
             if (shiro.Symbols.CurrentEnclosure != null)
@@ -103,7 +103,7 @@ namespace Shiro
             if (!tokes.HasProperty(shiro, name))
                 return Token.Nil;
 
-            var toke = tokes.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
+            var toke = tokes?.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
             if (toke != null)
                 return toke;
 
@@ -117,7 +117,7 @@ namespace Shiro
             if (!tokes.HasProperty(shiro, name))
                 return false;
 
-            var toke = tokes.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
+            var toke = tokes?.FirstOrDefault(t => t.Name != null && t.Name.ToLower() == name.ToLower());
             if (toke == null)
                 toke = shiro.Symbols.CurrentEnclosure.Children.First(t => t.Name != null && t.Name.ToLower() == name.ToLower());
 

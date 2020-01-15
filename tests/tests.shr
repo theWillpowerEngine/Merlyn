@@ -44,6 +44,13 @@
     (assert (def? y) "autolet hiding")
     (assert (= 5 $y) "autolet hiding 2")
 
+    ;Got Closure Scope?  Fuck yeah we've got closure scope
+    (do 
+        ([x 5] sod incrementer (enclose ()->(set x (+ $x 1))))
+        (assert-eq 6 (incrementer) "closure scope 1")
+        (assert-eq 7 (incrementer) "closure scope 1")
+        (assert-eq 8 (incrementer) "closure scope 1")
+        (assert-not (def? x) "closure scope not polluting global symbols"))
 
     ;lists
     (sod l '(1 2 3 4 5 6 7 8 9 10))

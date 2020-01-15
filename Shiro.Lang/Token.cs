@@ -116,12 +116,13 @@ namespace Shiro
                 return new Token(name ?? Name, Children.ToArray().ToList())
                 {
                     Params = Params,     
-                    TardEnclosure = TardEnclosure
+                    TardEnclosure = TardEnclosure?.Clone()
                     //Don't clone IsBeingAwaited because only one of them is getting delivered
                 };
             else
                 return new Token(Toke?.ToString()) {
-                    Name = name 
+                    Name = name,
+                    TardEnclosure = TardEnclosure?.Clone()
                 };
         }
 
@@ -166,11 +167,18 @@ namespace Shiro
             if(thisToke != null)
                 shiro.Symbols.Let("this", thisToke, letId);
 
-            shiro.Symbols.PushTardEnclosure(thisToke?.TardEnclosure);
-            var retVal = Eval(shiro);
-            TardEnclosure = shiro.Symbols.PopTardEnclosure();
-            shiro.Symbols.ClearLetId(letId);
-            return retVal;
+            shiro.Symbols.PushTardEnclosure(thisToke?.TardEnclosure ?? TardEnclosure);
+
+            try
+            {
+                var retVal = Eval(shiro);
+                shiro.Symbols.ClearLetId(letId);
+                return retVal;
+            }
+            finally
+            {
+                TardEnclosure = shiro.Symbols.PopTardEnclosure();
+            }
         }
     }
 }

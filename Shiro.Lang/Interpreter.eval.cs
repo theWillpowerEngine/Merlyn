@@ -57,7 +57,10 @@ namespace Shiro
 
                 case "print":
                     for (i = 1; i < list.Count; i++)
-                        Output((lastVal = list[i].Eval(this)).ToString() + Environment.NewLine);
+                    {
+                        lastVal = list[i].Eval(this);
+                        Output(lastVal.ToString() + Environment.NewLine);
+                    }
                     return lastVal;
 
                 case "printnb":
@@ -510,17 +513,31 @@ namespace Shiro
                         return new Token(new Token(s1, toke.Toke));
 
                 case "enclose":
-                    if (!list.ValidateParamCount(2))
-                        Error("Wrong number of parameters to keyword 'enclose', expected 2");
+                    if (!list.ValidateParamCount(2) && !list.ValidateParamCount(1))
+                        Error("Wrong number of parameters to keyword 'enclose', expected 1 or 2");
 
-                    toke = list[1].Eval(this);
-                    toke2 = list[2].Eval(this);
+                    if (list.ValidateParamCount(2))
+                    {
+                        //Object enclosure ('private' variables)
+                        toke = list[1].Eval(this);
+                        toke2 = list[2].Eval(this);
 
-                    if (!toke.IsObject || !toke2.IsObject)
-                        Error($"Both parameters passed to enclose must be objects.  Instead I got these two things: {toke.ToString()} -AND- {toke2.ToString()}");
+                        if (!toke.IsObject || !toke2.IsObject)
+                            Error($"Both parameters passed to enclose must be objects if you pass 2 things.  Instead I got these two things: {toke.ToString()} -AND- {toke2.ToString()}");
 
-                    toke2.TardEnclosure = toke;
-                    return toke2;
+                        toke2.TardEnclosure = toke;
+                        return toke2;
+                    } else
+                    {
+                        //Lambda enclosure (closure scope)
+                        toke = list[1].Eval(this);
+
+                        if (!toke.IsFunction)
+                            Error($"When taking only a single parameter, the parameter to enclose should be a lambda, not {toke.ToString()}");
+
+                        toke.TardEnclosure = Symbols.GetLetScopeAsTardEnclosure();
+                        return toke;
+                    }
                 #endregion
 
                 #region Implementers and Mixins

@@ -105,7 +105,7 @@ namespace Shiro.Support
                     return "(do (...) ...)   ; evaluates to the eval-value of the final list";
 
                 case "enclose":
-                    return "(enclose {<privates>} {<rest of object>})";
+                    return "(enclose {<privates>} {<rest of object>})  -OR-  (enclose <lambda>)";
 
                 case "error?":
                     return "(error? <value>)  ; check for errors in async-list results";

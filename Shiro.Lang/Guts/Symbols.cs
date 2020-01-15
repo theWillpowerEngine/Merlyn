@@ -16,6 +16,8 @@ namespace Shiro.Guts
         private readonly Dictionary<string, Token> LetTable = new Dictionary<string, Token>();
         private readonly Dictionary<string, Func<Token>> AutoSymbols = new Dictionary<string, Func<Token>>();
 
+        private static readonly List<Token> CheckClosureScope = null;
+
         private Stack<Token> TardEnclosures = new Stack<Token>();       //Stupid control freaks and their stupid private variables
 
         public Token CurrentEnclosure => TardEnclosures.Count > 0 ? TardEnclosures.Peek() : null;
@@ -75,6 +77,8 @@ namespace Shiro.Guts
                 return AutoSymbols[name]();
             if (LetTable.ContainsKey(name))
                 return LetTable[name];
+            if (CheckClosureScope.HasProperty(_shiro, name))
+                return CheckClosureScope.GetProperty(_shiro, name);
             if (SymbolTable.ContainsKey(name))
             {
                 var awaiting = SymbolTable[name].IsBeingAwaited;
@@ -89,7 +93,6 @@ namespace Shiro.Guts
 
                 return SymbolTable[name];
             }
-                
 
             Interpreter.Error("Attempt to get value of non-existant variable: " + name);
             return Token.Nil;
@@ -100,6 +103,8 @@ namespace Shiro.Guts
             if (AutoSymbols.ContainsKey(name))
                 return true;
             if (LetTable.ContainsKey(name))
+                return true;
+            if (CheckClosureScope.HasProperty(_shiro, name))
                 return true;
             if (SymbolTable.ContainsKey(name))
                 return true;
@@ -136,7 +141,9 @@ namespace Shiro.Guts
 
         public void Set(string name, Token val)
         {
-            if (!SymbolTable.ContainsKey(name))
+            if (CheckClosureScope.HasProperty(_shiro, name))
+                CheckClosureScope.SetProperty(_shiro, name, val);
+            else if (!SymbolTable.ContainsKey(name))
                 SymbolTable.Add(name, val);
             else
                 SymbolTable[name] = val;
@@ -364,6 +371,17 @@ namespace Shiro.Guts
             }
 
             return null;
+        }
+
+        internal Token GetLetScopeAsTardEnclosure()
+        {
+            Token retVal = new Token();
+            retVal.Children = new List<Token>();
+
+            foreach (var key in LetTable.Keys)
+                retVal.Children.Add(LetTable[key].Clone(key));
+
+            return retVal;
         }
     }
 }
