@@ -135,6 +135,11 @@ namespace Shiro.Nimue
             }
         }
 
+        internal void SetForNuking()
+        {
+            _client.Close();
+        }
+
         public void Send(string msg)
         {
             NetworkStream nwStream = _client.GetStream();

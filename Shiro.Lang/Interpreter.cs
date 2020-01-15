@@ -136,6 +136,8 @@ namespace Shiro
                     Val = val,
                     AlternateDelivery = cb
                 });
+
+            DispatchPublications();
         }
 
         protected bool _atomicEvaluation = false;

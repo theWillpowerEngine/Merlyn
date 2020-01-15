@@ -16,6 +16,7 @@ namespace Shiro.Nimue
         internal static bool Serving = false;
 
         private static InterpreterPool _pool = null;
+        private static Interpreter _shiro;
 
         internal static ConnectionType ConType
         {
@@ -33,7 +34,6 @@ namespace Shiro.Nimue
         private static int Port = 4676;
 
         private static Token HandlerToken, ConnectHandlerToken;
-        private static Interpreter shiro;
 
         private static void Listener()
         {
@@ -45,7 +45,7 @@ namespace Shiro.Nimue
             while (Serving)
             {
                 while(!listener.Pending())
-                    shiro.DispatchPublications();
+                    _shiro.DispatchPublications();
 
                 TcpClient client = listener.AcceptTcpClient();
 
@@ -59,10 +59,7 @@ namespace Shiro.Nimue
 
                 if (ConnectHandlerToken != null)
                 {
-                    lock (Locks.ShiroLock)
-                    {
-                        EvaluateTokenWithLet(conn, ConnectHandlerToken);
-                    }
+                    EvaluateTokenWithLets(conn, ConnectHandlerToken).Start();
                 }
             }
 
@@ -72,65 +69,70 @@ namespace Shiro.Nimue
         private static void UpdateConnections()
         {
             var newConns = new List<Connection>();
-            lock (Locks.ConnectionsLock)
-            {
-                foreach (var con in Connections)
-                {
-                    if (!con.ShouldBeNuked)
-                    {
-                        newConns.Add(con);
-                        con.CheckForInput();
-                        if (con.HasFullCommand)
-                        {
-							var result = EvaluateTokenWithLet(con, HandlerToken);
+            List<Connection> conCopy;
 
-                            if (ConType == ConnectionType.HTTP)
-                            {
-                                SendTo(con, HttpHelper.WrapInHttpResponse(result.ToString()));
-                                con.CleanUp();
-                                newConns.Remove(con);
-                            }
-                        }
-                    }
-                    else
+            lock (Locks.ConnectionsLock)
+                conCopy = Connections.ToArray().ToList();
+
+            foreach (var con in conCopy)
+            {
+                if (!con.ShouldBeNuked)
+                {
+                    newConns.Add(con);
+                    con.CheckForInput();
+                    if (con.HasFullCommand)
                     {
-                        con.CleanUp();
+                        Interpreter.Output("Has a full command, starting process" + Environment.NewLine);
+                        #pragma warning disable CS4014
+                        ProcessCommand(con);
+                        #pragma warning restore CS4014
+                        Interpreter.Output("Back from process (should be async)" + Environment.NewLine);
                     }
                 }
+                else
+                {
+                    con.CleanUp();
+                }
 
-                Connections = newConns;
+                lock (Locks.ConnectionsLock)
+                    Connections = newConns;
             }
         }
 
-        private static Token EvaluateTokenWithLet(Connection con, Token handler)
+        private static async Task ProcessCommand(Connection con)
         {
-            lock (Locks.ShiroLock)
+            var result = await EvaluateTokenWithLets(con, HandlerToken);
+
+            if (ConType == ConnectionType.HTTP)
             {
-				Guid letId = Guid.NewGuid();
-				try
-				{
-					shiro.Symbols.Let(Symbols.AutoVars.ConnectionId, new Token(con.ConnectionId.ToString()), letId);
+                SendTo(con, HttpHelper.WrapInHttpResponse(result.ToString()));
+                con.SetForNuking();
+            }
+        }
 
-					if (ConType != ConnectionType.HTTP)
-						shiro.Symbols.Let(Symbols.AutoVars.TelnetInput, new Token(con.GetCommand()), letId);
-					else
-					{
-						var request = HttpHelper.ParseRequest(con.GetCommand());
-						var token = HttpHelper.RequestToToken(request);
-						shiro.Symbols.Let(Symbols.AutoVars.HttpRequest, token, letId);
-					}
+        private static async Task<Token> EvaluateTokenWithLets(Connection con, Token handler)
+        {
+			Guid letId = Guid.NewGuid();
+			try
+			{
+                var ipi = _pool.Begin()
+                    .Let(Symbols.AutoVars.ConnectionId, new Token(con.ConnectionId.ToString()));
 
-					var retVal = handler.Eval(shiro);
-					return retVal;
-				}
-				catch (ApplicationException aex)
+				if (ConType != ConnectionType.HTTP)
+					ipi.Let(Symbols.AutoVars.TelnetInput, new Token(con.GetCommand()));
+				else
 				{
-					shiro.Eval($"print 'Server error: {aex.Message.Replace("'", "%'")}'", false);
+					var request = HttpHelper.ParseRequest(con.GetCommand());
+					var token = HttpHelper.RequestToToken(request);
+					ipi.Let(Symbols.AutoVars.HttpRequest, token);
 				}
-				finally
-				{
-					shiro.Symbols.ClearLetId(letId);
-				}
+
+                var retVal = await ipi.Eval(handler);
+				return retVal;
+			}
+			catch (ApplicationException aex)
+			{
+				Console.WriteLine($"Server error: {aex.Message}");
 			}
 
 			return Token.Nil;
@@ -170,96 +172,100 @@ namespace Shiro.Nimue
             }
         }
 
-        internal static void ListenForTelnetOrTcp(Interpreter s, Token commandHandler, int port = 4676, Token connectHandler = null, bool isTcp = false)
+        internal static void ListenForTelnetOrTcp(Interpreter shiro, Token commandHandler, int port = 4676, Token connectHandler = null, bool isTcp = false)
         {
             ConType = isTcp ? ConnectionType.TCP : ConnectionType.MUD;
             Port = port;
             HandlerToken = commandHandler;
             ConnectHandlerToken = connectHandler;
 
-            _pool = new InterpreterPool((int)s.Symbols.Get(Symbols.AutoVars.NimuePoolSize).Toke, s);
-            lock (Locks.ShiroLock)
-                shiro = s;
+            _shiro = shiro;
 
-            Serving = true;
-            
-            //Listen thread
-            var ts = new ThreadStart(Listener);
-            var thread = new Thread(ts);
-            thread.Start();
-
-            //Receive thread
-            var ts2 = new ThreadStart(() =>
+            using (_pool = new InterpreterPool(shiro))
             {
-                while (Serving)
+                Serving = true;
+
+                //Listen thread
+                var ts = new ThreadStart(Listener);
+                var thread = new Thread(ts);
+                thread.Start();
+
+                //Receive thread
+                var ts2 = new ThreadStart(() =>
                 {
+                    while (Serving)
+                    {
                     //Receive loop
                     UpdateConnections();
+                        Thread.Sleep(50);
+                    }
+
+                    lock (Locks.ConnectionsLock)
+                    {
+                        foreach (var con in Connections)
+                            con.CleanUp(false);
+                        Connections.Clear();
+                    }
+
+                });
+                var thread2 = new Thread(ts2);
+                thread2.Start();
+
+                Result = null;
+                while (Serving)
+                {
                     Thread.Sleep(50);
                 }
-
-                lock (Locks.ConnectionsLock)
-                {
-                    foreach (var con in Connections)
-                        con.CleanUp(false);
-                    Connections.Clear();
-                }
-
-            });
-            var thread2 = new Thread(ts2);
-            thread2.Start();
-
-            Result = null;
-            while (Serving)
-            {
-                Thread.Sleep(50);
             }
+            _pool = null;
         }
 
-        internal static void ListenForHttp(Interpreter s, Token commandHandler, int port = 8088)
+        internal static void ListenForHttp(Interpreter shiro, Token commandHandler, int port = 8088)
         {
             ConType = ConnectionType.HTTP;
             Port = port;
             HandlerToken = commandHandler;
             ConnectHandlerToken = null;
 
-            _pool = new InterpreterPool((int)s.Symbols.Get(Symbols.AutoVars.NimuePoolSize).Toke, s);
-            lock (Locks.ShiroLock)
-                shiro = s;
+            _shiro = shiro;
 
-            Serving = true;
-
-            //Listen thread
-            var ts = new ThreadStart(Listener);
-            var thread = new Thread(ts);
-            thread.Start();
-
-            //Receive thread
-            var ts2 = new ThreadStart(() =>
+            using (_pool = new InterpreterPool(shiro))
             {
-                while (Serving)
+                Serving = true;
+
+                //Listen thread
+                var ts = new ThreadStart(Listener);
+                var thread = new Thread(ts);
+                thread.Start();
+
+                //Receive thread
+                var ts2 = new ThreadStart(() =>
                 {
+                    while (Serving)
+                    {
                     //Receive loop
                     UpdateConnections();
+                        Thread.Sleep(50);
+                    }
+
+                    lock (Locks.ConnectionsLock)
+                    {
+                        foreach (var con in Connections)
+                            con.CleanUp(false);
+                        Connections.Clear();
+                    }
+
+                });
+                var thread2 = new Thread(ts2);
+                thread2.Start();
+
+                Result = null;
+                while (Serving)
+                {
                     Thread.Sleep(50);
                 }
-
-                lock (Locks.ConnectionsLock)
-                {
-                    foreach (var con in Connections)
-                        con.CleanUp(false);
-                    Connections.Clear();
-                }
-
-            });
-            var thread2 = new Thread(ts2);
-            thread2.Start();
-
-            Result = null;
-            while (Serving)
-            {
-                Thread.Sleep(50);
             }
+            _pool = null;
         }
 
         internal static Token Result = null;

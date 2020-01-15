@@ -42,8 +42,6 @@ namespace Shiro.Guts
             internal static string ConnectionId = "id";
             internal static string TelnetInput = "input";
             internal static string HttpRequest = "request";
-
-            internal static string NimuePoolSize = "nimue-pool-size";
         }
 
         internal void CloneFrom(Symbols s)
@@ -313,8 +311,6 @@ namespace Shiro.Guts
 
             AutoSymbols.Add("MerVer", () => new Token(Interpreter.Version));
             AutoSymbols.Add("IsServing", () => Server.Serving ? Token.True : Token.False);
-
-            Set(AutoVars.NimuePoolSize, new Token("5"));
         }
 
         public void BeginAwaiting(string s1)

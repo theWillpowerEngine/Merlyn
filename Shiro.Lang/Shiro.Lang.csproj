@@ -50,6 +50,7 @@
     <Compile Include="Interpreter.reader.cs" />
     <Compile Include="Interpreter.eval.cs" />
     <Compile Include="Interpreter.cs" />
+    <Compile Include="InterpreterPool.cs" />
     <Compile Include="Nimue\Connection.cs" />
     <Compile Include="Nimue\HttpHelper.cs" />
     <Compile Include="Nimue\Server.cs" />

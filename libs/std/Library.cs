@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace std
@@ -27,6 +28,20 @@ namespace std
                     Interpreter.Error($"Only objects can be inherited from, not {parent.ToString()}");
 
                 return parent.Clone();
+            }, "(inherit <name of object>)");
+
+            shiro.RegisterAutoFunction("sleep", (i, toke) =>
+            {
+                if (toke.Children.Count != 1)
+                    Interpreter.Error("sleep autofunction expects 1 param (amount of time (in ms) to sleep)");
+
+                if(!toke.Children[0].IsNumeric)
+                    Interpreter.Error("Parameter to sleep should be numeric, not " + toke.Children[0].ToString());
+
+                var dur = (long)toke.Children[0].Toke;
+                Thread.Sleep((int)dur);
+                return Token.Nil;
+
             }, "(inherit <name of object>)");
 
 

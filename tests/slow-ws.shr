@@ -1,0 +1,10 @@
+(do
+    (import std)
+    (http 8676
+		(route '/api' (do 
+            (print 'About to Sleep')
+            (sleep 5000)
+            (print 'Done')
+            (content "application/json"
+                (json {name: "Dan", age: 35})))
+            "default" 'nada')))

@@ -49,7 +49,7 @@ namespace Shiro.Sense
             var ts = new ThreadStart(() =>
                 {
                     Token res;
-                    try
+                    //try
                     {
                         lock (ShiroLock)
                         {
@@ -59,11 +59,11 @@ namespace Shiro.Sense
                         }
                         cb(res);
                     }
-                    catch (Exception ex)
-                    {
-                        SafeError(ex.Message);
-                        cb(null);
-                    }
+                    //catch (Exception ex)
+                    //{
+                    //    SafeError(ex.Message);
+                    //    cb(null);
+                    //}
 
                 });
 

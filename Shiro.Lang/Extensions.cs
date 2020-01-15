@@ -162,10 +162,17 @@ namespace Shiro
         
         public static TcpState GetState(this TcpClient tcpClient)
         {
-            var foo = IPGlobalProperties.GetIPGlobalProperties()
-                .GetActiveTcpConnections()
-                .SingleOrDefault(x => x.RemoteEndPoint.Equals(tcpClient.Client.RemoteEndPoint));
-            return foo != null ? foo.State : TcpState.Unknown;
+            try
+            {
+                var foo = IPGlobalProperties.GetIPGlobalProperties()
+                    .GetActiveTcpConnections()
+                    .SingleOrDefault(x => x.RemoteEndPoint.Equals(tcpClient.Client.RemoteEndPoint));
+                return foo != null ? foo.State : TcpState.Unknown;
+            }
+            catch (Exception)
+            {
+                return TcpState.Unknown;
+            }
         }
     }
 }
