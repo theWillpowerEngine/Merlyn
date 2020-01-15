@@ -42,7 +42,7 @@ namespace std
                 Thread.Sleep((int)dur);
                 return Token.Nil;
 
-            }, "(inherit <name of object>)");
+            }, "(sleep <ms to sleep>)");
 
 
             //            shiro.Eval(@"(do (defn assert (test s:str?) (pnb (if (! $test) (str 'FAIL: ' $s '%n') '')))

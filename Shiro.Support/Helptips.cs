@@ -66,6 +66,7 @@ namespace Shiro.Support
                 case "def":
                 case "set":
                 case "sod":
+                case "relet":
                     return $"({word} <name> <value>)";
 
                 case ".s":
