@@ -49,9 +49,11 @@
             this.pasteMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.projectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.closeProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
             this.addFileToProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeFileFromProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,7 +93,8 @@
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
-            this.removeFileFromProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
+            this.saveProjectAsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -260,6 +263,8 @@
             // 
             this.projectMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newProjectMenu,
+            this.saveProjectMenu,
+            this.saveProjectAsMenu,
             this.closeProjectMenu,
             this.toolStripMenuItem7,
             this.addFileToProjectMenu,
@@ -271,29 +276,47 @@
             // newProjectMenu
             // 
             this.newProjectMenu.Name = "newProjectMenu";
-            this.newProjectMenu.Size = new System.Drawing.Size(199, 22);
+            this.newProjectMenu.Size = new System.Drawing.Size(210, 22);
             this.newProjectMenu.Text = "&New Project";
             this.newProjectMenu.Click += new System.EventHandler(this.newProjectMenu_Click);
+            // 
+            // saveProjectMenu
+            // 
+            this.saveProjectMenu.Name = "saveProjectMenu";
+            this.saveProjectMenu.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.saveProjectMenu.Size = new System.Drawing.Size(210, 22);
+            this.saveProjectMenu.Text = "&Save Project";
+            this.saveProjectMenu.Click += new System.EventHandler(this.saveProjectMenu_Click);
             // 
             // closeProjectMenu
             // 
             this.closeProjectMenu.Name = "closeProjectMenu";
-            this.closeProjectMenu.Size = new System.Drawing.Size(199, 22);
+            this.closeProjectMenu.Size = new System.Drawing.Size(210, 22);
             this.closeProjectMenu.Text = "&Close Project";
             this.closeProjectMenu.Click += new System.EventHandler(this.closeProjectMenu_Click);
             // 
             // toolStripMenuItem7
             // 
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(196, 6);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(207, 6);
             // 
             // addFileToProjectMenu
             // 
             this.addFileToProjectMenu.Name = "addFileToProjectMenu";
+            this.addFileToProjectMenu.ShortcutKeyDisplayString = "Ctrl+ +";
             this.addFileToProjectMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Oemplus)));
-            this.addFileToProjectMenu.Size = new System.Drawing.Size(199, 22);
+            this.addFileToProjectMenu.Size = new System.Drawing.Size(210, 22);
             this.addFileToProjectMenu.Text = "&Add File";
             this.addFileToProjectMenu.Click += new System.EventHandler(this.addFileToProjectMenu_Click);
+            // 
+            // removeFileFromProjectMenu
+            // 
+            this.removeFileFromProjectMenu.Name = "removeFileFromProjectMenu";
+            this.removeFileFromProjectMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Delete)));
+            this.removeFileFromProjectMenu.Size = new System.Drawing.Size(210, 22);
+            this.removeFileFromProjectMenu.Text = "&Remove File";
+            this.removeFileFromProjectMenu.Click += new System.EventHandler(this.removeFileFromProjectMenu_Click);
             // 
             // evaluateToolStripMenuItem
             // 
@@ -668,7 +691,7 @@
             // saveFileDialog
             // 
             this.saveFileDialog.DefaultExt = "shr";
-            this.saveFileDialog.Filter = "Shiro Files|*.shr|Shiro Projects|*.shrp|Everything|*.*";
+            this.saveFileDialog.Filter = "Shiro Files|*.shr|Everything|*.*";
             // 
             // openFileDialog
             // 
@@ -679,13 +702,17 @@
             // 
             this.saveStateTimer.Tick += new System.EventHandler(this.saveStateTimer_Tick);
             // 
-            // removeFileFromProjectMenu
+            // saveProjectDialog
             // 
-            this.removeFileFromProjectMenu.Name = "removeFileFromProjectMenu";
-            this.removeFileFromProjectMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Delete)));
-            this.removeFileFromProjectMenu.Size = new System.Drawing.Size(199, 22);
-            this.removeFileFromProjectMenu.Text = "&Remove File";
-            this.removeFileFromProjectMenu.Click += new System.EventHandler(this.removeFileFromProjectMenu_Click);
+            this.saveProjectDialog.DefaultExt = "shr";
+            this.saveProjectDialog.Filter = "Shiro Projects|*.shrp";
+            // 
+            // saveProjectAsMenu
+            // 
+            this.saveProjectAsMenu.Name = "saveProjectAsMenu";
+            this.saveProjectAsMenu.Size = new System.Drawing.Size(210, 22);
+            this.saveProjectAsMenu.Text = "Save Project &As";
+            this.saveProjectAsMenu.Click += new System.EventHandler(this.saveProjectAsMenu_Click);
             // 
             // MainForm
             // 
@@ -786,6 +813,9 @@
         private System.Windows.Forms.ToolStripMenuItem closeProjectMenu;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
         private System.Windows.Forms.ToolStripMenuItem removeFileFromProjectMenu;
+        private System.Windows.Forms.ToolStripMenuItem saveProjectMenu;
+        private System.Windows.Forms.SaveFileDialog saveProjectDialog;
+        private System.Windows.Forms.ToolStripMenuItem saveProjectAsMenu;
     }
 }
 

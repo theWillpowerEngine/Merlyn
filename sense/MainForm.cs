@@ -28,7 +28,7 @@ namespace Shiro.Sense
 
         public void Eval(string code, Action<Token> cb)
         {
-            if (!editorTabs.SelectedTab.Text.StartsWith("new"))
+            if (!editorTabs.SelectedTab.Text.StartsWith("new") && !IsProjectOpen)
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(DocumentManager.GetFileName(editorTabs.SelectedTab.Text)));
 
             var ts = new ThreadStart(() =>
@@ -613,6 +613,7 @@ namespace Shiro.Sense
 
             IsProjectOpen = false;
             ProjectTree = null;
+            ShiroProject.CurrentlyOpenProject = null;
             UpdateTree();
         }
 
@@ -631,11 +632,43 @@ namespace Shiro.Sense
             string name = Interaction.InputBox("Enter a name for your project (this should be the file name of the project, but doesn't have to be)", "New Project", "", -1, -1);
             if(!string.IsNullOrWhiteSpace(name))
             {
+                ShiroProject.CurrentlyOpenProject = null;
                 ProjectTree = new Token(new Token("name", name), Token.NamedEmptyList("proj"));
                 ProjectTree.Children[1].Children.Add(Token.EmptyList);
                 IsProjectOpen = true;
                 UpdateTree();
             }
+        }
+
+        private void saveProjectMenu_Click(object sender, EventArgs e)
+        {
+            if (!IsProjectOpen)
+                if (DialogResult.Yes == MessageBox.Show("You haven't actually made a project yet.  Would you like to?", "Create a new project?", MessageBoxButtons.YesNo))
+                {
+                    newProjectMenu_Click(sender, e);
+                    if (!IsProjectOpen)
+                        return;
+                }
+                else
+                    return;
+
+            SaveProject();
+        }
+
+        private void saveProjectAsMenu_Click(object sender, EventArgs e)
+        {
+            if (!IsProjectOpen)
+                if (DialogResult.Yes == MessageBox.Show("You haven't actually made a project yet.  Would you like to?", "Create a new project?", MessageBoxButtons.YesNo))
+                {
+                    newProjectMenu_Click(sender, e);
+                    if (!IsProjectOpen)
+                        return;
+                }
+                else
+                    return;
+
+            ShiroProject.CurrentlyOpenProject = null;
+            SaveProject();
         }
 
         private void addFileToProjectMenu_Click(object sender, EventArgs e)
@@ -859,12 +892,21 @@ namespace Shiro.Sense
 
         private void SaveProject()
         {
-            MessageBox.Show("Lazy Programmer Error detected.");
+            if(string.IsNullOrEmpty(ShiroProject.CurrentlyOpenProject))
+            {
+                if (DialogResult.OK == saveProjectDialog.ShowDialog())
+                    ShiroProject.CurrentlyOpenProject = saveProjectDialog.FileName;
+                else
+                    return;
+            }
+
+            File.WriteAllText(ShiroProject.CurrentlyOpenProject, ShiroProject.GetShiroProjectFileContent(Shiro, ProjectTree));
         }
 
         private void OpenProject(string file)
         {
             ShiroProject.ProjectFileDirectory = Path.GetDirectoryName(file);
+            ShiroProject.CurrentlyOpenProject = file;
             Directory.SetCurrentDirectory(ShiroProject.ProjectFileDirectory);
 
             var content = File.ReadAllText(file);
@@ -951,6 +993,8 @@ namespace Shiro.Sense
             Interpreter.LoadModule = (m, s) => {
                 if (s.ToLower() == "shiro-project")
                 {
+                    ShiroProject.Libs = new List<string>();
+
                     if (!Shiro.IsFunctionName("sh-project"))
                         new ShiroProject().RegisterAutoFunctions(Shiro);
                 }

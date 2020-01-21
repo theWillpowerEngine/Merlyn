@@ -11,6 +11,8 @@ namespace Shiro.Sense
     public class ShiroProject : Interpreter.ShiroPlugin
     {
         public static string ProjectFileDirectory = "";
+        public static List<string> Libs = new List<string>();
+        internal static string CurrentlyOpenProject;
 
         public override void RegisterAutoFunctions(Interpreter shiro)
         {
@@ -21,7 +23,11 @@ namespace Shiro.Sense
 
                 var name = toke.Children[0].Eval(shiro).ToString();
 
-                return Libraries.Install(Program.LibDirectory, ProjectFileDirectory, name) ? Token.True : Token.False;
+                var worked = Libraries.Install(Program.LibDirectory, ProjectFileDirectory, name);
+                if (!Libs.Contains(name))
+                    Libs.Add(name);
+
+                return worked ? Token.True : Token.False;
             });
 
             shiro.RegisterAutoFunction("sh-project", (i, toke) =>
@@ -82,6 +88,42 @@ namespace Shiro.Sense
             }
 
             return newKids;
+        }
+
+        private static string BuildShiroProjectFilesAndFolders(Interpreter shiro, Token projectTreeProject)
+        {
+            var ret = new StringBuilder();
+
+            foreach (var child in projectTreeProject.Children)
+            {
+                if (child.Children.HasProperty(shiro, "path"))
+                {
+                    ret.AppendLine($"      (shp-file '{child.Children.GetProperty(shiro, "name").ToString()}' '{child.Children.GetProperty(shiro, "path").ToString()}')");
+                }
+                else
+                {
+                    ret.AppendLine($"    (shp-folder '{child.Children.GetProperty(shiro, "name").ToString()}' '(");
+                    ret.AppendLine(BuildShiroProjectFilesAndFolders(shiro, child.Children.GetProperty(shiro, "files").Children[0]));
+                    ret.AppendLine("    ))");
+                }
+            }
+
+            return ret.ToString();
+        }
+
+        internal static string GetShiroProjectFileContent(Interpreter shiro, Token projectTree)
+        {
+            var ret = new StringBuilder(@"(do (import shiro-project) ");
+
+            foreach (var lib in Libs)
+                ret.AppendLine($"    (sh-install '{lib}')");
+
+            ret.AppendLine($"    (sh-project {projectTree.Children.GetProperty(shiro, "name").ToString()} '(");
+
+            ret.AppendLine(BuildShiroProjectFilesAndFolders(shiro, projectTree.Children.GetProperty(shiro, "proj").Children[0]));
+
+            ret.Append(")))");
+            return ret.ToString();
         }
     }
 }

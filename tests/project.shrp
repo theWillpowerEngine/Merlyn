@@ -1,12 +1,8 @@
-(do 
-    (import shiro-project)
-    (sh-install test)
-	(sh-project "test" '(
-		(shp-file "test.shr" "tests.shr")
-		(shp-folder "litterbox" '(
-			(shp-file "weird.shr" "junk\weird.shr")
-			(shp-file "main.shr" "junk\main.shr")
-			(shp-file "rest.shr" "junk\rest.shr")
-		))
-	))
-)
+(do (import shiro-project)     (sh-install 'test')
+    (sh-project test '(
+      (shp-file 'test.shr' 'tests.shr')
+    (shp-folder 'litterbox' '(
+
+    ))
+
+)))
