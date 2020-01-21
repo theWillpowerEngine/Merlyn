@@ -1053,14 +1053,14 @@ namespace Shiro.Sense
                 key = key.OpenSubKey("directory");
                 key = key.OpenSubKey("shell");
 
-                key = key.CreateSubKey("ShIDE");
-                key.SetValue("", "Open with ShIDE");
+                key = key.CreateSubKey("SENSE");
+                key.SetValue("", "Open with SENSE");
                 key.SetValue("command", Assembly.GetExecutingAssembly().Location);
                 key.SetValue("icon", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "shiro.ico"));
             }
             catch (UnauthorizedAccessException)
             {
-                MessageBox.Show("You have to run ShIDE as Administrator to register this");
+                MessageBox.Show("You have to run SENSE as Administrator to register this");
             } finally
             {
                 key.Close();
