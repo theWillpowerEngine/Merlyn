@@ -106,7 +106,7 @@ namespace Shiro
 
         public bool IsBeingAwaited = false;
 
-        public Token TardEnclosure = null;
+        public Token Enclosure = null;
 
         public bool IsParent => Children != null;
         public bool IsNil => (Children == null && (Toke == null || (Toke is Token && (Toke as Token).IsNil)));
@@ -132,13 +132,13 @@ namespace Shiro
                 return new Token(name ?? Name, Children.ToArray().ToList())
                 {
                     Params = Params,     
-                    TardEnclosure = TardEnclosure?.Clone()
+                    Enclosure = Enclosure?.Clone()
                     //Don't clone IsBeingAwaited because only one of them is getting delivered
                 };
             else
                 return new Token(Toke?.ToString()) {
                     Name = name,
-                    TardEnclosure = TardEnclosure?.Clone()
+                    Enclosure = Enclosure?.Clone()
                 };
         }
 
@@ -183,7 +183,7 @@ namespace Shiro
             if(thisToke != null)
                 shiro.Symbols.Let("this", thisToke, letId);
 
-            shiro.Symbols.PushTardEnclosure(thisToke?.TardEnclosure ?? TardEnclosure);
+            shiro.Symbols.PushTardEnclosure(thisToke?.Enclosure ?? Enclosure);
 
             try
             {
@@ -193,7 +193,7 @@ namespace Shiro
             }
             finally
             {
-                TardEnclosure = shiro.Symbols.PopTardEnclosure();
+                Enclosure = shiro.Symbols.PopTardEnclosure();
             }
         }
     }

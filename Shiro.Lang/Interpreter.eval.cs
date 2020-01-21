@@ -525,7 +525,7 @@ namespace Shiro
                         if (!toke.IsObject || !toke2.IsObject)
                             Error($"Both parameters passed to enclose must be objects if you pass 2 things.  Instead I got these two things: {toke.ToString()} -AND- {toke2.ToString()}");
 
-                        toke2.TardEnclosure = toke;
+                        toke2.Enclosure = toke;
                         return toke2;
                     } else
                     {
@@ -535,7 +535,7 @@ namespace Shiro
                         if (!toke.IsFunction)
                             Error($"When taking only a single parameter, the parameter to enclose should be a lambda, not {toke.ToString()}");
 
-                        toke.TardEnclosure = Symbols.GetLetScopeAsTardEnclosure();
+                        toke.Enclosure = Symbols.GetLetScopeAsTardEnclosure();
                         return toke;
                     }
                 #endregion
@@ -603,8 +603,8 @@ namespace Shiro
                             args.Add(Token.Nil);
 
                         toke = MiscHelper.MixIn(this, new Token(new List<Token>()), new string[] { s1 });
-                        if(impl.TardEnclosure != null)
-                            toke.TardEnclosure = impl.TardEnclosure.Clone();
+                        if(impl.Enclosure != null)
+                            toke.Enclosure = impl.Enclosure.Clone();
                         ctor.EvalLambda(toke, this, args.ToArray());
                         return toke;
                     }
