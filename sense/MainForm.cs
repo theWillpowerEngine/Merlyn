@@ -28,8 +28,8 @@ namespace Shiro.Sense
 
         public void Eval(string code, Action<Token> cb)
         {
-            if (!editorTabs.SelectedTab.Text.StartsWith("new") && !IsProjectOpen)
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(DocumentManager.GetFileName(editorTabs.SelectedTab.Text)));
+            if (!editorTabs.SelectedTab.Text.TrimStart('*').Trim().StartsWith("new") && !IsProjectOpen)
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(DocumentManager.GetFileName(editorTabs.SelectedTab.Text.TrimStart('*').Trim())));
 
             var ts = new ThreadStart(() =>
             {
@@ -481,6 +481,7 @@ namespace Shiro.Sense
                     var tabName = Path.GetFileName(file);
 
                     editorTabs.SelectedTab.Text = DocumentManager.Rename(name, tabName, file);
+                    DocumentManager.UpdateSavedContent(tabName, editor.Text);
 
                     saveStateTimer.Enabled = true;
                 }
@@ -488,6 +489,7 @@ namespace Shiro.Sense
             else
             {
                 File.WriteAllText(DocumentManager.GetFileName(name), editor.Text);
+                DocumentManager.UpdateSavedContent(name, editor.Text);
 
                 saveStateTimer.Enabled = true;
             }
@@ -510,7 +512,23 @@ namespace Shiro.Sense
 
         private void saveStateTimer_Tick(object sender, EventArgs e)
         {
-            //TODO:  Implement the little * to tell you what to save.
+            DocumentManager.UpdateContent(editorTabs.SelectedTab.Text, editor.Text);
+
+            for (var i=0; i<editorTabs.TabPages.Count; i++)
+            {
+                var tab = editorTabs.TabPages[i];
+                var name = tab.Text.TrimStart('*').Trim();
+
+                if(DocumentManager.GetSavedContent(name) != DocumentManager.GetDocumentContentCurrent(name))
+                {
+                    if (!tab.Text.StartsWith("*"))
+                        tab.Text = $"* {tab.Text}";
+                } else
+                {
+                    if (tab.Text.StartsWith("*"))
+                        tab.Text = name;
+                }
+            }
         }
 
         #endregion
@@ -526,7 +544,7 @@ namespace Shiro.Sense
         {
             //Tear down and setup the bin directory
             if (!IsProjectOpen)
-                if (editorTabs.SelectedTab.Text.StartsWith("new"))
+                if (editorTabs.SelectedTab.Text.TrimStart('*').Trim().StartsWith("new"))
                 {
                     MessageBox.Show("Please save this file before trying to compile it");
                     return;
@@ -569,8 +587,8 @@ namespace Shiro.Sense
             if (!IsProjectOpen)
             {
                 //Single file compile, nice and easy
-                var c = new Compiler(editorTabs.SelectedTab.Text);
-                c.AddShiroModule(editorTabs.SelectedTab.Text, editor.Text);
+                var c = new Compiler(editorTabs.SelectedTab.Text.TrimStart('*').Trim());
+                c.AddShiroModule(editorTabs.SelectedTab.Text.TrimStart('*').Trim(), editor.Text);
                 c.Compile(editorTabs.SelectedTab.Text.Split('.')[0] + ".exe", path, out ce);
             }
             else

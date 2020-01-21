@@ -50,6 +50,7 @@
             this.projectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.saveProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveProjectAsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.closeProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
             this.addFileToProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,7 +95,6 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
             this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
-            this.saveProjectAsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -288,6 +288,13 @@
             this.saveProjectMenu.Size = new System.Drawing.Size(210, 22);
             this.saveProjectMenu.Text = "&Save Project";
             this.saveProjectMenu.Click += new System.EventHandler(this.saveProjectMenu_Click);
+            // 
+            // saveProjectAsMenu
+            // 
+            this.saveProjectAsMenu.Name = "saveProjectAsMenu";
+            this.saveProjectAsMenu.Size = new System.Drawing.Size(210, 22);
+            this.saveProjectAsMenu.Text = "Save Project &As";
+            this.saveProjectAsMenu.Click += new System.EventHandler(this.saveProjectAsMenu_Click);
             // 
             // closeProjectMenu
             // 
@@ -700,19 +707,13 @@
             // 
             // saveStateTimer
             // 
+            this.saveStateTimer.Interval = 250;
             this.saveStateTimer.Tick += new System.EventHandler(this.saveStateTimer_Tick);
             // 
             // saveProjectDialog
             // 
             this.saveProjectDialog.DefaultExt = "shr";
             this.saveProjectDialog.Filter = "Shiro Projects|*.shrp";
-            // 
-            // saveProjectAsMenu
-            // 
-            this.saveProjectAsMenu.Name = "saveProjectAsMenu";
-            this.saveProjectAsMenu.Size = new System.Drawing.Size(210, 22);
-            this.saveProjectAsMenu.Text = "Save Project &As";
-            this.saveProjectAsMenu.Click += new System.EventHandler(this.saveProjectAsMenu_Click);
             // 
             // MainForm
             // 

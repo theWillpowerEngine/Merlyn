@@ -11,6 +11,7 @@ namespace Shiro.Sense
     {
         internal Document Document;
         internal string LastSavedText = "";
+        internal string Content = "";
         internal string FileName;
 
         private bool HasExtraRef = false;
@@ -46,7 +47,7 @@ namespace Shiro.Sense
 
         internal static string AddDocument(string name, string fileName = null, string content = "")
         {
-            string actualName = name;
+            string actualName = name.TrimStart('*').Trim();
 
             var i = 1;
             while (Documents.ContainsKey(actualName))
@@ -60,7 +61,8 @@ namespace Shiro.Sense
 
             var wrapper = new ScintillaDocumentWrapper(Editor.Document) {
                 FileName = fileName,
-                LastSavedText = ""
+                LastSavedText = (fileName != null) ? content : "",
+                Content = content
             };
             Documents.Add(actualName, wrapper);
 
@@ -70,6 +72,8 @@ namespace Shiro.Sense
 
         internal static void Switch(string name)
         {
+            name = name.TrimStart('*').Trim();
+
             if (!Documents.ContainsKey(name))
                 throw new ApplicationException("Can't switch to document '" + name + "', I don't have it in the DocumentManager.");
 
@@ -79,6 +83,8 @@ namespace Shiro.Sense
             if (ActiveDocument != null)
                 Documents[ActiveDocument].Ref();
 
+            Documents[ActiveDocument].Content = Editor.Text;
+
             Editor.Document = Documents[name].Document;
             Documents[name].UnRef();
             ActiveDocument = name;
@@ -86,6 +92,8 @@ namespace Shiro.Sense
 
         internal static string Rename(string oldName, string newName, string fileName)
         {
+            oldName = oldName.TrimStart('*').Trim();
+
             if (!Documents.ContainsKey(oldName))
                 throw new ApplicationException("Can't rename document '" + oldName + "', I don't have it in the DocumentManager.");
 
@@ -107,6 +115,8 @@ namespace Shiro.Sense
 
         internal static void ReleaseDocument(string name)
         {
+            name = name.TrimStart('*').Trim();
+
             if (ActiveDocument != name)
                 Documents[name].UnRef();
             else
@@ -117,15 +127,41 @@ namespace Shiro.Sense
 
         internal static bool HasDocument(string name)
         {
+            name = name.TrimStart('*').Trim();
             return Documents.ContainsKey(name);
         }
         internal static bool HasFileName(string name)
         {
+            name = name.TrimStart('*').Trim();
             return Documents.ContainsKey(name) && !string.IsNullOrEmpty(Documents[name].FileName);
         }
         internal static string GetFileName(string name)
         {
+            name = name.TrimStart('*').Trim();
             return Documents[name].FileName;
+        }
+
+        internal static string GetSavedContent(string name)
+        {
+            name = name.TrimStart('*').Trim();
+            return Documents[name].LastSavedText;
+        }
+
+        internal static string GetDocumentContentCurrent(string name)
+        {
+            name = name.TrimStart('*').Trim();
+            return Documents[name].Content;
+        }
+
+        internal static void UpdateSavedContent(string name, string text)
+        {
+            name = name.TrimStart('*').Trim();
+            Documents[name].LastSavedText = text;
+        }
+        internal static void UpdateContent(string name, string text)
+        {
+            name = name.TrimStart('*').Trim();
+            Documents[name].Content = text;
         }
     }
 }
