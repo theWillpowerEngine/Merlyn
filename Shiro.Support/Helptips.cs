@@ -90,7 +90,7 @@ namespace Shiro.Support
                     return "(contains <string-or-list-to-search> <value-to-search-for>)";
 
                 case "content":
-                    return "(content <content-type-string> <value>)  ; Conditional:  Nimue http mode";
+                    return "(content <content-type-string> <value>)   ; Contextual:  Nimue http mode";
 
                 case "def?":
                     return "(def? <name>)";
@@ -196,19 +196,19 @@ namespace Shiro.Support
                     return "(range <start position> <max-length> <list>)";
 
                 case "rest":
-                    return "(rest <data-source-list> <name of id>)  ; Conditional:  Nimue http mode";
+                    return "(rest <data-source-list> <name of id>)  ; Contextual:  Nimue http mode";
 
                 case "route":
-                    return "(route <value/predicate/lambda> (...) [...])    ; Conditional:  Nimue http mode";
+                    return "(route <value/predicate/lambda> (...) [...])    ; Contextual:  Nimue http mode";
 
                 case "send":
-                    return "(send <value>)  ; Conditional:  Nimue telnet and tcp modes";
+                    return "(send <value>)  ; Contextual:  Nimue telnet and tcp modes";
 
                 case "sendall":
-                    return "(sendAll <value>)  ; Conditional:  Nimue telnet and tcp modes";
+                    return "(sendAll <value>)  ; Contextual:  Nimue telnet and tcp modes";
 
                 case "sendto":
-                    return "(sendTo <connectionId> <value>)  ; Conditional:  Nimue telnet and tcp modes";
+                    return "(sendTo <connectionId> <value>)  ; Contextual:  Nimue telnet and tcp modes";
 
                 case "skw":
                     return "(skw <word> <list>)";
@@ -216,11 +216,14 @@ namespace Shiro.Support
                 case "split":
                     return "(split <string> <delimiter>)";
 
+                case "static":
+                    return "(static <directory> <lambda-which-returns-file-name>)    ; Contextual:  all Nimue modes";
+
                 case "status":
-                    return "(status <http-status-code> <value>)  ; Conditional:  Nimue http mode";
+                    return "(status <http-status-code> <value>)  ; Contextual:  Nimue http mode";
 
                 case "stop":
-                    return "(stop [<value>])  ; Conditional:  all Nimue modes";
+                    return "(stop [<value>])  ; Contextual:  all Nimue modes";
 
                 case "string":
                 case "str":

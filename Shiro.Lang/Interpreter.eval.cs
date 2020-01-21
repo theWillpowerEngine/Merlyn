@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
@@ -1179,7 +1180,35 @@ namespace Shiro
                     Server.Result = null;
                     return toke;
 
-				case "content":
+                case "static":
+                    if (!list.ValidateParamCount(2))
+                        Error("Wrong number of parameters to keyword 'static', expected 2");
+
+                    s1 = list[1].Eval(this).Toke.ToString();
+                    toke = list[2].Eval(this);
+                    if (!Directory.Exists(s1))
+                        Error($"Can't map static content at '{s1}', no such directory found.");
+                    if (!toke.IsFunction)
+                        Error($"Second parameter to static must be a lambda, not '{toke.ToString()}'");
+
+                    if (!s1.EndsWith("\\") && !s1.EndsWith("/"))
+                        s1 += "\\";
+
+                    request = Symbols.Get(Symbols.AutoVars.HttpRequest);
+                    toke2 = toke.EvalLambda(toke, this, request.Children.GetProperty(this, "url"));
+                    s2 = toke2.ToString();
+
+                    s2 = s1 + s2;
+                    if (!File.Exists(s2))
+                    {
+                        HttpHelper.ContentType = "404";
+                        return new Token("File '" + s2 + "' wasn't found.");
+                    }
+
+                    var content = Encoding.UTF8.GetString(File.ReadAllBytes(s2));
+                    return new Token(content);
+
+                case "content":
 					if(!list.ValidateParamCount(2))
 						Error("Wrong number of parameters to keyword 'content', expected 2");
 					if (!Server.Serving || Server.ConType != ConnectionType.HTTP)

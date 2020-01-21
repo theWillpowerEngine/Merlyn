@@ -82,11 +82,9 @@ namespace Shiro.Nimue
                     con.CheckForInput();
                     if (con.HasFullCommand)
                     {
-                        Interpreter.Output("Has a full command, starting process" + Environment.NewLine);
                         #pragma warning disable CS4014
                         ProcessCommand(con);
                         #pragma warning restore CS4014
-                        Interpreter.Output("Back from process (should be async)" + Environment.NewLine);
                     }
                 }
                 else

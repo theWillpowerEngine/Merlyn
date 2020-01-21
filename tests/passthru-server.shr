@@ -1,0 +1,1 @@
+(http 8080 (static "D:\Code\shiro-inetpub" (s)->($s)))
