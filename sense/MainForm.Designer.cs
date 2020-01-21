@@ -47,6 +47,11 @@
             this.cutMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.copyMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.projectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.newProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
+            this.addFileToProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,6 +111,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
+            this.projectMenu,
             this.evaluateToolStripMenuItem,
             this.formatToolStripMenuItem,
             this.navigateToolStripMenuItem,
@@ -248,6 +254,44 @@
             this.pasteMenu.Size = new System.Drawing.Size(144, 22);
             this.pasteMenu.Text = "&Paste";
             this.pasteMenu.Click += new System.EventHandler(this.pasteMenu_Click);
+            // 
+            // projectMenu
+            // 
+            this.projectMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newProjectMenu,
+            this.closeProjectMenu,
+            this.toolStripMenuItem7,
+            this.addFileToProjectMenu});
+            this.projectMenu.Name = "projectMenu";
+            this.projectMenu.Size = new System.Drawing.Size(56, 20);
+            this.projectMenu.Text = "&Project";
+            // 
+            // newProjectMenu
+            // 
+            this.newProjectMenu.Name = "newProjectMenu";
+            this.newProjectMenu.Size = new System.Drawing.Size(199, 22);
+            this.newProjectMenu.Text = "&New Project";
+            this.newProjectMenu.Click += new System.EventHandler(this.newProjectMenu_Click);
+            // 
+            // closeProjectMenu
+            // 
+            this.closeProjectMenu.Name = "closeProjectMenu";
+            this.closeProjectMenu.Size = new System.Drawing.Size(199, 22);
+            this.closeProjectMenu.Text = "&Close Project";
+            this.closeProjectMenu.Click += new System.EventHandler(this.closeProjectMenu_Click);
+            // 
+            // toolStripMenuItem7
+            // 
+            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(196, 6);
+            // 
+            // addFileToProjectMenu
+            // 
+            this.addFileToProjectMenu.Name = "addFileToProjectMenu";
+            this.addFileToProjectMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Oemplus)));
+            this.addFileToProjectMenu.Size = new System.Drawing.Size(199, 22);
+            this.addFileToProjectMenu.Text = "&Add File";
+            this.addFileToProjectMenu.Click += new System.EventHandler(this.addFileToProjectMenu_Click);
             // 
             // evaluateToolStripMenuItem
             // 
@@ -726,6 +770,11 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem highlightSelectionMenu;
         private System.Windows.Forms.ToolStripMenuItem showHelptipMenu;
+        private System.Windows.Forms.ToolStripMenuItem projectMenu;
+        private System.Windows.Forms.ToolStripMenuItem addFileToProjectMenu;
+        private System.Windows.Forms.ToolStripMenuItem newProjectMenu;
+        private System.Windows.Forms.ToolStripMenuItem closeProjectMenu;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
     }
 }
 

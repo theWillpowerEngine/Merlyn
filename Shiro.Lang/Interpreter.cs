@@ -20,6 +20,7 @@ namespace Shiro
         public abstract class ShiroPlugin
         {
             public abstract void RegisterAutoFunctions(Interpreter shiro);
+
             protected Symbols GetSym(Interpreter shiro)
             {
                 return shiro.Symbols;

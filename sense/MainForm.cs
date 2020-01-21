@@ -21,21 +21,6 @@ namespace Shiro.Sense
     {
         internal static MainForm CurrentForm;
 
-        protected bool IsProjectOpen = false;
-        protected Token ProjectTree;
-
-        public static Interpreter Shiro;
-        private static object ShiroLock = new object();
-
-        public MainForm()
-        {
-            InitializeComponent();
-        }
-
-        private ShiroLexer Lexer = new ShiroLexer("relet and or new atom undef error? switch queue? pub sub awaiting? enclose gv awaith hermeticAwait await len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll stop http content route status rest ");
-        private bool Inputting = false;
-        private string Input = "";
-
         #region Thread-safe UI Delegate Wrappers
 
         private delegate void NoParamDelegate();
@@ -43,29 +28,29 @@ namespace Shiro.Sense
 
         public void Eval(string code, Action<Token> cb)
         {
-            if(!editorTabs.SelectedTab.Text.StartsWith("new"))
+            if (!editorTabs.SelectedTab.Text.StartsWith("new"))
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(DocumentManager.GetFileName(editorTabs.SelectedTab.Text)));
 
             var ts = new ThreadStart(() =>
+            {
+                Token res;
+                try
                 {
-                    Token res;
-                    try
+                    lock (ShiroLock)
                     {
-                        lock (ShiroLock)
-                        {
-                            res = Shiro.Eval(code);
-                            if (_showResult)
-                                SafeWrite($"[Result]  {res.ToString()}{Environment.NewLine}");
-                        }
-                        cb(res);
+                        res = Shiro.Eval(code);
+                        if (_showResult)
+                            SafeWrite($"[Result]  {res.ToString()}{Environment.NewLine}");
                     }
-                    catch (Exception ex)
-                    {
-                        SafeError(ex.Message);
-                        cb(null);
-                    }
+                    cb(res);
+                }
+                catch (Exception ex)
+                {
+                    SafeError(ex.Message);
+                    cb(null);
+                }
 
-                });
+            });
 
             new Thread(ts).Start();
         }
@@ -239,7 +224,8 @@ namespace Shiro.Sense
 
                 if (curLineText.Trim() == "")
                     e.Text += curLineText.TrimEnd('\r', '\n');
-                else {
+                else
+                {
                     var indent = Regex.Match(curLineText, @"^\s*");
                     e.Text += indent.Value; // Add indent following "\r\n"
 
@@ -293,7 +279,7 @@ namespace Shiro.Sense
         //Hover tips
         private void editor_DwellStart(object sender, DwellEventArgs e)
         {
-            if(!editor.WordChars.Contains("-"))
+            if (!editor.WordChars.Contains("-"))
                 editor.WordChars += "?-+=></*.";
 
             var pos = e.Position;
@@ -312,7 +298,7 @@ namespace Shiro.Sense
         }
 
         //Helper to highlight words
-        const int HIGHLIGHT_INDICATOR= 8;
+        const int HIGHLIGHT_INDICATOR = 8;
         private void ClearHighlights()
         {
             editor.IndicatorCurrent = HIGHLIGHT_INDICATOR;
@@ -352,9 +338,30 @@ namespace Shiro.Sense
 
         #region Code Navigation and Autocoding Stuff
 
+        private void autoDoMenu_Click(object sender, EventArgs e)
+        {
+            var sbDo = new StringBuilder(@"(do 
+");
+            var lines = editor.SelectedText.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                sbDo.AppendLine("    " + line);
+            }
+            sbDo.Append(")");
+
+            editor.ReplaceSelection(sbDo.ToString());
+            editor.SetEmptySelection(editor.CurrentPosition - 1);
+        }
+
+        private void quickParenMenu_Click(object sender, EventArgs e)
+        {
+            editor.ReplaceSelection(@"(" + editor.SelectedText + ")");
+            editor.SetEmptySelection(editor.CurrentPosition - 1);
+        }
+
         private void prevListMenu_Click(object sender, EventArgs e)
         {
-            var startPos = editor.CurrentPosition -1;
+            var startPos = editor.CurrentPosition - 1;
             for (var i = startPos; i >= 0; i--)
                 if (editor.Text[i] == '(')
                 {
@@ -369,10 +376,10 @@ namespace Shiro.Sense
         private void nextListMenu_Click(object sender, EventArgs e)
         {
             var startPos = editor.CurrentPosition + 1;
-            for(var i=startPos; i<editor.Text.Length; i++)
-                if(editor.Text[i] == '(')
+            for (var i = startPos; i < editor.Text.Length; i++)
+                if (editor.Text[i] == '(')
                 {
-                    if(ModifierKeys == (Keys.Shift | Keys.Control))
+                    if (ModifierKeys == (Keys.Shift | Keys.Control))
                         editor.CurrentPosition = i;
                     else
                         editor.CurrentPosition = editor.SelectionStart = i;
@@ -390,14 +397,14 @@ namespace Shiro.Sense
                 if (c == '(')
                     depth += 1;
 
-                if(c == ')')
+                if (c == ')')
                 {
-                    if(depth == 0)
+                    if (depth == 0)
                     {
                         if (ModifierKeys == (Keys.Shift | Keys.Control))
-                            editor.CurrentPosition = i+1;
+                            editor.CurrentPosition = i + 1;
                         else
-                            editor.CurrentPosition = editor.SelectionStart = i+1;
+                            editor.CurrentPosition = editor.SelectionStart = i + 1;
                         break;
                     }
                     else
@@ -427,71 +434,11 @@ namespace Shiro.Sense
             }
         }
 
-        private static TreeNode CreateProjectNode(string rootName, Token projectToken)
-        {
-            var directoryNode = new TreeNode(rootName);
-
-            foreach(var child in projectToken.Children[0].Children)
-            {
-                if(child.Children.HasProperty(Shiro, "path"))
-                {
-                    //It's a file
-                    var node = new TreeNode(child.Children.GetProperty(Shiro, "name").ToString());
-                    node.Tag = child.Children.GetProperty(Shiro, "path").ToString();
-                    directoryNode.Nodes.Add(node);
-                }
-                else
-                {
-                    //It's a folder
-                    var name = child.Children.GetProperty(Shiro, "name").ToString();
-                    directoryNode.Nodes.Add(CreateProjectNode(name, child.Children.GetProperty(Shiro, "files")));
-                }
-            }
-            return directoryNode;
-        }
-
-        private void OpenProject(string file)
-        {
-            ShiroProject.ProjectFileDirectory = Path.GetDirectoryName(file);
-            Directory.SetCurrentDirectory(ShiroProject.ProjectFileDirectory);
-
-            var content = File.ReadAllText(file);
-            var projectTree = Shiro.Eval(content);
-
-            if (!projectTree.Children.HasProperty(Shiro, "name") || !projectTree.Children.HasProperty(Shiro, "proj"))
-                MessageBox.Show("Invalid project file, missing name or project structure");
-            else
-            {
-                tree.Nodes.Clear();
-                tree.Nodes.Add(CreateProjectNode(projectTree.Children.GetProperty(Shiro, "name").ToString(), projectTree.Children.GetProperty(Shiro, "proj")));
-                IsProjectOpen = true;
-                ProjectTree = projectTree;
-            }
-        }
-        internal void OpenFile(string file)
-        {
-            if (file.EndsWith(".shrp"))
-                OpenProject(file);
-            else
-            {
-                var content = File.ReadAllText(file);
-                var tabName = Path.GetFileName(file);
-
-                editorTabs.TabPages.Add(new TabPage(DocumentManager.AddDocument(tabName, file, content)));
-                _suppressTabChanged = true;
-                editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
-
-                saveStateTimer.Enabled = true;
-            }
-
-            editor.Focus();
-        }
-
         private void tree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             var node = e.Node;
             var tag = node?.Tag?.ToString();
-            if(!string.IsNullOrEmpty(tag))
+            if (!string.IsNullOrEmpty(tag))
             {
                 OpenFile(tag);
             }
@@ -570,153 +517,134 @@ namespace Shiro.Sense
 
         #region Simple Menu Handlers
 
-        private void showHelptipMenu_Click(object sender, EventArgs e)
+        private void showResultMenu_Click(object sender, EventArgs e)
         {
-            var startPos = editor.CurrentPosition - 1;
-            var depth = 0;
-            for (var i = startPos; i >= 0; i--)
-                if (editor.Text[i] == '(')
-                {
-                    if (depth != 0)
-                        depth -= 1;
-                    else
-                    {
-                        if (!editor.WordChars.Contains("-"))
-                            editor.WordChars += "?-+=></*.";
-
-                        var word = editor.GetWordFromPosition(i + 1);
-                        string tip = "";
-                        if (!string.IsNullOrEmpty(word) && !string.IsNullOrEmpty(tip = Helptips.GetFor(word)))
-                            editor.CallTipShow(editor.CurrentPosition, tip);
-
-                        return;
-                    }
-                }
-                else if (editor.Text[i] == ')')
-                    depth += 1;
+            _showResult = showResultMenu.Checked;
         }
 
-        private string _activeFindThing = null;
-        private void findMenu_Click(object sender, EventArgs e)
+        private void compileMenu_Click(object sender, EventArgs e)
         {
-            string text = Interaction.InputBox("What would you like to find?", "Find", editor.SelectedText ?? "", -1, -1);
-            if (!string.IsNullOrEmpty(text))
-            {
-                HighlightWord(text);
-
-                editor.TargetStart = 0;
-                editor.TargetEnd = editor.TextLength;
-                editor.SearchFlags = SearchFlags.None;
-                
-                if (editor.SearchInTarget(text) != -1)
+            //Tear down and setup the bin directory
+            if (!IsProjectOpen)
+                if (editorTabs.SelectedTab.Text.StartsWith("new"))
                 {
-                    _activeFindThing = text;
-                    editor.GotoPosition(editor.TargetStart);
+                    MessageBox.Show("Please save this file before trying to compile it");
+                    return;
                 }
-            }
-        }
-        private void findOrGoNextMenu_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(_activeFindThing))
-                findMenu_Click(sender, e);
-            else
-            {
-                HighlightWord(_activeFindThing);
-
-                editor.TargetStart = editor.CurrentPosition+1;
-                editor.TargetEnd = editor.TextLength;
-                editor.SearchFlags = SearchFlags.None;
-
-                if (editor.SearchInTarget(_activeFindThing) != -1)
-                    editor.GotoPosition(editor.TargetStart);
                 else
-                    _activeFindThing = null;
-            }
-        }
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(DocumentManager.GetFileName(editorTabs.SelectedTab.Text)));
 
-        private void highlightSelectionMenu_Click(object sender, EventArgs e)
-        {
-            var word = editor.SelectedText;
-            if (string.IsNullOrWhiteSpace(word))
+            var path = Directory.GetCurrentDirectory() + "\\bin";
+            try
+            {
+                if (Directory.Exists(path))
+                    Directory.Delete(path, true);
+                Directory.CreateDirectory(path);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Compilation failed -- it's probable that the bin directory or something in it is locked");
                 return;
-            HighlightWord(word);
-        }
-
-        private void undoMenu_Click(object sender, EventArgs e)
-        {
-            editor.Undo();
-        }
-
-        private void cutMenu_Click(object sender, EventArgs e)
-        {
-            editor.Cut();
-        }
-
-        private void copyMenu_Click(object sender, EventArgs e)
-        {
-            editor.Copy();
-        }
-
-        private void pasteMenu_Click(object sender, EventArgs e)
-        {
-            editor.Paste();
-        }
-        #endregion
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            Text += " interpreter version " + Interpreter.Version;
-            CurrentForm = this;
-            DocumentManager.Editor = editor;
-            Interpreter.Output = s =>
-            {
-                SafeWrite(s);
-            };
-            Interpreter.LoadModule = (m, s) => {
-                if (s.ToLower() == "shiro-project")
-                {
-                    if (!Shiro.IsFunctionName("sh-project"))
-                        new ShiroProject().RegisterAutoFunctions(Shiro);
-                }
-                else
-                    return Interpreter.DefaultModuleLoader(m, s);
-
-                return true;
-            };
-
-            cleanMenu_Click(null, null);
-            txtInput.Hide();
-            SetupScintilla();
-
-            SafeWrite("Your output will go here.  Shiro Version:  " + Interpreter.Version + Environment.NewLine + Environment.NewLine);
-
-            Show();
-
-            if (Program.ThingToOpen != null)
-                OpenFile(Program.ThingToOpen);
-            else
-            {
-                editorTabs.TabPages.Add("new");
-                DocumentManager.AddDocument("new");
             }
 
-            editor.Focus();
+            AssemblyName[] a = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
+            foreach (AssemblyName an in a)
+                if (an.FullName.ToLower().Contains("shiro"))
+                {
+                    if (File.Exists(path + "\\Shiro.Lang.dll"))
+                        File.Delete(path + "\\Shiro.Lang.dll");
+
+                    var shiroPath = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
+                    File.Copy(shiroPath + "\\Shiro.Lang.dll", path + "\\Shiro.Lang.dll");
+                }
+
+            foreach (var file in Directory.GetFiles(Directory.GetCurrentDirectory()))
+            {
+                if (file.EndsWith(".dll"))
+                    File.Copy(file, file.Replace(Directory.GetCurrentDirectory(), path));
+            }
+
+            //Now do the compile
+            System.CodeDom.Compiler.CompilerError ce = null;
+            if (!IsProjectOpen)
+            {
+                //Single file compile, nice and easy
+                var c = new Compiler(editorTabs.SelectedTab.Text);
+                c.AddShiroModule(editorTabs.SelectedTab.Text, editor.Text);
+                c.Compile(editorTabs.SelectedTab.Text.Split('.')[0] + ".exe", path, out ce);
+            }
+            else
+            {
+                //Project compile.  Slightly trickier
+                var pt = ProjectTree;
+
+            }
+
+            if (ce == null)
+                SafeWrite("Compile success");
+            else
+            {
+                SafeWrite("Compile failed: " + ce.ErrorText);
+            }
         }
 
-        private void txtInput_KeyPress(object sender, KeyPressEventArgs e)
+        private void closeProjectMenu_Click(object sender, EventArgs e)
         {
-            if (e.KeyChar == '\r' || e.KeyChar == '\n')
+            if (!IsProjectOpen)
+                return;
+
+            if (DialogResult.Yes == MessageBox.Show("Save Project before closing?", "Last ditch save?", MessageBoxButtons.YesNo))
+                SaveProject();
+
+            IsProjectOpen = false;
+            ProjectTree = null;
+            UpdateTree();
+        }
+
+        private void newProjectMenu_Click(object sender, EventArgs e)
+        {
+            if(IsProjectOpen)
+                if (DialogResult.Yes == MessageBox.Show("There's already a project open, do you want to switch?", "Close Current Project?", MessageBoxButtons.YesNo))
+                {
+                    closeProjectMenu_Click(sender, e);
+                    if (IsProjectOpen)
+                        return;
+                }
+                else
+                    return;
+
+            string name = Interaction.InputBox("Enter a name for your project (this should be the file name of the project, but doesn't have to be)", "New Project", "", -1, -1);
+            if(!string.IsNullOrWhiteSpace(name))
             {
-                Input = txtInput.Text;
-                Inputting = false;
-                txtInput.Hide();
-                txtInput.Text = "";
+                ProjectTree = new Token(new Token("name", name), Token.NamedEmptyList("proj"));
+                ProjectTree.Children[1].Children.Add(Token.EmptyList);
+                IsProjectOpen = true;
+                UpdateTree();
+            }
+        }
+
+        private void addFileToProjectMenu_Click(object sender, EventArgs e)
+        {
+            if (!IsProjectOpen)
+                if (DialogResult.Yes == MessageBox.Show("No Project currently open, create a new one?", "New Project?", MessageBoxButtons.YesNo))
+                {
+                    newProjectMenu_Click(sender, e);
+                    if (!IsProjectOpen)
+                        return;
+                }
+                else
+                    return;
+
+            if (DialogResult.OK == openFileDialog.ShowDialog())
+            {
+                var file = openFileDialog.FileName;
+                AddFileToProject(Path.GetFileName(file), file);
             }
         }
 
         private void evaluateMenu_Click(object sender, EventArgs e)
         {
-            if(evalStatusLabel.Text == "Evaluating...")
+            if (evalStatusLabel.Text == "Evaluating...")
             {
                 MessageBox.Show("Shiro is already evaluating something (probably a network server), sorry");
                 return;
@@ -769,25 +697,110 @@ namespace Shiro.Sense
             }
         }
 
-        private void autoDoMenu_Click(object sender, EventArgs e)
+        private void showHelptipMenu_Click(object sender, EventArgs e)
         {
-            var sbDo = new StringBuilder(@"(do 
-");
-            var lines = editor.SelectedText.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var line in lines)
-            {
-                sbDo.AppendLine("    " + line);
-            }
-            sbDo.Append(")");
+            var startPos = editor.CurrentPosition - 1;
+            var depth = 0;
+            for (var i = startPos; i >= 0; i--)
+                if (editor.Text[i] == '(')
+                {
+                    if (depth != 0)
+                        depth -= 1;
+                    else
+                    {
+                        if (!editor.WordChars.Contains("-"))
+                            editor.WordChars += "?-+=></*.";
 
-            editor.ReplaceSelection(sbDo.ToString());
-            editor.SetEmptySelection(editor.CurrentPosition - 1);
+                        var word = editor.GetWordFromPosition(i + 1);
+                        string tip = "";
+                        if (!string.IsNullOrEmpty(word) && !string.IsNullOrEmpty(tip = Helptips.GetFor(word)))
+                            editor.CallTipShow(editor.CurrentPosition, tip);
+
+                        return;
+                    }
+                }
+                else if (editor.Text[i] == ')')
+                    depth += 1;
         }
 
-        private void quickParenMenu_Click(object sender, EventArgs e)
+        private string _activeFindThing = null;
+        private void findMenu_Click(object sender, EventArgs e)
         {
-            editor.ReplaceSelection(@"(" + editor.SelectedText + ")");
-            editor.SetEmptySelection(editor.CurrentPosition - 1);
+            string text = Interaction.InputBox("What would you like to find?", "Find", editor.SelectedText ?? "", -1, -1);
+            if (!string.IsNullOrEmpty(text))
+            {
+                HighlightWord(text);
+
+                editor.TargetStart = 0;
+                editor.TargetEnd = editor.TextLength;
+                editor.SearchFlags = SearchFlags.None;
+
+                if (editor.SearchInTarget(text) != -1)
+                {
+                    _activeFindThing = text;
+                    editor.GotoPosition(editor.TargetStart);
+                }
+            }
+        }
+        private void findOrGoNextMenu_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_activeFindThing))
+                findMenu_Click(sender, e);
+            else
+            {
+                HighlightWord(_activeFindThing);
+
+                editor.TargetStart = editor.CurrentPosition + 1;
+                editor.TargetEnd = editor.TextLength;
+                editor.SearchFlags = SearchFlags.None;
+
+                if (editor.SearchInTarget(_activeFindThing) != -1)
+                    editor.GotoPosition(editor.TargetStart);
+                else
+                    _activeFindThing = null;
+            }
+        }
+
+        private void highlightSelectionMenu_Click(object sender, EventArgs e)
+        {
+            var word = editor.SelectedText;
+            if (string.IsNullOrWhiteSpace(word))
+                return;
+            HighlightWord(word);
+        }
+
+        private void undoMenu_Click(object sender, EventArgs e)
+        {
+            editor.Undo();
+        }
+
+        private void cutMenu_Click(object sender, EventArgs e)
+        {
+            editor.Cut();
+        }
+
+        private void copyMenu_Click(object sender, EventArgs e)
+        {
+            editor.Copy();
+        }
+
+        private void pasteMenu_Click(object sender, EventArgs e)
+        {
+            editor.Paste();
+        }
+        #endregion
+
+        #region Misc Event Handlers (non-menu)
+
+        private void txtInput_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\r' || e.KeyChar == '\n')
+            {
+                Input = txtInput.Text;
+                Inputting = false;
+                txtInput.Hide();
+                txtInput.Text = "";
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -800,6 +813,151 @@ namespace Shiro.Sense
             if (bottomTabs.SelectedTab.Text == "Terminal" && !terminal.IsProcessRunning)
                 terminal.StartProcess("cmd.exe", null);
         }
+        #endregion
+
+        #region Helpers
+
+        private static TreeNode[] CreateProjectNode(string rootName, Token projectToken)
+        {
+            var retVal = new List<TreeNode>();
+            if(projectToken.Children.Count > 0)
+                foreach (var child in projectToken.Children[0].Children)
+                {
+                    if (child.Children.HasProperty(Shiro, "path"))
+                    {
+                        //It's a file
+                        var node = new TreeNode(child.Children.GetProperty(Shiro, "name").ToString());
+                        node.Tag = child.Children.GetProperty(Shiro, "path").ToString();
+                        retVal.Add(node);
+                    }
+                    else
+                    {
+                        //It's a folder
+                        var name = child.Children.GetProperty(Shiro, "name").ToString();
+                        var directoryNode = new TreeNode(name);
+                        directoryNode.Nodes.AddRange(CreateProjectNode(name, child.Children.GetProperty(Shiro, "files")));
+                        retVal.Add(directoryNode);
+                    }
+                }
+            return retVal.ToArray();
+        }
+
+        private void SaveProject()
+        {
+            MessageBox.Show("Lazy Programmer Error detected.");
+        }
+
+        private void OpenProject(string file)
+        {
+            ShiroProject.ProjectFileDirectory = Path.GetDirectoryName(file);
+            Directory.SetCurrentDirectory(ShiroProject.ProjectFileDirectory);
+
+            var content = File.ReadAllText(file);
+            var projectTree = Shiro.Eval(content);
+
+            if (!projectTree.Children.HasProperty(Shiro, "name") || !projectTree.Children.HasProperty(Shiro, "proj"))
+                MessageBox.Show("Invalid project file, missing name or project structure");
+            else
+            {
+                ProjectTree = projectTree;
+                IsProjectOpen = true;
+                UpdateTree();
+            }
+        }
+        internal void OpenFile(string file)
+        {
+            if (file.EndsWith(".shrp"))
+                OpenProject(file);
+            else
+            {
+                var content = File.ReadAllText(file);
+                var tabName = Path.GetFileName(file);
+
+                editorTabs.TabPages.Add(new TabPage(DocumentManager.AddDocument(tabName, file, content)));
+                _suppressTabChanged = true;
+                editorTabs.SelectedIndex = editorTabs.TabPages.Count - 1;
+
+                saveStateTimer.Enabled = true;
+            }
+
+            editor.Focus();
+        }
+
+        protected void AddFileToProject(string name, string path)
+        {
+            var proj = ProjectTree.Children.GetProperty(Shiro, "proj");
+            proj.Children[0].Children.Add(new Token(new Token("name", name), new Token("path", path)));
+            ProjectTree.Children.SetProperty(Shiro, "proj", proj);
+
+            UpdateTree();
+        }
+
+        protected void UpdateTree()
+        {
+            tree.Nodes.Clear();
+            if(IsProjectOpen)
+                tree.Nodes.AddRange(CreateProjectNode(ProjectTree.Children.GetProperty(Shiro, "name").ToString(), ProjectTree.Children.GetProperty(Shiro, "proj")));
+        }
+
+        #endregion
+
+        protected bool IsProjectOpen = false;
+        protected Token ProjectTree;
+
+        public static Interpreter Shiro;
+        private static object ShiroLock = new object();
+
+        private ShiroLexer Lexer = new ShiroLexer("relet and or new atom undef error? switch queue? pub sub awaiting? enclose gv awaith hermeticAwait await len tcp impl implementer mixin impl? quack? try catch throw .c .call interpolate import do if json jsonv dejson pair print printnb pnb quote string str def set sod eval skw concat v . .? + - * / = ! != > < <= >= list? obj? num? str? def? fn? nil? let nop defn filter map apply kw params nth range while contains upper lower split fn => .s .set .d .def .sod telnet send sendTo sendAll stop http content route status rest ");
+        private bool Inputting = false;
+        private string Input = "";
+
+        protected bool _showResult = false;
+
+        public MainForm()
+        {
+            InitializeComponent();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Text += " interpreter version " + Interpreter.Version;
+            CurrentForm = this;
+            DocumentManager.Editor = editor;
+            Interpreter.Output = s =>
+            {
+                SafeWrite(s);
+            };
+            Interpreter.LoadModule = (m, s) => {
+                if (s.ToLower() == "shiro-project")
+                {
+                    if (!Shiro.IsFunctionName("sh-project"))
+                        new ShiroProject().RegisterAutoFunctions(Shiro);
+                }
+                else
+                    return Interpreter.DefaultModuleLoader(m, s);
+
+                return true;
+            };
+
+            cleanMenu_Click(null, null);
+            txtInput.Hide();
+            SetupScintilla();
+
+            SafeWrite("Your output will go here.  Shiro Version:  " + Interpreter.Version + Environment.NewLine + Environment.NewLine);
+
+            Show();
+
+            if (Program.ThingToOpen != null)
+                OpenFile(Program.ThingToOpen);
+            else
+            {
+                editorTabs.TabPages.Add("new");
+                DocumentManager.AddDocument("new");
+            }
+
+            editor.Focus();
+        }
+
 
         private void registerWindowsExplorerContextMenuToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -823,77 +981,6 @@ namespace Shiro.Sense
             } finally
             {
                 key.Close();
-            }
-        }
-
-        protected bool _showResult = false;
-
-        private void showResultMenu_Click(object sender, EventArgs e)
-        {
-            _showResult = showResultMenu.Checked;
-        }
-
-        private void compileMenu_Click(object sender, EventArgs e)
-        {
-            //Tear down and setup the bin directory
-            if (!IsProjectOpen)
-                if (editorTabs.SelectedTab.Text.StartsWith("new"))
-                {
-                    MessageBox.Show("Please save this file before trying to compile it");
-                    return;
-                } else 
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(DocumentManager.GetFileName(editorTabs.SelectedTab.Text)));
-
-            var path = Directory.GetCurrentDirectory() + "\\bin";
-            try
-            {
-                if (Directory.Exists(path))
-                    Directory.Delete(path, true);
-                Directory.CreateDirectory(path);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Compilation failed -- it's probable that the bin directory or something in it is locked");
-                return;
-            }
-
-            AssemblyName[] a = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
-            foreach (AssemblyName an in a)
-                if (an.FullName.ToLower().Contains("shiro"))
-                {
-                    if (File.Exists(path + "\\Shiro.Lang.dll"))
-                        File.Delete(path + "\\Shiro.Lang.dll");
-
-                    var shiroPath = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
-                    File.Copy(shiroPath + "\\Shiro.Lang.dll", path + "\\Shiro.Lang.dll");
-                }
-
-            foreach (var file in Directory.GetFiles(Directory.GetCurrentDirectory()))
-            {
-                if (file.EndsWith(".dll"))
-                    File.Copy(file, file.Replace(Directory.GetCurrentDirectory(), path));
-            }
-
-            //Now do the compile
-            System.CodeDom.Compiler.CompilerError ce = null;
-            if (!IsProjectOpen)
-            {
-                //Single file compile, nice and easy
-                var c = new Compiler(editorTabs.SelectedTab.Text);
-                c.AddShiroModule(editorTabs.SelectedTab.Text, editor.Text);
-                c.Compile(editorTabs.SelectedTab.Text.Split('.')[0] + ".exe", path, out ce);
-            } else
-            {
-                //Project compile.  Slightly trickier
-                var pt = ProjectTree;
-
-            }
-
-            if (ce == null)
-                SafeWrite("Compile success");
-            else
-            {
-                SafeWrite("Compile failed: " + ce.ErrorText);
             }
         }
     }

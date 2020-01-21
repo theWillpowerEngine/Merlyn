@@ -17,6 +17,22 @@ namespace Shiro
             Children = null
         };
 
+        public static Token EmptyList => new Token()
+        {
+            Toke = null,
+            Children = new List<Token>()
+        };
+
+        public static Token NamedEmptyList(string name)
+        {
+            return new Token()
+            {
+                Toke = null,
+                Name = name,
+                Children = new List<Token>()
+            };
+        }
+
         public static Token True => new Token()
         {
             Toke = "true",
