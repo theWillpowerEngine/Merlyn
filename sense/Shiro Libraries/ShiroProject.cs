@@ -61,5 +61,27 @@ namespace Shiro.Sense
                 return new Token(new Token[] { new Token("name", name), new Token("files", new List<Token>(new Token[] { tree.Eval(shiro) })) });
             });
         }
+
+        internal static List<Token> DeleteFileFromTree(Interpreter shiro, string filePathOnDisk, Token projectTreeProject)
+        {
+            var newKids = new List<Token>();
+
+            foreach (var child in projectTreeProject.Children)
+            {
+                if (child.Children.HasProperty(shiro, "path"))
+                {
+                    if(child.Children.GetProperty(shiro, "path").ToString() != filePathOnDisk)
+                        newKids.Add(child);
+                }
+                else
+                {
+                    var kid = child;
+                    kid.Children.GetProperty(shiro, "files").Children[0] = new Token(DeleteFileFromTree(shiro, filePathOnDisk, kid.Children.GetProperty(shiro, "files").Children[0]).ToArray());
+                    newKids.Add(child);
+                }
+            }
+
+            return newKids;
+        }
     }
 }

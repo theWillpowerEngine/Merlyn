@@ -91,6 +91,7 @@
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
+            this.removeFileFromProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -261,7 +262,8 @@
             this.newProjectMenu,
             this.closeProjectMenu,
             this.toolStripMenuItem7,
-            this.addFileToProjectMenu});
+            this.addFileToProjectMenu,
+            this.removeFileFromProjectMenu});
             this.projectMenu.Name = "projectMenu";
             this.projectMenu.Size = new System.Drawing.Size(56, 20);
             this.projectMenu.Text = "&Project";
@@ -677,6 +679,14 @@
             // 
             this.saveStateTimer.Tick += new System.EventHandler(this.saveStateTimer_Tick);
             // 
+            // removeFileFromProjectMenu
+            // 
+            this.removeFileFromProjectMenu.Name = "removeFileFromProjectMenu";
+            this.removeFileFromProjectMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Delete)));
+            this.removeFileFromProjectMenu.Size = new System.Drawing.Size(199, 22);
+            this.removeFileFromProjectMenu.Text = "&Remove File";
+            this.removeFileFromProjectMenu.Click += new System.EventHandler(this.removeFileFromProjectMenu_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -775,6 +785,7 @@
         private System.Windows.Forms.ToolStripMenuItem newProjectMenu;
         private System.Windows.Forms.ToolStripMenuItem closeProjectMenu;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
+        private System.Windows.Forms.ToolStripMenuItem removeFileFromProjectMenu;
     }
 }
 

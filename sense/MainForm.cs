@@ -588,6 +588,21 @@ namespace Shiro.Sense
             }
         }
 
+        private void removeFileFromProjectMenu_Click(object sender, EventArgs e)
+        {
+            var node = tree.SelectedNode;
+            if (node == null)
+                return;
+
+            if (string.IsNullOrEmpty(node.Tag?.ToString()))
+                MessageBox.Show("I can't delete directories yet, Dan is lazy.");
+            else if(DialogResult.Yes == MessageBox.Show($"Delete {node.Text} from the project (file will remain on disk)?", "Remove from Project?", MessageBoxButtons.YesNo))
+            {
+                ProjectTree.Children.GetProperty(Shiro, "proj").Children[0] = new Token(ShiroProject.DeleteFileFromTree(Shiro, node.Tag.ToString(), ProjectTree.Children.GetProperty(Shiro, "proj").Children[0]).ToArray());
+                UpdateTree();
+            }
+        }
+
         private void closeProjectMenu_Click(object sender, EventArgs e)
         {
             if (!IsProjectOpen)
@@ -866,6 +881,12 @@ namespace Shiro.Sense
         }
         internal void OpenFile(string file)
         {
+            if(!File.Exists(file))
+            {
+                MessageBox.Show("File '" + file + "' not found.  Sad Trombone.");
+                return;
+            }
+
             if (file.EndsWith(".shrp"))
                 OpenProject(file);
             else
