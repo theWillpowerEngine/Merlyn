@@ -1205,8 +1205,16 @@ namespace Shiro
                         return new Token("File '" + s2 + "' wasn't found.");
                     }
 
-                    var content = Encoding.UTF8.GetString(File.ReadAllBytes(s2));
-                    return new Token(content);
+                    //var stream = new MemoryStream(File.ReadAllBytes(s2));
+                    //var reader = new StreamReader(stream);
+
+                    if (s2.EndsWith("png"))
+                    {
+                        HttpHelper.ContentType = "image/png";
+                        HttpHelper.ByteArray = File.ReadAllBytes(s2);
+                    }
+
+                    return new Token(File.ReadAllText(s2));
 
                 case "content":
 					if(!list.ValidateParamCount(2))

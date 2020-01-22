@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -221,6 +222,7 @@ namespace Shiro.Nimue
 
 		internal static string ContentType = null;
 		internal static int? ResponseStatus = null;
+        internal static byte[] ByteArray = null;
 
 		private static string GetResponseString(int status)
 		{
@@ -260,7 +262,11 @@ namespace Shiro.Nimue
 				ContentType = null;
 			}
 
-            if (result == null)
+            if(ByteArray != null)
+            {
+                response.BodyData = ByteArray;
+                ByteArray = null;
+            } else if (result == null)
                 response.BodyData = null;
             else
                 response.BodyData = Encoding.ASCII.GetBytes(result);
@@ -272,14 +278,25 @@ namespace Shiro.Nimue
                 HeadersString += Header.Key + ": " + Header.Value + "\n";
             }
 
-            HeadersString += "\n";
+            if (response.BodyData != null) { 
+                var stream = new MemoryStream(response.BodyData);
+                var sr = new StreamReader(stream);
+                var bigString = sr.ReadToEnd();
 
-            // Send headers
-            sb.Append(HeadersString);
+                HeadersString += "content-length: " + bigString.Length + "\n";
+                HeadersString += "\n";
 
-            // Send body
-            if (response.BodyData != null)
-                sb.Append(Encoding.Default.GetString(response.BodyData));
+                // Send headers
+                sb.Append(HeadersString);
+                sb.Append(bigString);
+            }
+            else
+            {
+                HeadersString += "\n";
+
+                // Send headers
+                sb.Append(HeadersString);
+            }                
 
             return sb.ToString();
         }
