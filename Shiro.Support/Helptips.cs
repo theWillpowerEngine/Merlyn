@@ -217,7 +217,7 @@ namespace Shiro.Support
                     return "(split <string> <delimiter>)";
 
                 case "static":
-                    return "(static <directory> <lambda-which-returns-file-name>)    ; Contextual:  all Nimue modes";
+                    return "(static <directory> <lambda-which-returns-file-name>)    ; Contextual:  Nimue http mode";
 
                 case "status":
                     return "(status <http-status-code> <value>)  ; Contextual:  Nimue http mode";
