@@ -893,6 +893,7 @@ namespace Shiro.Sense
                     {
                         //It's a file
                         var node = new TreeNode(child.Children.GetProperty(Shiro, "name").ToString());
+                        node.SelectedImageIndex = node.ImageIndex = 2;
                         node.Tag = child.Children.GetProperty(Shiro, "path").ToString();
                         retVal.Add(node);
                     }
@@ -901,6 +902,7 @@ namespace Shiro.Sense
                         //It's a folder
                         var name = child.Children.GetProperty(Shiro, "name").ToString();
                         var directoryNode = new TreeNode(name);
+                        directoryNode.SelectedImageIndex = directoryNode.ImageIndex = 1;
                         directoryNode.Nodes.AddRange(CreateProjectNode(name, child.Children.GetProperty(Shiro, "files")));
                         retVal.Add(directoryNode);
                     }

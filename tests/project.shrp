@@ -2,7 +2,7 @@
     (sh-project test '(
       (shp-file 'test.shr' 'tests.shr')
     (shp-folder 'litterbox' '(
-
+		(shp-file 'server.shr' 'passthru-server.shr')	
     ))
 
 )))

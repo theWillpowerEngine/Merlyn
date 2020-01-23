@@ -84,7 +84,6 @@
             this.tree = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.editor = new ScintillaNET.Scintilla();
-            this.editorTabs = new Shiro.Sense.Controls.DraggableTabControl();
             this.bottomTabs = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.txtInput = new System.Windows.Forms.TextBox();
@@ -95,6 +94,8 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
             this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
+            this.treeImages = new System.Windows.Forms.ImageList(this.components);
+            this.editorTabs = new Shiro.Sense.Controls.DraggableTabControl();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -556,10 +557,15 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tree.BackColor = System.Drawing.Color.Gray;
-            this.tree.Font = new System.Drawing.Font("Lucida Sans Unicode", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tree.Font = new System.Drawing.Font("Lucida Sans Unicode", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tree.ForeColor = System.Drawing.Color.DarkSlateGray;
+            this.tree.ImageIndex = 2;
+            this.tree.ImageList = this.treeImages;
+            this.tree.ItemHeight = 32;
             this.tree.Location = new System.Drawing.Point(3, 3);
             this.tree.Name = "tree";
+            this.tree.SelectedImageIndex = 0;
+            this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(228, 640);
             this.tree.TabIndex = 0;
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tree_NodeMouseDoubleClick);
@@ -605,19 +611,6 @@
             this.editor.Click += new System.EventHandler(this.editor_Click);
             this.editor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.editor_KeyPress);
             // 
-            // editorTabs
-            // 
-            this.editorTabs.AllowDrop = true;
-            this.editorTabs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.editorTabs.Location = new System.Drawing.Point(7, 4);
-            this.editorTabs.Name = "editorTabs";
-            this.editorTabs.SelectedIndex = 0;
-            this.editorTabs.Size = new System.Drawing.Size(873, 24);
-            this.editorTabs.TabIndex = 1;
-            this.editorTabs.SelectedIndexChanged += new System.EventHandler(this.editorTabs_SelectedIndexChanged);
-            this.editorTabs.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorTabs_MouseUp);
-            // 
             // bottomTabs
             // 
             this.bottomTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -625,6 +618,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.bottomTabs.Controls.Add(this.tabPage1);
             this.bottomTabs.Controls.Add(this.tabPage2);
+            this.bottomTabs.ImageList = this.treeImages;
             this.bottomTabs.Location = new System.Drawing.Point(3, 3);
             this.bottomTabs.Name = "bottomTabs";
             this.bottomTabs.SelectedIndex = 0;
@@ -636,10 +630,10 @@
             // 
             this.tabPage1.Controls.Add(this.txtInput);
             this.tabPage1.Controls.Add(this.console);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Location = new System.Drawing.Point(4, 39);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(873, 216);
+            this.tabPage1.Size = new System.Drawing.Size(873, 199);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Console";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -652,7 +646,7 @@
             this.txtInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtInput.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtInput.ForeColor = System.Drawing.Color.LightGray;
-            this.txtInput.Location = new System.Drawing.Point(40, 192);
+            this.txtInput.Location = new System.Drawing.Point(40, 175);
             this.txtInput.Name = "txtInput";
             this.txtInput.Size = new System.Drawing.Size(798, 25);
             this.txtInput.TabIndex = 1;
@@ -668,16 +662,16 @@
             this.console.Name = "console";
             this.console.SendKeyboardCommandsToProcess = false;
             this.console.ShowDiagnostics = false;
-            this.console.Size = new System.Drawing.Size(873, 217);
+            this.console.Size = new System.Drawing.Size(873, 200);
             this.console.TabIndex = 0;
             // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.terminal);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Location = new System.Drawing.Point(4, 39);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(873, 216);
+            this.tabPage2.Size = new System.Drawing.Size(873, 199);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Terminal";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -692,7 +686,7 @@
             this.terminal.Name = "terminal";
             this.terminal.SendKeyboardCommandsToProcess = true;
             this.terminal.ShowDiagnostics = false;
-            this.terminal.Size = new System.Drawing.Size(873, 217);
+            this.terminal.Size = new System.Drawing.Size(873, 200);
             this.terminal.TabIndex = 1;
             // 
             // saveFileDialog
@@ -714,6 +708,27 @@
             // 
             this.saveProjectDialog.DefaultExt = "shr";
             this.saveProjectDialog.Filter = "Shiro Projects|*.shrp";
+            // 
+            // treeImages
+            // 
+            this.treeImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("treeImages.ImageStream")));
+            this.treeImages.TransparentColor = System.Drawing.Color.Transparent;
+            this.treeImages.Images.SetKeyName(0, "appbar.folder.open.png");
+            this.treeImages.Images.SetKeyName(1, "appbar.folder.png");
+            this.treeImages.Images.SetKeyName(2, "appbar.page.small.png");
+            // 
+            // editorTabs
+            // 
+            this.editorTabs.AllowDrop = true;
+            this.editorTabs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.editorTabs.Location = new System.Drawing.Point(7, 4);
+            this.editorTabs.Name = "editorTabs";
+            this.editorTabs.SelectedIndex = 0;
+            this.editorTabs.Size = new System.Drawing.Size(873, 24);
+            this.editorTabs.TabIndex = 1;
+            this.editorTabs.SelectedIndexChanged += new System.EventHandler(this.editorTabs_SelectedIndexChanged);
+            this.editorTabs.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorTabs_MouseUp);
             // 
             // MainForm
             // 
@@ -817,6 +832,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveProjectMenu;
         private System.Windows.Forms.SaveFileDialog saveProjectDialog;
         private System.Windows.Forms.ToolStripMenuItem saveProjectAsMenu;
+        private System.Windows.Forms.ImageList treeImages;
     }
 }
 
