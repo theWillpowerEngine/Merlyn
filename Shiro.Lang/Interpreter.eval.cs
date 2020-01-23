@@ -1201,20 +1201,13 @@ namespace Shiro
                     s2 = s1 + s2;
                     if (!File.Exists(s2))
                     {
-                        HttpHelper.ContentType = "404";
+                        HttpHelper.ResponseStatus = 404;
                         return new Token("File '" + s2 + "' wasn't found.");
                     }
 
-                    //var stream = new MemoryStream(File.ReadAllBytes(s2));
-                    //var reader = new StreamReader(stream);
-
-                    if (s2.EndsWith("png"))
-                    {
-                        HttpHelper.ContentType = "image/png";
-                        HttpHelper.ByteArray = File.ReadAllBytes(s2);
-                    }
-
-                    return new Token(File.ReadAllText(s2));
+                    HttpHelper.ContentType = MimeTypes.GetMimeType(Path.GetFileName(s2));
+                    HttpHelper.ByteArray = File.ReadAllBytes(s2);
+                    return Token.Nil;
 
                 case "content":
 					if(!list.ValidateParamCount(2))

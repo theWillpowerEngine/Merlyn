@@ -51,6 +51,7 @@
     <Compile Include="Interpreter.eval.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="InterpreterPool.cs" />
+    <Compile Include="MimeTypes.cs" />
     <Compile Include="Nimue\Connection.cs" />
     <Compile Include="Nimue\HttpHelper.cs" />
     <Compile Include="Nimue\Server.cs" />
@@ -59,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interop\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
