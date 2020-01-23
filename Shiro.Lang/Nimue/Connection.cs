@@ -147,6 +147,11 @@ namespace Shiro.Nimue
             nwStream.Write(bytes, 0, bytes.Length);
         }
 
+        public NetworkStream GetStream()
+        {
+            return _client.GetStream();
+        }
+
         public Connection(TcpClient tcp)
         {
             _client = tcp;

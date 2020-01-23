@@ -1,1 +1,3 @@
-(http 8080 (static "D:\Code\shiro-inetpub" (s)->($s)))
+(http 8080 (route
+    "api/" (json {name: 'Dan', age: 'Old'})
+    default (static "D:\Code\shiro-inetpub" (s)->($s))))

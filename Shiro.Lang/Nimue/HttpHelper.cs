@@ -18,12 +18,6 @@ namespace Shiro.Nimue
             METHOD, URL, URLPARM, URLVALUE, VERSION,
             HEADERKEY, HEADERVALUE, BODY, OK
         }
-        enum RespState
-        {
-            OK = 200,
-            BAD_REQUEST = 400,
-            NOT_FOUND = 404
-        }
 
         internal struct HTTPRequest
         {
@@ -220,8 +214,11 @@ namespace Shiro.Nimue
             return request;
         }
 
+        [ThreadStatic]
 		internal static string ContentType = null;
-		internal static int? ResponseStatus = null;
+        [ThreadStatic]
+        internal static int? ResponseStatus = null;
+        [ThreadStatic]
         internal static byte[] ByteArray = null;
 
 		private static string GetResponseString(int status)
@@ -229,8 +226,14 @@ namespace Shiro.Nimue
 			switch (status)
 			{
 				case 200:
-					return "OK ";
-				case 404:
+					return "Ok ";
+                case 201:
+                    return "Created ";
+                case 202:
+                    return "Accepted ";
+                case 204:
+                    return "No Content ";
+                case 404:
 					return "Not Found ";
 				default:
 					return "Unknown ";
@@ -238,67 +241,71 @@ namespace Shiro.Nimue
 		}
 
 
-		internal static string WrapInHttpResponse(string result)
+		internal static void SendHttpResponse(Connection client, string result)
         {
             var response = new HTTPResponse();
             var sb = new StringBuilder("");
 
-            response.version = "HTTP/1.0";
-
-			if (ResponseStatus.HasValue)
-			{
-				response.status = ResponseStatus.Value;
-				ResponseStatus = null;
-			} else
-				response.status = (int)RespState.OK;
-
-            response.Headers = new Hashtable();
-            response.Headers.Add("Server", "Shiro/" + Interpreter.Version);
-            response.Headers.Add("Date", DateTime.Now.ToString("r"));
-
-			if(ContentType != null)
-			{
-				response.Headers.Add("Content-Type", ContentType);
-				ContentType = null;
-			}
-
-            if(ByteArray != null)
+            using (var ns = client.GetStream())
             {
-                response.BodyData = ByteArray;
-                ByteArray = null;
-            } else if (result == null)
-                response.BodyData = null;
-            else
-                response.BodyData = Encoding.ASCII.GetBytes(result);
+                response.version = "HTTP/1.0";
 
-            string HeadersString = $"HTTP/1.0 {response.status} {GetResponseString(response.status)}\n";
+                if (ResponseStatus.HasValue)
+                {
+                    response.status = ResponseStatus.Value;
+                    ResponseStatus = null;
+                }
+                else
+                    response.status = 200;
 
-            foreach (DictionaryEntry Header in response.Headers)
-            {
-                HeadersString += Header.Key + ": " + Header.Value + "\n";
+                response.Headers = new Hashtable();
+                response.Headers.Add("Server", "Shiro/" + Interpreter.Version);
+                response.Headers.Add("Date", DateTime.Now.ToString("r"));
+
+                if (ContentType != null)
+                {
+                    response.Headers.Add("Content-Type", ContentType);
+                    ContentType = null;
+                }
+
+                if (ByteArray != null)
+                {
+                    response.BodyData = ByteArray;
+                    ByteArray = null;
+                }
+                else if (result == null)
+                    response.BodyData = null;
+                else
+                    response.BodyData = Encoding.ASCII.GetBytes(result);
+
+                string HeadersString = $"HTTP/1.0 {response.status} {GetResponseString(response.status)}\n";
+
+                foreach (DictionaryEntry Header in response.Headers)
+                {
+                    HeadersString += Header.Key + ": " + Header.Value + "\n";
+                }
+
+                if (response.BodyData != null)
+                {
+                    var stream = new MemoryStream(response.BodyData);
+                    var sr = new StreamReader(stream);
+                    var bigString = sr.ReadToEnd();
+
+                    HeadersString += "content-length: " + bigString.Length + "\n";
+                    HeadersString += "\n";
+
+                    byte[] bHeadersString = Encoding.ASCII.GetBytes(HeadersString);
+                    ns.Write(bHeadersString, 0, bHeadersString.Length);
+                    ns.Write(response.BodyData, 0, response.BodyData.Length);
+                }
+                else
+                {
+                    HeadersString += "\n";
+
+                    byte[] bHeadersString = Encoding.ASCII.GetBytes(HeadersString);
+                    ns.Write(bHeadersString, 0, bHeadersString.Length);
+                }
             }
-
-            if (response.BodyData != null) { 
-                var stream = new MemoryStream(response.BodyData);
-                var sr = new StreamReader(stream);
-                var bigString = sr.ReadToEnd();
-
-                HeadersString += "content-length: " + bigString.Length + "\n";
-                HeadersString += "\n";
-
-                // Send headers
-                sb.Append(HeadersString);
-                sb.Append(bigString);
-            }
-            else
-            {
-                HeadersString += "\n";
-
-                // Send headers
-                sb.Append(HeadersString);
-            }                
-
-            return sb.ToString();
         }
 
         internal static Token RequestToToken(HTTPRequest request)

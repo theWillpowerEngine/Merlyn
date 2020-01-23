@@ -103,7 +103,7 @@ namespace Shiro.Nimue
 
             if (ConType == ConnectionType.HTTP)
             {
-                SendTo(con, HttpHelper.WrapInHttpResponse(result.ToString()));
+                HttpHelper.SendHttpResponse(con, result.ToString());
                 con.SetForNuking();
             }
         }
