@@ -76,7 +76,7 @@ namespace Shiro
 
 		public static Action<string> Output = s =>
 		{
-			Console.WriteLine(s);
+			Console.Write(s);
 		};
 
         public static Func<Interpreter, string, bool> LoadModule = DefaultModuleLoader;
@@ -179,6 +179,10 @@ namespace Shiro
         public void RegisterAutoFunction(string name, Func<Interpreter, Token, Token> func, string helpTip = null)
         {
             Symbols.AddAutoFunc(name, func, helpTip);
+        }
+        public void RegisterAutoVar(string name, Func<Token> val)
+        {
+            Symbols.AddAutoVar(name, val);
         }
         public bool IsFunctionName(string name)
         {

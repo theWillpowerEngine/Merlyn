@@ -82,8 +82,10 @@
             this.evalStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tree = new System.Windows.Forms.TreeView();
+            this.treeImages = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.editor = new ScintillaNET.Scintilla();
+            this.editorTabs = new Shiro.Sense.Controls.DraggableTabControl();
             this.bottomTabs = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.txtInput = new System.Windows.Forms.TextBox();
@@ -94,8 +96,6 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
             this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
-            this.treeImages = new System.Windows.Forms.ImageList(this.components);
-            this.editorTabs = new Shiro.Sense.Controls.DraggableTabControl();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -556,7 +556,7 @@
             this.tree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tree.BackColor = System.Drawing.Color.Gray;
+            this.tree.BackColor = System.Drawing.Color.Gainsboro;
             this.tree.Font = new System.Drawing.Font("Lucida Sans Unicode", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tree.ForeColor = System.Drawing.Color.DarkSlateGray;
             this.tree.ImageIndex = 2;
@@ -569,6 +569,14 @@
             this.tree.Size = new System.Drawing.Size(228, 640);
             this.tree.TabIndex = 0;
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tree_NodeMouseDoubleClick);
+            // 
+            // treeImages
+            // 
+            this.treeImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("treeImages.ImageStream")));
+            this.treeImages.TransparentColor = System.Drawing.Color.Transparent;
+            this.treeImages.Images.SetKeyName(0, "appbar.folder.open.png");
+            this.treeImages.Images.SetKeyName(1, "appbar.folder.png");
+            this.treeImages.Images.SetKeyName(2, "appbar.page.small.png");
             // 
             // splitContainer2
             // 
@@ -610,6 +618,19 @@
             this.editor.UpdateUI += new System.EventHandler<ScintillaNET.UpdateUIEventArgs>(this.editor_UpdateUI);
             this.editor.Click += new System.EventHandler(this.editor_Click);
             this.editor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.editor_KeyPress);
+            // 
+            // editorTabs
+            // 
+            this.editorTabs.AllowDrop = true;
+            this.editorTabs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.editorTabs.Location = new System.Drawing.Point(7, 4);
+            this.editorTabs.Name = "editorTabs";
+            this.editorTabs.SelectedIndex = 0;
+            this.editorTabs.Size = new System.Drawing.Size(873, 24);
+            this.editorTabs.TabIndex = 1;
+            this.editorTabs.SelectedIndexChanged += new System.EventHandler(this.editorTabs_SelectedIndexChanged);
+            this.editorTabs.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorTabs_MouseUp);
             // 
             // bottomTabs
             // 
@@ -708,27 +729,6 @@
             // 
             this.saveProjectDialog.DefaultExt = "shr";
             this.saveProjectDialog.Filter = "Shiro Projects|*.shrp";
-            // 
-            // treeImages
-            // 
-            this.treeImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("treeImages.ImageStream")));
-            this.treeImages.TransparentColor = System.Drawing.Color.Transparent;
-            this.treeImages.Images.SetKeyName(0, "appbar.folder.open.png");
-            this.treeImages.Images.SetKeyName(1, "appbar.folder.png");
-            this.treeImages.Images.SetKeyName(2, "appbar.page.small.png");
-            // 
-            // editorTabs
-            // 
-            this.editorTabs.AllowDrop = true;
-            this.editorTabs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.editorTabs.Location = new System.Drawing.Point(7, 4);
-            this.editorTabs.Name = "editorTabs";
-            this.editorTabs.SelectedIndex = 0;
-            this.editorTabs.Size = new System.Drawing.Size(873, 24);
-            this.editorTabs.TabIndex = 1;
-            this.editorTabs.SelectedIndexChanged += new System.EventHandler(this.editorTabs_SelectedIndexChanged);
-            this.editorTabs.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorTabs_MouseUp);
             // 
             // MainForm
             // 

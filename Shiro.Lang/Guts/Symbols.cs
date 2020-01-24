@@ -178,6 +178,15 @@ namespace Shiro.Guts
             }
         }
 
+        internal void AddAutoVar(string name, Func<Token> val)
+        {
+            if (!AutoSymbols.ContainsKey(name))
+                AutoSymbols.Add(name, val);
+            else
+                AutoSymbols[name] = val;
+                
+        }
+
         public void ReLet(string name, Token val)
         {
             if (!LetTable.ContainsKey(name))
