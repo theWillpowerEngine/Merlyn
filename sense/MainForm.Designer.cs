@@ -96,6 +96,7 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
             this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
+            this.addFolderMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -269,7 +270,8 @@
             this.closeProjectMenu,
             this.toolStripMenuItem7,
             this.addFileToProjectMenu,
-            this.removeFileFromProjectMenu});
+            this.removeFileFromProjectMenu,
+            this.addFolderMenu});
             this.projectMenu.Name = "projectMenu";
             this.projectMenu.Size = new System.Drawing.Size(56, 20);
             this.projectMenu.Text = "&Project";
@@ -553,6 +555,7 @@
             // 
             // tree
             // 
+            this.tree.AllowDrop = true;
             this.tree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -562,13 +565,17 @@
             this.tree.ImageIndex = 2;
             this.tree.ImageList = this.treeImages;
             this.tree.ItemHeight = 32;
-            this.tree.Location = new System.Drawing.Point(3, 3);
+            this.tree.Location = new System.Drawing.Point(0, 0);
             this.tree.Name = "tree";
             this.tree.SelectedImageIndex = 0;
             this.tree.ShowRootLines = false;
-            this.tree.Size = new System.Drawing.Size(228, 640);
+            this.tree.Size = new System.Drawing.Size(235, 646);
             this.tree.TabIndex = 0;
+            this.tree.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.tree_ItemDrag);
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tree_NodeMouseDoubleClick);
+            this.tree.DragDrop += new System.Windows.Forms.DragEventHandler(this.tree_DragDrop);
+            this.tree.DragEnter += new System.Windows.Forms.DragEventHandler(this.tree_DragEnter);
+            this.tree.DragOver += new System.Windows.Forms.DragEventHandler(this.tree_DragOver);
             // 
             // treeImages
             // 
@@ -730,6 +737,15 @@
             this.saveProjectDialog.DefaultExt = "shr";
             this.saveProjectDialog.Filter = "Shiro Projects|*.shrp";
             // 
+            // addFolderMenu
+            // 
+            this.addFolderMenu.Name = "addFolderMenu";
+            this.addFolderMenu.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.F)));
+            this.addFolderMenu.Size = new System.Drawing.Size(210, 22);
+            this.addFolderMenu.Text = "Add &Folder";
+            this.addFolderMenu.Click += new System.EventHandler(this.addFolderMenu_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -833,6 +849,7 @@
         private System.Windows.Forms.SaveFileDialog saveProjectDialog;
         private System.Windows.Forms.ToolStripMenuItem saveProjectAsMenu;
         private System.Windows.Forms.ImageList treeImages;
+        private System.Windows.Forms.ToolStripMenuItem addFolderMenu;
     }
 }
 

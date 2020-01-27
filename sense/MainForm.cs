@@ -533,6 +533,78 @@ namespace Shiro.Sense
 
         #endregion
 
+        #region Project Tree Drag and Drop
+
+        private static bool ContainsNode(TreeNode node1, TreeNode node2)
+        {
+            if (node2.Parent == null) return false;
+            if (node2.Parent.Equals(node1)) return true;
+
+            return ContainsNode(node1, node2.Parent);
+        }
+
+        private void tree_DragDrop(object sender, DragEventArgs e)
+        {
+            Point targetPoint = tree.PointToClient(new Point(e.X, e.Y));
+            TreeNode targetNode = tree.GetNodeAt(targetPoint);
+            TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+
+            if (draggedNode.Equals(targetNode))
+                return;
+
+            if (targetNode == null)
+            {
+                //Drag to top level (out of folder)
+                draggedNode.Remove();
+                tree.Nodes.Add(draggedNode);
+            }
+            else if (!ContainsNode(draggedNode, targetNode))
+            {
+                if (targetNode.Tag == null)
+                {
+                    //Dragging into a folder, everything is normal
+                    draggedNode.Remove();
+                    targetNode.Nodes.Add(draggedNode);
+                    targetNode.Expand();
+                }
+                else
+                {
+                    //Dragged on top of an item -- drop into parent
+                    if (targetNode.Parent == null)
+                    {
+                        //Top level
+                        draggedNode.Remove();
+                        tree.Nodes.Add(draggedNode);
+                    }
+                    else
+                    {
+                        //Parented Item
+                        draggedNode.Remove();
+                        targetNode.Parent.Nodes.Add(draggedNode);
+                        targetNode.Expand();
+                    }
+                }
+            }
+        }
+
+        private void tree_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = e.AllowedEffect;
+        }
+
+        private void tree_DragOver(object sender, DragEventArgs e)
+        {
+            Point targetPoint = tree.PointToClient(new Point(e.X, e.Y));
+            tree.SelectedNode = tree.GetNodeAt(targetPoint);
+        }
+
+        private void tree_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                DoDragDrop(e.Item, DragDropEffects.Move);
+        }
+        #endregion
+
         #region Simple Menu Handlers
 
         private void showResultMenu_Click(object sender, EventArgs e)
@@ -1066,6 +1138,34 @@ namespace Shiro.Sense
             } finally
             {
                 key.Close();
+            }
+        }
+
+        private void addFolderMenu_Click(object sender, EventArgs e)
+        {
+            var parent = tree.SelectedNode;
+            var name = Interaction.InputBox("Enter name of the folder you'd like to add", "Add Folder");
+            if (string.IsNullOrEmpty(name?.Trim()))
+                return;
+
+            if (parent != null && parent.Tag != null)
+                parent = parent.Parent;
+
+            if (parent == null)
+            {
+                tree.Nodes.Add(new TreeNode(name)
+                {
+                    SelectedImageIndex = 1,
+                    ImageIndex = 1
+                });
+            }
+            else
+            {
+                parent.Nodes.Add(new TreeNode(name)
+                {
+                    SelectedImageIndex = 1,
+                    ImageIndex = 1
+                });
             }
         }
     }
