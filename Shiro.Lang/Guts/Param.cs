@@ -35,7 +35,7 @@ namespace Shiro.Guts
                     Interpreter.Error("Too many '=' in function definition for parameter " + name);
 
                 Name = elesAgain[0];
-                DefaultValue = shiro.Scan("'" + elesAgain[1] + "'").Children[0];
+                DefaultValue = shiro.Scan("\"" + elesAgain[1] + "\"").Children[0];
 
                 if (Predicate != null)
                 {
