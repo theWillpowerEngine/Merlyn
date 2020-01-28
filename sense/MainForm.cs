@@ -34,7 +34,7 @@ namespace Shiro.Sense
             var ts = new ThreadStart(() =>
             {
                 Token res;
-                try
+                //try
                 {
                     lock (ShiroLock)
                     {
@@ -44,11 +44,11 @@ namespace Shiro.Sense
                     }
                     cb(res);
                 }
-                catch (Exception ex)
-                {
-                    SafeError(ex.Message);
-                    cb(null);
-                }
+                //catch (Exception ex)
+                //{
+//                    SafeError(ex.Message);
+  //                  cb(null);
+    //            }
 
             });
 
@@ -533,7 +533,7 @@ namespace Shiro.Sense
 
         #endregion
 
-        #region Project Tree Drag and Drop
+        #region Project Tree Drag and Drop and Misc Helpers
 
         private static bool ContainsNode(TreeNode node1, TreeNode node2)
         {
@@ -585,6 +585,7 @@ namespace Shiro.Sense
                     }
                 }
             }
+            ProjectTree = ShiroProject.ExtractProjectTreeFromTreeViewOpenParenLOLCloseParen(Shiro, tree);
         }
 
         private void tree_DragEnter(object sender, DragEventArgs e)
@@ -602,6 +603,36 @@ namespace Shiro.Sense
         {
             if (e.Button == MouseButtons.Left)
                 DoDragDrop(e.Item, DragDropEffects.Move);
+        }
+
+        private void addFolderMenu_Click(object sender, EventArgs e)
+        {
+            var parent = tree.SelectedNode;
+            var name = Interaction.InputBox("Enter name of the folder you'd like to add", "Add Folder");
+            if (string.IsNullOrEmpty(name?.Trim()))
+                return;
+
+            if (parent != null && parent.Tag != null)
+                parent = parent.Parent;
+
+            if (parent == null)
+            {
+                tree.Nodes.Add(new TreeNode(name)
+                {
+                    SelectedImageIndex = 1,
+                    ImageIndex = 1
+                });
+            }
+            else
+            {
+                parent.Nodes.Add(new TreeNode(name)
+                {
+                    SelectedImageIndex = 1,
+                    ImageIndex = 1
+                });
+            }
+
+            ProjectTree = ShiroProject.ExtractProjectTreeFromTreeViewOpenParenLOLCloseParen(Shiro, tree);
         }
         #endregion
 
@@ -1138,34 +1169,6 @@ namespace Shiro.Sense
             } finally
             {
                 key.Close();
-            }
-        }
-
-        private void addFolderMenu_Click(object sender, EventArgs e)
-        {
-            var parent = tree.SelectedNode;
-            var name = Interaction.InputBox("Enter name of the folder you'd like to add", "Add Folder");
-            if (string.IsNullOrEmpty(name?.Trim()))
-                return;
-
-            if (parent != null && parent.Tag != null)
-                parent = parent.Parent;
-
-            if (parent == null)
-            {
-                tree.Nodes.Add(new TreeNode(name)
-                {
-                    SelectedImageIndex = 1,
-                    ImageIndex = 1
-                });
-            }
-            else
-            {
-                parent.Nodes.Add(new TreeNode(name)
-                {
-                    SelectedImageIndex = 1,
-                    ImageIndex = 1
-                });
             }
         }
     }

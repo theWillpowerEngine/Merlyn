@@ -173,14 +173,30 @@ namespace Shiro
             }
 
             Guid letId = Guid.NewGuid();
-            if (Params.Count != args.Length)
-                Interpreter.Error($"Incorrect number of params passed to lambda, expected {Params.Count}, found {args.Length} instead.  The best I can tell you about the lambda is that it might look something like this: {ToString()}");
-
             int i = 0;
-            foreach (var pn in Params)
-                pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
+            int canSkip = Params.Count(p => p.HasDefault);
+            int mustSkip = Params.Count - args.Length;
 
-            if(thisToke != null)
+            if (mustSkip < 0)
+                Interpreter.Error($"Too many parameters passed to lambda '{ToString()}', expected at most {Params.Count}, found {args.Length} instead");
+            if (mustSkip > canSkip)
+                Interpreter.Error($"Not enough parameters passed to lambda '{ToString()}', expected at least {Params.Count - canSkip}, found {args.Length} instead");
+
+            foreach (var pn in Params)
+            {
+                if (pn.HasDefault && mustSkip > 0)
+                {
+                    pn.LetOrError(shiro, pn.DefaultValue.Clone(), letId);
+                    mustSkip -= 1;
+                }
+                else
+                    pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
+            }
+
+            if (mustSkip != 0)
+                Interpreter.Error($"Couldn't match parameters passed to lambda '{ToString()}' with the defaults provided.  This usually means you passed too few parameters, {mustSkip} more are needed");
+
+            if (thisToke != null)
                 shiro.Symbols.Let("this", thisToke, letId);
 
             shiro.Symbols.PushTardEnclosure(thisToke?.Enclosure ?? Enclosure);
@@ -188,11 +204,11 @@ namespace Shiro
             try
             {
                 var retVal = Eval(shiro);
-                shiro.Symbols.ClearLetId(letId);
                 return retVal;
             }
             finally
             {
+                shiro.Symbols.ClearLetId(letId);
                 Enclosure = shiro.Symbols.PopTardEnclosure();
             }
         }

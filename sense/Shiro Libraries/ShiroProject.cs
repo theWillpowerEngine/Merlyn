@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Shiro;
 using Shiro.Support;
 
@@ -124,6 +125,13 @@ namespace Shiro.Sense
 
             ret.Append(")))");
             return ret.ToString();
+        }
+
+        internal static Token ExtractProjectTreeFromTreeViewOpenParenLOLCloseParen(Interpreter shiro, TreeView tree)
+        {
+            var retVal = Token.EmptyList;
+
+            return retVal;
         }
     }
 }

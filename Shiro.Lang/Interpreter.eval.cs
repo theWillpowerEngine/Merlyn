@@ -935,7 +935,7 @@ namespace Shiro
                         if (p.IsParent || p.IsNumeric)
                             Error("List or numeric value passed to parameter list for defn");
                         else
-                            toke.Params.Add(new Param(p.Toke.ToString()));
+                            toke.Params.Add(new Param(this, p.Toke.ToString()));
                     }
 
                     if (!list[3].IsParent)
@@ -963,10 +963,10 @@ namespace Shiro
                                 if (e.IsParent)
                                     Error("Parameter list in lambda can't have lists in it");
 
-                                return new Param(e.ToString());
+                                return new Param(this, e.ToString());
                             }).ToList();
                         else
-                            lambda.Params = new List<Param>(new Param[] { new Param(list[1].Toke.ToString()) });
+                            lambda.Params = new List<Param>(new Param[] { new Param(this, list[1].Toke.ToString()) });
                     } else
                         lambda.Params = new List<Param>();
                     return lambda;

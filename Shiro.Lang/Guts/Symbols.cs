@@ -212,7 +212,10 @@ namespace Shiro.Guts
                     LetTable.Remove(key);
 
                 foreach (var ls in replaceThese)
-                    LetTable.Add(ls.Name, ls.Value);
+                    if (LetTable.ContainsKey(ls.Name))
+                        LetTable[ls.Name] = ls.Value;
+                    else
+                        LetTable.Add(ls.Name, ls.Value);
             }
         }
 
@@ -302,13 +305,29 @@ namespace Shiro.Guts
             {
                 Guid letId = Guid.NewGuid();
                 var func = FunctionTable[name];
-                if (func.Params.Count != args.Length)
-                    Interpreter.Error($"Incorrect number of params passed to function '{name}', expected {func.Params.Count}, found {args.Length} instead");
 
                 int i = 0;
+                int canSkip = func.Params.Count(p => p.HasDefault);
+                int mustSkip = func.Params.Count - args.Length;
+
+                if(mustSkip < 0)
+                    Interpreter.Error($"Too many parameters passed to function '{name}', expected at most {func.Params.Count}, found {args.Length} instead");
+                if(mustSkip > canSkip)
+                    Interpreter.Error($"Not enough parameters passed to function '{name}', expected at least {func.Params.Count - canSkip}, found {args.Length} instead");
 
                 foreach (var pn in func.Params)
-                    pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
+                {
+                    if (pn.HasDefault && mustSkip > 0)
+                    {
+                        pn.LetOrError(shiro, pn.DefaultValue.Clone(), letId);
+                        mustSkip -= 1;
+                    }
+                    else
+                        pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
+                }
+
+                if (mustSkip != 0)
+                    Interpreter.Error($"Couldn't match parameters passed to function '{name}' with the defaults provided.  This usually means you passed too few parameters, {mustSkip} more are needed");
 
                 var retVal = func.Eval(shiro);
                 ClearLetId(letId);

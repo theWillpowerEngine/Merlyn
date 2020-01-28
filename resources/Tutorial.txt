@@ -1,4 +1,8 @@
 TODO (docs)
+
+	default parameters (v=nil:str?)->(...		;note, the predicate is optional just shown so you remember the order
+
+
 	
 TODO (tests)
 
@@ -7,6 +11,10 @@ TODO (tests)
 	new and different CTOR permutations (default, extra parms error, not enough parms nil-autofill)
 	and / or
 	
+	default parameters
+	predicate parameters (kind of already tested because we use them for shit, but let's actually test them)
+
+
 	inherit (SSL std library)
 
 

@@ -114,7 +114,7 @@ namespace Shiro
             }
         }
 
-        private Token Scan(string code)
+        internal Token Scan(string code)
         {
             var retVal = new List<Token>();
             code = code.Trim();

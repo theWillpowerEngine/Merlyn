@@ -10,8 +10,10 @@ namespace Shiro.Guts
     {
         public string Name;
         public string Predicate;
+        public Token DefaultValue = null;
+        public bool HasDefault => DefaultValue != null;
 
-        public Param(string name)
+        public Param(Interpreter shiro, string name)
         {
             //Technically this should be a new keyword and a reader shortcut but I don't feel like it.
             if (name.Contains(":"))
@@ -24,6 +26,24 @@ namespace Shiro.Guts
                 Predicate = eles[1];
             } else 
                 Name = name;
+
+            //Ditto
+            if (Name.Contains("="))
+            {
+                var elesAgain = Name.Split('=');
+                if (elesAgain.Length != 2)
+                    Interpreter.Error("Too many '=' in function definition for parameter " + name);
+
+                Name = elesAgain[0];
+                DefaultValue = shiro.Scan("'" + elesAgain[1] + "'").Children[0];
+
+                if (Predicate != null)
+                {
+                    var pred = BuildPredicate(DefaultValue);
+                    if (MathHelper.Not(pred.Eval(shiro)).Toke != Token.False.Toke)
+                        Interpreter.Error($"Default value '{DefaultValue.ToString()}' for parameter {Name} does not match the required predicated {Predicate}.  The whole thing is a bust before we even begin (sad trombone).");
+                }
+            }
         }
         public Param(string name, string pred)
         {
