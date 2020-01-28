@@ -31,11 +31,11 @@ namespace Shiro.Guts
             if (Name.Contains("="))
             {
                 var elesAgain = Name.Split('=');
-                if (elesAgain.Length != 2)
+                if (elesAgain.Length > 2)
                     Interpreter.Error("Too many '=' in function definition for parameter " + name);
 
                 Name = elesAgain[0];
-                DefaultValue = shiro.Scan("\"" + elesAgain[1] + "\"").Children[0];
+                DefaultValue = string.IsNullOrEmpty(elesAgain[1]) ? Token.Nil.Clone() : shiro.Scan("\"" + elesAgain[1] + "\"").Children[0];
 
                 if (Predicate != null)
                 {
