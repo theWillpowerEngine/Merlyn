@@ -2,7 +2,6 @@ TODO (docs)
 
 	default parameters (v=hello:str?)->(...		;note, the predicate is optional just shown so you remember the order
 
-
 	
 TODO (tests)
 
@@ -13,7 +12,6 @@ TODO (tests)
 	
 	default parameters
 	predicate parameters (kind of already tested because we use them for shit, but let's actually test them)
-
 
 	inherit (SSL std library)
 
@@ -26,7 +24,7 @@ TODO
 		(do 
 			(cls)
 			(defn prop (pv cb-or-queue=) ([val $pv]
-				(enclose (v=)->( do (
+				(enclose (v=)->(do (
 					(if (nil? $v) $val (sod val $v))
 				)))
 			))
