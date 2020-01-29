@@ -1,7 +1,5 @@
 TODO (docs)
 
-	default parameters (v=hello:str?)->(...		;note, the predicate is optional just shown so you remember the order
-
 	
 TODO (tests)
 
@@ -31,5 +29,3 @@ TODO
     
 			(sod o { name: (prop 'Dan'), age: (prop 36) })
 			(print (.c o.name ())))
-
-	Make autolambdas in dot unwinding work with lambdas which can take zero parameters (as o.name in the example above)

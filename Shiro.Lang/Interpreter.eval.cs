@@ -326,7 +326,7 @@ namespace Shiro
                         }
                     }
 
-                    if (toke.IsFunction && toke.Params.Count == 0)
+                    if (toke.IsFunction && toke.IsLambdaWhichCanBeCalledWithParameters)
                         return toke.EvalLambda(toke2, this);
                     else
                         _bestGuessAtThisForLambda = toke2;

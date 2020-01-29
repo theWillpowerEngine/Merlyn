@@ -115,6 +115,7 @@ namespace Shiro
         public bool IsFunction => Params != null;
         public bool IsObject => IsParent && Children.Count > 0 && !string.IsNullOrEmpty(Children[0].Name);
         public bool IsQuotedList = false;
+        public bool IsLambdaWhichCanBeCalledWithParameters => IsFunction && (Params.Count == 0 || (Params.Count - Params.Count(p => p.DefaultValue != null) == 0));
 
         public bool IsTrue {
             get
