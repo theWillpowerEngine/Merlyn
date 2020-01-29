@@ -55,6 +55,7 @@
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
             this.addFileToProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.removeFileFromProjectMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.addFolderMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluateMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -96,7 +97,7 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
             this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
-            this.addFolderMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.quickAutoLetMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -328,6 +329,15 @@
             this.removeFileFromProjectMenu.Text = "&Remove File";
             this.removeFileFromProjectMenu.Click += new System.EventHandler(this.removeFileFromProjectMenu_Click);
             // 
+            // addFolderMenu
+            // 
+            this.addFolderMenu.Name = "addFolderMenu";
+            this.addFolderMenu.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.F)));
+            this.addFolderMenu.Size = new System.Drawing.Size(210, 22);
+            this.addFolderMenu.Text = "Add &Folder";
+            this.addFolderMenu.Click += new System.EventHandler(this.addFolderMenu_Click);
+            // 
             // evaluateToolStripMenuItem
             // 
             this.evaluateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -372,6 +382,7 @@
             // 
             this.formatToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.autoDoMenu,
+            this.quickAutoLetMenu,
             this.quickParenMenu,
             this.toolStripMenuItem1,
             this.showAutocompleteMenu,
@@ -737,14 +748,13 @@
             this.saveProjectDialog.DefaultExt = "shr";
             this.saveProjectDialog.Filter = "Shiro Projects|*.shrp";
             // 
-            // addFolderMenu
+            // quickAutoLetMenu
             // 
-            this.addFolderMenu.Name = "addFolderMenu";
-            this.addFolderMenu.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.F)));
-            this.addFolderMenu.Size = new System.Drawing.Size(210, 22);
-            this.addFolderMenu.Text = "Add &Folder";
-            this.addFolderMenu.Click += new System.EventHandler(this.addFolderMenu_Click);
+            this.quickAutoLetMenu.Name = "quickAutoLetMenu";
+            this.quickAutoLetMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+            this.quickAutoLetMenu.Size = new System.Drawing.Size(247, 22);
+            this.quickAutoLetMenu.Text = "Quick Auto&Let";
+            this.quickAutoLetMenu.Click += new System.EventHandler(this.quickAutoLetMenu_Click);
             // 
             // MainForm
             // 
@@ -850,6 +860,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveProjectAsMenu;
         private System.Windows.Forms.ImageList treeImages;
         private System.Windows.Forms.ToolStripMenuItem addFolderMenu;
+        private System.Windows.Forms.ToolStripMenuItem quickAutoLetMenu;
     }
 }
 

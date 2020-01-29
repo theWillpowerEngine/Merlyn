@@ -358,6 +358,19 @@ namespace Shiro.Sense
             editor.SetEmptySelection(editor.CurrentPosition - 1);
         }
 
+        private void quickAutoLetMenu_Click(object sender, EventArgs e)
+        {
+            var startPos = editor.CurrentPosition - 1;
+            for (var i = startPos; i >= 0; i--)
+                if (editor.Text[i] == '(')
+                {
+                    editor.CurrentPosition = editor.SelectionStart = i + 1;
+                    editor.InsertText(editor.CurrentPosition, "[]");
+                    editor.CurrentPosition = editor.SelectionStart = editor.CurrentPosition + 1;
+                    break;
+                }
+        }
+
         private void prevListMenu_Click(object sender, EventArgs e)
         {
             var startPos = editor.CurrentPosition - 1;
