@@ -17,15 +17,3 @@ TODO (tests)
 TODO
 
 	Make .shrp files work with shiro.  Make imports work with project-relative paths if being run in a project context.
-
-	Inline object reader needs to lift the processing of lists out of the reader and into the parser (see below snippet)
-		(do 
-			(cls)
-			(defn prop (pv cb-or-queue=) ([val $pv]
-				(enclose (v=)->(do (
-					(if (nil? $v) $val (sod val $v))
-				)))
-			))
-    
-			(sod o { name: (prop 'Dan'), age: (prop 36) })
-			(print (.c o.name ())))

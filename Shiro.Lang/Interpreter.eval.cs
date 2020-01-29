@@ -14,7 +14,7 @@ namespace Shiro
 {
     public partial class Interpreter
     {
-        private Token _bestGuessAtThisForLambda = null;     //I have a feeling let-scopes just "make this work" but I also have a feeling my initial feeling is wrong.
+        private Token _bestGuessAtThisForLambda = null;     //I have a feeling let-scopes just "make this work" but I also have a feeling my initial feeling is wrong (Note:  That *may* have been because let-scopes had a hidden fuck up in them, so far this seems pretty solid).
 
         public Token Eval(List<Token> list, bool atomic = false)
         {
@@ -326,10 +326,14 @@ namespace Shiro
                         }
                     }
 
+                    if (!toke.IsFunction)
+                        toke = toke.Eval(this, atomic);
+
                     if (toke.IsFunction && toke.IsLambdaWhichCanBeCalledWithParameters)
                         return toke.EvalLambda(toke2, this);
                     else
                         _bestGuessAtThisForLambda = toke2;
+
                     return toke;
 
                 case ".s":
@@ -499,7 +503,7 @@ namespace Shiro
                         else
                             toke = toke.Children.GetProperty(this, s1);
                     }
-                    return toke;
+                    return toke.Eval(this, atomic);
 
                 case "pair":
                     if(!list.ValidateParamCount(2))
@@ -554,7 +558,7 @@ namespace Shiro
                     if (!toke.IsObject)
                         Error("Second parameter to implementer must be an object, not: " + toke.ToString());
 
-                    Symbols.SetImplementer(s1, toke);
+                    Symbols.SetImplementer(this, s1, toke);
                     return lastVal;
 
                 case "mixin":

@@ -245,8 +245,15 @@ namespace Shiro.Guts
             return false;
         }
 
-        public void SetImplementer(string name, Token val)
+        public void SetImplementer(Interpreter shiro, string name, Token val, bool atomic = false)
         {
+            for(var i=0; i < val.Children.Count; i++)
+            {
+                var pn = val.Children[i].Name;
+                if (!val.Children[i].IsFunction)
+                    val.Children[i] = val.Children[i].Eval(shiro, atomic).SetName(pn);
+            }
+
             if (!Implementers.ContainsKey(name))
                 Implementers.Add(name, val);
             else

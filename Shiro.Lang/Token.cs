@@ -56,6 +56,12 @@ namespace Shiro
 
             return ret;
         }
+
+        internal Token SetName(string key)
+        {
+            Name = key;
+            return this;
+        }
         #endregion
 
         #region CTORs
