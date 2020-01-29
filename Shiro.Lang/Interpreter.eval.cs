@@ -23,7 +23,7 @@ namespace Shiro
 
             //Inline objects have an "implicit quote"
             if (!string.IsNullOrEmpty(list[0].Name))
-                return new Token(list);
+                return MiscHelper.EvaluateObject(this, new Token(list), atomic);
 
             if (!atomic)
                 DispatchPublications();
@@ -558,7 +558,7 @@ namespace Shiro
                     if (!toke.IsObject)
                         Error("Second parameter to implementer must be an object, not: " + toke.ToString());
 
-                    Symbols.SetImplementer(this, s1, toke);
+                    Symbols.SetImplementer(s1, toke);
                     return lastVal;
 
                 case "mixin":

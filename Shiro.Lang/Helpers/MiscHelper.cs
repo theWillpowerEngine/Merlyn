@@ -133,5 +133,22 @@ namespace Shiro.Guts
 
             return Token.True;
         }
+
+        internal static Token EvaluateObject(Interpreter shiro, Token val, bool atomic = false)
+        {
+            if (!val.IsObject)
+                return val;
+
+            for (var i = 0; i < val.Children.Count; i++)
+            {
+                var pn = val.Children[i].Name;
+                if (val.Children[i].IsObject)
+                    val.Children[i] = EvaluateObject(shiro, val.Children[i], atomic).SetName(pn);
+                else if (!val.Children[i].IsFunction)
+                    val.Children[i] = val.Children[i].Eval(shiro, atomic).SetName(pn);
+            }
+
+            return val;
+        }
     }
 }
