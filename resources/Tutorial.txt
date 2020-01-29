@@ -1,12 +1,8 @@
 TODO (docs)
-
 	
 TODO (tests)
 
-	switch
-	error?
 	new and different CTOR permutations (default, extra parms error, not enough parms nil-autofill)
-	and / or
 	
 	default parameters
 	predicate parameters (kind of already tested because we use them for shit, but let's actually test them)

@@ -12,9 +12,27 @@
     (assert-not 0 "Falsiness 1")
     (assert-not nil "Falsiness 2")
 
+    (assert (and true 1) 'and 1')
+    (assert (and 2 1) 'and 2')
+    (assert-not (and true false) 'and 3')
+    (assert-not (and 1 0) 'and 4')
+    (assert-not (and 0 0) 'and 5')
+
+    (assert (or true false) 'or 1')
+    (assert (or 0 1) 'or 2')
+    (assert-not (or 0 false) 'or 3')
+    (assert-not (or 0 nil) 'or 4')
+    (assert-not (or false false) 'or 5')
+
     (assert-not '' "Falsiness 3")
     (assert-not () "Falsiness 4")
-
+    
+    ;basic shit
+    (defn test-switch(v) (switch $v 1 'one' 2 'two' 'idk'))
+    (assert-eq 'one' (test-switch 1) 'switch 1')
+    (assert-eq 'two' (test-switch 2) 'switch 2')
+    (assert-eq 'idk' (test-switch 3) 'switch 3')
+    
     ;let-scope
     (sod y 5)
     (undef x)

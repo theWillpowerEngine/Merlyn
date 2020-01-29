@@ -128,7 +128,7 @@ namespace Shiro
             {
                 if (this == True) return true;
                 if(Toke == True.Toke) return true;
-                if(IsNumeric && (int)Toke != 0) return true;
+                if(IsNumeric && (long)Toke != 0) return true;
                 return false;
             }
         }
