@@ -39,7 +39,14 @@ namespace Shiro
                 if(evalled.IsParent && !evalled.IsFunction && !evalled.IsQuotedList)
                     evalled = evalled.Eval(this, atomic, skipRootObjectLambdas);
                 if (list.Count > 1 && !evalled.IsFunction)
-                    Error("Sibling peered list passed for evaluation -- you are probably missing a 'do' keyword");
+                {
+                    //Give it the old college try
+                    evalled = list[0].Eval(this, atomic, true);
+                    if (evalled.IsFunction)
+                        list[0] = evalled;
+                    else
+                        Error("Sibling peered list passed for evaluation -- you are probably missing a 'do' keyword");
+                }
                 else
                     list[0] = evalled;
             }
