@@ -16,7 +16,7 @@ namespace Shiro
     {
         private Token _bestGuessAtThisForLambda = null;     //I have a feeling let-scopes just "make this work" but I also have a feeling my initial feeling is wrong (Note:  That *may* have been because let-scopes had a hidden fuck up in them, so far this seems pretty solid).
 
-        public Token Eval(List<Token> list, bool atomic = false)
+        public Token Eval(List<Token> list, bool atomic = false, bool skipRootObjectLambdas = false)
         {
             if (list == null || list.Count == 0)
                 return Token.Nil;
@@ -32,12 +32,12 @@ namespace Shiro
 
             if (list[0].IsParent)
             {
-                var evalled = list[0].Eval(this);
+                var evalled = list[0].Eval(this, atomic, skipRootObjectLambdas);
                 if (list.Count == 1)
                     return evalled;
 
                 if(evalled.IsParent && !evalled.IsFunction && !evalled.IsQuotedList)
-                    evalled = evalled.Eval(this);
+                    evalled = evalled.Eval(this, atomic, skipRootObjectLambdas);
                 if (list.Count > 1 && !evalled.IsFunction)
                     Error("Sibling peered list passed for evaluation -- you are probably missing a 'do' keyword");
                 else
@@ -59,7 +59,7 @@ namespace Shiro
                 case "print":
                     for (i = 1; i < list.Count; i++)
                     {
-                        lastVal = list[i].Eval(this);
+                        lastVal = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         Output(lastVal.ToString() + Environment.NewLine);
                     }
                     return lastVal;
@@ -67,36 +67,36 @@ namespace Shiro
                 case "printnb":
                 case "pnb":
                     for (i = 1; i < list.Count; i++)
-                        Output((lastVal = list[i].Eval(this)).ToString());
+                        Output((lastVal = list[i].Eval(this, atomic, skipRootObjectLambdas)).ToString());
                     return lastVal;
 
                 case "string":
                 case "str":
                     s1 = "";
                     for (i = 1; i < list.Count; i++)
-                        s1 += list[i].Eval(this).ToString();
+                        s1 += list[i].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     return new Token(s1);
 
                 case "contains":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters of keyword 'contains', expected 2");
 
-                    s1 = list[1].Eval(this).ToString();
-                    s2 = list[2].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
+                    s2 = list[2].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     return s1.Contains(s2) ? Token.True : Token.False;
 
                 case "lower":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters of keyword 'lower', expected 1");
 
-                    s1 = list[1].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     return new Token(s1.ToLower());
                 
                 case "upper":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters of keyword 'upper', expected 1");
 
-                    s1 = list[1].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     return new Token(s1.ToUpper());
 
                 //This can have a shitty, long name because there's a reader shortcut for it
@@ -104,15 +104,15 @@ namespace Shiro
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters of keyword 'interpolate', expected 1");
 
-                    s1 = list[1].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     return new Token(MiscHelper.Interpolate(this, s1));
 
                 case "split":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters of keyword 'split', expected 2");
 
-                    s1 = list[1].Eval(this).ToString();
-                    s2 = list[2].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
+                    s2 = list[2].Eval(this, atomic, skipRootObjectLambdas).ToString();
 
                     var split = s1.Split(new string[] { s2 }, StringSplitOptions.RemoveEmptyEntries);
                     return new Token(split.Select(s => new Token(s)).ToList());
@@ -124,19 +124,19 @@ namespace Shiro
                 case "json":
                     if(!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'json', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     return new Token(toke.ToJSON(this));
 
                 case "jsonv":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'jsonv', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     return new Token(toke.ToJSON(this, true));
 
                 case "dejson":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'dejson', expected 1");
-                    toke = ScanInlineObject(list[1].Eval(this).ToString(), true);
+                    toke = ScanInlineObject(list[1].Eval(this, atomic, skipRootObjectLambdas).ToString(), true);
                     return toke;
                 #endregion
 
@@ -145,7 +145,7 @@ namespace Shiro
                 case "quote":
                     for (i = 1; i < list.Count; i++)
                     {
-                        toke = list[i].Eval(this);
+                        toke = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         ts.Add(toke);
                     }
                     return new Token(ts)
@@ -156,14 +156,14 @@ namespace Shiro
                 case "eval":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'eval', expected 1");
-                    return list[1].Eval(this).Eval(this);
+                    return list[1].Eval(this, atomic, skipRootObjectLambdas).Eval(this, atomic, skipRootObjectLambdas);
 
                 case "skw":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'skw', expected 2");
-                    lastVal = new Token(list[1].Eval(this));
+                    lastVal = new Token(list[1].Eval(this, atomic, skipRootObjectLambdas));
                     if(list[2].IsParent)
-                        lastVal.Children.AddRange(list[2].Eval(this).Children);
+                        lastVal.Children.AddRange(list[2].Eval(this, atomic, skipRootObjectLambdas).Children);
                     else
                         lastVal.Children.Add(list[2]);
                     return lastVal;
@@ -171,7 +171,7 @@ namespace Shiro
                 case "kw":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'kw', expected 1");
-                    lastVal = list[1].Eval(this);
+                    lastVal = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (lastVal.IsParent)
                     {
                         if (lastVal.Children.Count == 0)
@@ -183,7 +183,7 @@ namespace Shiro
                 case "params":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'params', expected 1");
-                    lastVal = list[1].Eval(this);
+                    lastVal = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (lastVal.IsParent)
                         return new Token(lastVal.Children.Quote());
                     return Token.Nil;
@@ -191,12 +191,12 @@ namespace Shiro
 				case "nth":
 					if (!list.ValidateParamCount(2))
 						Error("Wrong number of parameters to keyword 'nth', expected 2");
-					toke = list[1].Eval(this);
+					toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
 					if (!toke.IsNumeric || toke.IsDecimal)
 						Error("The first parameter to 'nth' must be a number");
 					l = (long)toke.Toke;
 
-					lastVal = list[2].Eval(this);
+					lastVal = list[2].Eval(this, atomic, skipRootObjectLambdas);
 					if (lastVal.IsParent) {
 						if (lastVal.Children.Count > l)
 							return lastVal.Children[(int)(l - 1)];
@@ -208,12 +208,12 @@ namespace Shiro
 					if (!list.ValidateParamCount(3))
 						Error("Wrong number of parameters to keyword 'range', expected 3");
 
-					toke = list[1].Eval(this);
+					toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
 					if (!toke.IsNumeric || toke.IsDecimal)
 						Error("The first parameter to 'range' must be a number");
 					j = (int)((long)toke.Toke);
 
-					toke = list[2].Eval(this);
+					toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
 					if (!toke.IsNumeric || toke.IsDecimal)
 						Error("The second parameter to 'range' must be a number");
 					k = (int)((long)toke.Toke);
@@ -221,7 +221,7 @@ namespace Shiro
 					if (j < 1)
 						Error("First parameter to 'range' cannot be less than 1");
 
-					lastVal = list[3].Eval(this);
+					lastVal = list[3].Eval(this, atomic, skipRootObjectLambdas);
 					if (lastVal.IsParent)
 					{
 						for (i = j - 1; (i < (j + k) - 1 && i < lastVal.Children.Count); i++)
@@ -234,7 +234,7 @@ namespace Shiro
 				case "concat":
                     for (i = 1; i < list.Count; i++)
                     {
-                        toke = list[i].Eval(this);
+                        toke = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         if(toke.IsParent)
                             ts.AddRange(toke.Children);
                         else
@@ -245,7 +245,7 @@ namespace Shiro
                 case "filter":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'filter', expected 2");
-                    toke = list[2].Eval(this);
+                    toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
 
                     if (!toke.IsParent)
                         Error("Filter can only operate on a list");
@@ -266,7 +266,7 @@ namespace Shiro
                 case "apply":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'apply', expected 2");
-                    toke = list[2].Eval(this);
+                    toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
 
                     if (!toke.IsParent)
                         Error("apply can only operate on a list");
@@ -285,7 +285,7 @@ namespace Shiro
                 case "map":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'map', expected 2");
-                    toke = list[2].Eval(this);
+                    toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
 
                     if (!toke.IsParent)
                         Error("map can only operate on a list");
@@ -308,13 +308,13 @@ namespace Shiro
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '.', expected at least 2");
 
-                    toke = toke2 = list[1].Eval(this);
+                    toke = toke2 = list[1].Eval(this, atomic, skipRootObjectLambdas);
 
                     for (i = 2; i < list.Count; i++)
                     {
-                        var t2 = list[i].Eval(this);
+                        var t2 = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         if (t2.IsParent)
-                            t2 = t2.Eval(this);
+                            t2 = t2.Eval(this, atomic, skipRootObjectLambdas);
                         s1 = t2.ToString();
 
                         if (toke.Children == null || !toke.Children.HasProperty(this, s1))
@@ -329,7 +329,7 @@ namespace Shiro
                     if (!toke.IsFunction)
                         toke = toke.Eval(this, atomic);
 
-                    if (toke.IsFunction && toke.IsLambdaWhichCanBeCalledWithParameters)
+                    if (toke.IsFunction && toke.IsLambdaWhichCanBeCalledWithoutParameters && !skipRootObjectLambdas)
                         return toke.EvalLambda(toke2, this);
                     else
                         _bestGuessAtThisForLambda = toke2;
@@ -352,9 +352,9 @@ namespace Shiro
 
                     for (i = 2; i < list.Count-1; i++)
                     {
-                        var t2 = list[i].Eval(this);
+                        var t2 = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         if (t2.IsParent)
-                            t2 = t2.Eval(this);
+                            t2 = t2.Eval(this, atomic, skipRootObjectLambdas);
                         s1 = t2.ToString();
 
                         if (toke.Children == null || !toke.Children.HasProperty(this, s1))
@@ -367,7 +367,7 @@ namespace Shiro
                         }
                     }
 
-                    val = list[list.Count - 1].Eval(this);
+                    val = list[list.Count - 1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.Children.SetProperty(this, s1, val))
                         Error("Could not find property " + name + " to set using .set.  Consider concat/pairing it, or using .sod instead.");
 
@@ -388,9 +388,9 @@ namespace Shiro
 
                     for (i = 2; i < list.Count - 1; i++)
                     {
-                        var t2 = list[i].Eval(this);
+                        var t2 = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         if (t2.IsParent)
-                            t2 = t2.Eval(this);
+                            t2 = t2.Eval(this, atomic, skipRootObjectLambdas);
                         s1 = t2.ToString();
 
                         if (i < list.Count - 2)
@@ -404,7 +404,7 @@ namespace Shiro
                         }
                     }
 
-                    val = list[list.Count - 1].Eval(this);
+                    val = list[list.Count - 1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.Children.SetProperty(this, s1, val))
                         toke.Children.AddProperty(this, s1, val);
 
@@ -415,13 +415,13 @@ namespace Shiro
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '.call', expected at least 2");
 
-                    toke = toke2 = list[1].Eval(this);
+                    toke = toke2 = list[1].Eval(this, atomic, skipRootObjectLambdas);
 
                     for (i = 2; i < list.Count-1; i++)
                     {
-                        var t2 = list[i].Eval(this);
+                        var t2 = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         if (t2.IsParent)
-                            t2 = t2.Eval(this);
+                            t2 = t2.Eval(this, atomic, skipRootObjectLambdas);
                         s1 = t2.ToString();
 
                         if (toke.Children == null || !toke.Children.HasProperty(this, s1))
@@ -434,7 +434,7 @@ namespace Shiro
                     }
 
                     if(!toke.IsFunction)
-                        toke = toke.Eval(this);
+                        toke = toke.Eval(this, atomic, skipRootObjectLambdas);
 
                     if (!toke.IsFunction)
                         Error("Cannot call non-function property " + s1);
@@ -461,9 +461,9 @@ namespace Shiro
 
                     for (i = 2; i < list.Count - 1; i++)
                     {
-                        var t2 = list[i].Eval(this);
+                        var t2 = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         if (t2.IsParent)
-                            t2 = t2.Eval(this);
+                            t2 = t2.Eval(this, atomic, skipRootObjectLambdas);
                         s1 = t2.ToString();
 
                         if (i < list.Count - 2)
@@ -477,7 +477,7 @@ namespace Shiro
                         }
                     }
 
-                    val = list[list.Count - 1].Eval(this);
+                    val = list[list.Count - 1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.Children.HasProperty(this, s1))
                         toke.Children.AddProperty(this, s1, val);
                     else
@@ -489,13 +489,13 @@ namespace Shiro
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '.?', expected at least 2");
 
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
 
                     for (i = 2; i < list.Count; i++)
                     {
-                        var t2 = list[i].Eval(this);
+                        var t2 = list[i].Eval(this, atomic, skipRootObjectLambdas);
                         if (t2.IsParent)
-                            t2 = t2.Eval(this);
+                            t2 = t2.Eval(this, atomic, skipRootObjectLambdas);
                         s1 = t2.ToString();
 
                         if (toke.Children == null || !toke.Children.HasProperty(this, s1))
@@ -509,8 +509,8 @@ namespace Shiro
                     if(!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'pair', expected 2");
 
-                    s1 = list[1].Eval(this).ToString();
-                    toke = list[2].Eval(this);
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
+                    toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
 
                     if (toke.IsParent)
                         return new Token(new Token(s1, toke.Children));
@@ -524,8 +524,8 @@ namespace Shiro
                     if (list.ValidateParamCount(2))
                     {
                         //Object enclosure ('private' variables)
-                        toke = list[1].Eval(this);
-                        toke2 = list[2].Eval(this);
+                        toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
+                        toke2 = list[2].Eval(this, atomic, skipRootObjectLambdas);
 
                         if (!toke.IsObject || !toke2.IsObject)
                             Error($"Both parameters passed to enclose must be objects if you pass 2 things.  Instead I got these two things: {toke.ToString()} -AND- {toke2.ToString()}");
@@ -535,7 +535,7 @@ namespace Shiro
                     } else
                     {
                         //Lambda enclosure (closure scope)
-                        toke = list[1].Eval(this);
+                        toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
 
                         if (!toke.IsFunction)
                             Error($"When taking only a single parameter, the parameter to enclose should be a lambda, not {toke.ToString()}");
@@ -554,7 +554,7 @@ namespace Shiro
                         Error("First argument to 'implementer' must be a name, not any kind of list");
                     s1 = list[1].Toke.ToString();
 
-                    toke = list[2].Eval(this);
+                    toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.IsObject)
                         Error("Second parameter to implementer must be an object, not: " + toke.ToString());
 
@@ -565,7 +565,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword 'mixin', expected at least 2");
 
-                    toke = toke2 = list[list.Count - 1].Eval(this);
+                    toke = toke2 = list[list.Count - 1].Eval(this, atomic, skipRootObjectLambdas);
                     List<string> mixins = new List<string>();
 
                     for (i = 1; i < list.Count-1; i++)
@@ -628,8 +628,8 @@ namespace Shiro
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'impl?', expected 2");
 
-                    toke = list[1].Eval(this);
-                    s1 = list[2].Eval(this).ToString();
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
+                    s1 = list[2].Eval(this, atomic, skipRootObjectLambdas).ToString();
 
                     if (!Symbols.CanGetImplementer(s1))
                         Error("impl? called with unknown implementer " + s1);
@@ -648,7 +648,7 @@ namespace Shiro
                     s1 = list[1].Toke.ToString();
                     if (Symbols.CanGet(s1))
                         Error($"Cannot def '{s1}', variable already defined");
-                    Symbols.Set(s1, lastVal = list[2].Eval(this));
+                    Symbols.Set(s1, lastVal = list[2].Eval(this, atomic, skipRootObjectLambdas));
                     return lastVal;
                 case "set":
                     if (!list.ValidateParamCount(2))
@@ -658,7 +658,7 @@ namespace Shiro
                     s1 = list[1].Toke.ToString();
                     if(!Symbols.CanGet(s1))
                         Error($"Cannot set '{s1}', variable not defined yet");
-                    Symbols.Set(s1, lastVal = list[2].Eval(this));
+                    Symbols.Set(s1, lastVal = list[2].Eval(this, atomic, skipRootObjectLambdas));
                     return lastVal;
                 case "sod":
                     if (!list.ValidateParamCount(2))
@@ -666,7 +666,7 @@ namespace Shiro
                     if (list[1].IsParent)
                         Error("First argument to 'sod' must be a name, not any kind of list");
                     s1 = list[1].Toke.ToString();
-                    Symbols.Set(s1, lastVal = list[2].Eval(this));
+                    Symbols.Set(s1, lastVal = list[2].Eval(this, atomic, skipRootObjectLambdas));
                     return lastVal;
 
                 case "undef":
@@ -713,7 +713,7 @@ namespace Shiro
                     for (i = 0; i < list[1].Children.Count; i += 2)
                     {
                         s1 = list[1].Children[i].Toke.ToString();
-                        toke = list[1].Children[i + 1].Eval(this);
+                        toke = list[1].Children[i + 1].Eval(this, atomic, skipRootObjectLambdas);
 
                         Symbols.Let(s1, toke, letId);
                     }
@@ -721,7 +721,7 @@ namespace Shiro
                     try
                     {
                         for (i = 2; i < list.Count; i++)
-                            lastVal = list[i].Eval(this);
+                            lastVal = list[i].Eval(this, atomic, skipRootObjectLambdas);
                     }
                     catch (Exception ex)
                     {
@@ -738,7 +738,7 @@ namespace Shiro
                         Error("Wrong number of parameters to keyword 'relet', expected 2");
                     
                     s1 = list[1].Toke.ToString();
-                    Symbols.ReLet(s1, lastVal = list[2].Eval(this));
+                    Symbols.ReLet(s1, lastVal = list[2].Eval(this, atomic, skipRootObjectLambdas));
                     return lastVal;
 
                 #endregion
@@ -748,53 +748,53 @@ namespace Shiro
                 case "+":
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '+', expected at least 2");
-                    return MathHelper.Add(list.Quote().Select(t => t.Eval(this)).ToArray());
+                    return MathHelper.Add(list.Quote().Select(t => t.Eval(this, atomic, skipRootObjectLambdas)).ToArray());
                 case "-":
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '-', expected at least 2");
-                    return MathHelper.Subtract(list.Quote().Select(t => t.Eval(this)).ToArray());
+                    return MathHelper.Subtract(list.Quote().Select(t => t.Eval(this, atomic, skipRootObjectLambdas)).ToArray());
 
                 case "*":
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '*', expected at least 2");
-                    return MathHelper.Multiply(list.Quote().Select(t => t.Eval(this)).ToArray());
+                    return MathHelper.Multiply(list.Quote().Select(t => t.Eval(this, atomic, skipRootObjectLambdas)).ToArray());
                 case "/":
                     if (!list.ValidateParamCount(2, true))
                         Error("Wrong number of parameters to keyword '/', expected at least 2");
-                    return MathHelper.Divide(list.Quote().Select(t => t.Eval(this)).ToArray());
+                    return MathHelper.Divide(list.Quote().Select(t => t.Eval(this, atomic, skipRootObjectLambdas)).ToArray());
 
                 case "=":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '=', expected 2");
-                    return MathHelper.Equals(list[1].Eval(this), list[2].Eval(this));
+                    return MathHelper.Equals(list[1].Eval(this, atomic, skipRootObjectLambdas), list[2].Eval(this, atomic, skipRootObjectLambdas));
 
                 case "!":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword '!', expected 1");
-                    return MathHelper.Not(list[1].Eval(this));
+                    return MathHelper.Not(list[1].Eval(this, atomic, skipRootObjectLambdas));
 
                 case "!=":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '!=', expected 2");
-                    return MathHelper.Not(MathHelper.Equals(list[1].Eval(this), list[2].Eval(this)));
+                    return MathHelper.Not(MathHelper.Equals(list[1].Eval(this, atomic, skipRootObjectLambdas), list[2].Eval(this, atomic, skipRootObjectLambdas)));
 
                 case ">":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '>', expected 2");
-                    return MathHelper.GreaterThan(list[1].Eval(this), list[2].Eval(this));
+                    return MathHelper.GreaterThan(list[1].Eval(this, atomic, skipRootObjectLambdas), list[2].Eval(this, atomic, skipRootObjectLambdas));
                 case "<":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '<', expected 2");
-                    return MathHelper.LessThan(list[1].Eval(this), list[2].Eval(this));
+                    return MathHelper.LessThan(list[1].Eval(this, atomic, skipRootObjectLambdas), list[2].Eval(this, atomic, skipRootObjectLambdas));
 
                 case ">=":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '>=', expected 2");
-                    return MathHelper.Not(MathHelper.LessThan(list[1].Eval(this), list[2].Eval(this)));
+                    return MathHelper.Not(MathHelper.LessThan(list[1].Eval(this, atomic, skipRootObjectLambdas), list[2].Eval(this, atomic, skipRootObjectLambdas)));
                 case "<=":
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword '<=', expected 2");
-                    return MathHelper.Not(MathHelper.GreaterThan(list[1].Eval(this), list[2].Eval(this)));
+                    return MathHelper.Not(MathHelper.GreaterThan(list[1].Eval(this, atomic, skipRootObjectLambdas), list[2].Eval(this, atomic, skipRootObjectLambdas)));
 
                 case "and":
                     if (!list.ValidateParamCount(2, true))
@@ -841,7 +841,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'error?', expected 1");
 
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (toke.IsObject && toke.Children.HasProperty(this, "error"))
                         return Token.True;
 
@@ -850,7 +850,7 @@ namespace Shiro
                 case "list?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'list?', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (toke.Children != null)
                         return Token.True;
                     return Token.False;
@@ -865,7 +865,7 @@ namespace Shiro
                     if (toke.IsFunction)
                         return Token.True;
 
-                    toke = toke.Eval(this);
+                    toke = toke.Eval(this, atomic, skipRootObjectLambdas);
                     s1 = toke.ToString();
                     if (Symbols.FuncExists(s1))
                         return Token.True;
@@ -877,7 +877,7 @@ namespace Shiro
                 case "nil?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'nil?', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if(toke.IsNil)
                         return Token.True;
                     return Token.False;
@@ -885,7 +885,7 @@ namespace Shiro
                 case "obj?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'obj?', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (toke.Children != null && toke.Children.Any(t => !string.IsNullOrEmpty(t.Name)))
                         return Token.True;
                     return Token.False;
@@ -893,7 +893,7 @@ namespace Shiro
                 case "num?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'num?', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (toke.IsNumeric)
                         return Token.True;
                     return Token.False;
@@ -901,7 +901,7 @@ namespace Shiro
                 case "str?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'str?', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.IsParent && !toke.IsNumeric)
                         return Token.True;
                     return Token.False;
@@ -909,7 +909,7 @@ namespace Shiro
                 case "def?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'def?', expected 1");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     s1 = toke.ToString();
                     if (Symbols.CanGet(s1))
                         return Token.True;
@@ -983,13 +983,13 @@ namespace Shiro
                     if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
                         Error("Wrong number of parameters to keyword 'if', expected 2 or 3");
                     bool hasElse = list.Count == 4;
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (MathHelper.Not(toke).Toke == Token.False.Toke)
-                        return list[2].Eval(this);
+                        return list[2].Eval(this, atomic, skipRootObjectLambdas);
                     else
                     {
                         if(hasElse)
-                            return list[3].Eval(this);
+                            return list[3].Eval(this, atomic, skipRootObjectLambdas);
 
                         return Token.Nil;
                     }
@@ -998,7 +998,7 @@ namespace Shiro
                     if (list.Count == 1)
                         throw new ShiroException(Token.Nil);
 
-                    throw new ShiroException(list[1].Eval(this));
+                    throw new ShiroException(list[1].Eval(this, atomic, skipRootObjectLambdas));
 
                 case "catch":
                     if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
@@ -1008,7 +1008,7 @@ namespace Shiro
                     var finBlock = list.Count == 4 ? list[3] : null;
                     try
                     {
-                        toke = toke.Eval(this);
+                        toke = toke.Eval(this, atomic, skipRootObjectLambdas);
                         if (toke.IsFunction && toke.Params.Count == 0)
                             toke = toke.EvalLambda(null, this);
                     } 
@@ -1016,7 +1016,7 @@ namespace Shiro
                     {
                         letId = Guid.NewGuid();
                         Symbols.Let("ex", shex.Exception, letId);
-                        toke = list[2].Eval(this);
+                        toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
                         Symbols.ClearLetId(letId);
                     } 
                     finally
@@ -1025,7 +1025,7 @@ namespace Shiro
                         {
                             letId = Guid.NewGuid();
                             Symbols.Let("result", toke, letId);
-                            toke = finBlock.Eval(this);
+                            toke = finBlock.Eval(this, atomic, skipRootObjectLambdas);
                             Symbols.ClearLetId(letId);
                         }
                     }
@@ -1039,7 +1039,7 @@ namespace Shiro
                     var finBlock2 = list.Count == 4 ? list[3] : null;
                     try
                     {
-                        toke = toke.Eval(this);
+                        toke = toke.Eval(this, atomic, skipRootObjectLambdas);
                         if (toke.IsFunction && toke.Params.Count == 0)
                             toke = toke.EvalLambda(null, this);
 
@@ -1050,7 +1050,7 @@ namespace Shiro
                         {
                             letId = Guid.NewGuid();
                             Symbols.Let("ex", new Token(ex.Message), letId);
-                            toke = list[2].Eval(this);
+                            toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
                             Symbols.ClearLetId(letId);
                         }
                     }
@@ -1060,7 +1060,7 @@ namespace Shiro
                         {
                             letId = Guid.NewGuid();
                             Symbols.Let("result", toke, letId);
-                            toke = finBlock2.Eval(this);
+                            toke = finBlock2.Eval(this, atomic, skipRootObjectLambdas);
                             Symbols.ClearLetId(letId);
                         }
                     }
@@ -1080,9 +1080,9 @@ namespace Shiro
                     var condition = list[1];
                     var action = list[2];
 
-                    while(condition.Eval(this).IsTrue)
+                    while(condition.Eval(this, atomic, skipRootObjectLambdas).IsTrue)
                     {
-                        lastVal = action.Eval(this);
+                        lastVal = action.Eval(this, atomic, skipRootObjectLambdas);
                     }
                     return lastVal;
 
@@ -1091,7 +1091,7 @@ namespace Shiro
                         Error("'switch' keyword requires a minimum of 3 params (a value and a single case)");
 
                     bool doesSwitchHaveDefault = !((list.Count - 1) % 2 != 0);
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     s1 = toke.ToString();
                    
                     for (i = 2; i < list.Count - 1; i += 2)
@@ -1100,16 +1100,16 @@ namespace Shiro
                         {
                             s2 = list[i].Toke.ToString();
                             if (s1 == s2)
-                                return list[i + 1].Eval(this);
+                                return list[i + 1].Eval(this, atomic, skipRootObjectLambdas);
 
                             try
                             {
-                                toke2 = new Token(new Token(s2), toke).Eval(this);
+                                toke2 = new Token(new Token(s2), toke).Eval(this, atomic, skipRootObjectLambdas);
                             }
                             catch (Exception) { toke2 = Token.Nil; }
 
                             if (toke2.IsTrue)
-                                return list[i + 1].Eval(this);
+                                return list[i + 1].Eval(this, atomic, skipRootObjectLambdas);
                         }
                         else if (list[i].IsFunction)
                         {
@@ -1118,24 +1118,24 @@ namespace Shiro
 
                             var lr = list[i].EvalLambda(null, this, toke);
                             if (lr.IsTrue)
-                                return list[i + 1].Eval(this);
+                                return list[i + 1].Eval(this, atomic, skipRootObjectLambdas);
                         }
                         else
                         {
-                            toke2 = list[i].Eval(this);
+                            toke2 = list[i].Eval(this, atomic, skipRootObjectLambdas);
                             if (!toke2.IsFunction)
                                 Error("I don't know how to use " + toke2.ToString() + " as a switch case.");
 
                             var lr = toke2.EvalLambda(null, this, toke);
                             if (lr.IsTrue)
-                                return list[i + 1].Eval(this);
+                                return list[i + 1].Eval(this, atomic, skipRootObjectLambdas);
                         }
                     }
 
                     if (!doesSwitchHaveDefault)
                         return Token.Nil;
 
-                    return list[list.Count - 1].Eval(this);
+                    return list[list.Count - 1].Eval(this, atomic, skipRootObjectLambdas);
 
                 #endregion
 
@@ -1152,7 +1152,7 @@ namespace Shiro
                     Thread.Sleep(150);
 
                     if (list.Count == 2)
-                        Server.Result = list[1].Eval(this);
+                        Server.Result = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     else
                         Server.Result = Token.Nil;
                     return Server.Result;
@@ -1163,14 +1163,14 @@ namespace Shiro
 						Error("Can't start an HTTP server while already serving something");
 					if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'http', expected 2");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.IsNumeric)
                         Error("First argument to http command must be a port number");
 
                     l = (long)toke.Toke;   //l is now port number
                     toke = list[2];
                     if (!toke.IsParent)
-                        toke = toke.Eval(this);
+                        toke = toke.Eval(this, atomic, skipRootObjectLambdas);
 
                     Server.ListenForHttp(this, toke, (int)l);
 
@@ -1188,8 +1188,8 @@ namespace Shiro
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'static', expected 2");
 
-                    s1 = list[1].Eval(this).Toke.ToString();
-                    toke = list[2].Eval(this);
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).Toke.ToString();
+                    toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
                     if (!Directory.Exists(s1))
                         Error($"Can't map static content at '{s1}', no such directory found.");
                     if (!toke.IsFunction)
@@ -1218,22 +1218,22 @@ namespace Shiro
 						Error("Wrong number of parameters to keyword 'content', expected 2");
 					if (!Server.Serving || Server.ConType != ConnectionType.HTTP)
 						Error("Cannot use 'content' keyword if we are not currently in an http server context");
-					s1 = list[1].Eval(this).Toke.ToString();
+					s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).Toke.ToString();
 
 					HttpHelper.ContentType = s1;
-					return list[2].Eval(this);
+					return list[2].Eval(this, atomic, skipRootObjectLambdas);
 				case "status":
 					if (!list.ValidateParamCount(2))
 						Error("Wrong number of parameters to keyword 'status', expected 2");
 					if (!Server.Serving || Server.ConType != ConnectionType.HTTP)
 						Error("Cannot use 'status' keyword if we are not currently in an http server context");
 
-					toke = list[1].Eval(this);
+					toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
 					if (!toke.IsNumeric || toke.IsDecimal)
 						Error("First parameter to 'status' must be numeric");
 
 					HttpHelper.ResponseStatus = (int)((long)toke.Toke);
-					return list[2].Eval(this);
+					return list[2].Eval(this, atomic, skipRootObjectLambdas);
 
 				case "route":
                     if ((list.Count - 1) % 2 != 0)
@@ -1249,7 +1249,7 @@ namespace Shiro
                         {
                             s2 = list[i].Toke.ToString();
                             if (NetHelper.IsRouteMatch(s1,  s2))
-                                return list[i + 1].Eval(this);
+                                return list[i + 1].Eval(this, atomic, skipRootObjectLambdas);
                             if (s2.ToLower() == "default")
                                 toke = list[i + 1];
                         }
@@ -1260,22 +1260,22 @@ namespace Shiro
 
                             var lr = list[i].EvalLambda(null, this, request.Children.GetProperty(this, "url"));
                             if (lr.IsTrue)
-                                return list[i + 1].Eval(this);
+                                return list[i + 1].Eval(this, atomic, skipRootObjectLambdas);
                         }
                         else
                         {
-                            var iHopeThisIsALambdaYouTool = list[i].Eval(this);
+                            var iHopeThisIsALambdaYouTool = list[i].Eval(this, atomic, skipRootObjectLambdas);
                             if(!iHopeThisIsALambdaYouTool.IsFunction)
                                 Error("You passed a list as a potential route, it has to be a string or a lambda");
                             
                             var lr = iHopeThisIsALambdaYouTool.EvalLambda(null, this, request.Children.GetProperty(this, "url"));
                             if (lr.IsTrue)
-                                return list[i + 1].Eval(this);
+                                return list[i + 1].Eval(this, atomic, skipRootObjectLambdas);
                         }
                     }
 
                     if (toke != null)
-                        return toke.Eval(this);
+                        return toke.Eval(this, atomic, skipRootObjectLambdas);
                     return Token.Nil;
 
                 #region REST (It's big)
@@ -1288,9 +1288,9 @@ namespace Shiro
                     request = Symbols.Get(Symbols.AutoVars.HttpRequest);
                     var restMethod = request.Children.GetProperty(this, "method").Toke.ToString();
                     s1 = request.Children.GetProperty(this, "url").Toke.ToString();
-                    s2 = list[2].Eval(this).ToString();
+                    s2 = list[2].Eval(this, atomic, skipRootObjectLambdas).ToString();
 
-                    var restDataStore = list[1].Eval(this);
+                    var restDataStore = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!restDataStore.IsParent) {
                         Error("The data source passed to the 'rest' keyword must be a list.  You ended up with: " + restDataStore.ToString());
                         HttpHelper.ResponseStatus = 400;
@@ -1413,20 +1413,20 @@ namespace Shiro
 						Error("Can't start a telnet server while already serving something");
 					if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
                         Error("Wrong number of parameters to keyword 'telnet', expected 2 or 3");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.IsNumeric)
                         Error("First argument to telnet command must be a port number");
 
                     l = (long)toke.Toke;   //l is now port number
                     toke = list[2];
                     if (!toke.IsParent)
-                        toke = toke.Eval(this);
+                        toke = toke.Eval(this, atomic, skipRootObjectLambdas);
 
                     if (list.Count == 4)
                     {
                         var conToke = list[3];
                         if (!conToke.IsParent)
-                            conToke = conToke.Eval(this);
+                            conToke = conToke.Eval(this, atomic, skipRootObjectLambdas);
 
                         Server.ListenForTelnetOrTcp(this, toke, (int)l, conToke);
                     }
@@ -1448,20 +1448,20 @@ namespace Shiro
                         Error("Can't start a tcp server while already serving something");
                     if (!list.ValidateParamCount(2) && !list.ValidateParamCount(3))
                         Error("Wrong number of parameters to keyword 'tcp', expected 2 or 3");
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (!toke.IsNumeric)
                         Error("First argument to tcp command must be a port number");
 
                     l = (long)toke.Toke;   //l is now port number
                     toke = list[2];
                     if (!toke.IsParent)
-                        toke = toke.Eval(this);
+                        toke = toke.Eval(this, atomic, skipRootObjectLambdas);
 
                     if (list.Count == 4)
                     {
                         var conToke = list[3];
                         if (!conToke.IsParent)
-                            conToke = conToke.Eval(this);
+                            conToke = conToke.Eval(this, atomic, skipRootObjectLambdas);
 
                         Server.ListenForTelnetOrTcp(this, toke, (int)l, conToke, true);
                     }
@@ -1484,7 +1484,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'send', expected 1");
 
-                    s1 = list[1].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     Server.SendTo(Guid.Parse(Symbols.Get(Symbols.AutoVars.ConnectionId).Toke.ToString()), s1);
                     return new Token(s1);
 
@@ -1496,7 +1496,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'sendAll', expected 1");
 
-                    s1 = list[1].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     Server.SendToAll(s1);
                     return new Token(s1);
 
@@ -1508,8 +1508,8 @@ namespace Shiro
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'sendTo', expected 2");
 
-                    s1 = list[1].Eval(this).ToString();
-                    s2 = list[2].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
+                    s2 = list[2].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     try
                     {
                         Server.SendTo(Guid.Parse(s1), s2);
@@ -1598,8 +1598,8 @@ namespace Shiro
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'pub', expected 2");
 
-                    s1 = list[1].Eval(this).ToString();
-                    toke = list[2].Eval(this);
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
+                    toke = list[2].Eval(this, atomic, skipRootObjectLambdas);
 
                     Conduit.Publish(s1, toke);
                     return toke;
@@ -1608,7 +1608,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(2))
                         Error("Wrong number of parameters to keyword 'sub', expected 2");
 
-                    s1 = list[1].Eval(this).ToString();
+                    s1 = list[1].Eval(this, atomic, skipRootObjectLambdas).ToString();
                     toke = list[2];
 
                     MySubscriptions.Add(Conduit.Subscribe(s1, this, toke), s1);
@@ -1642,7 +1642,7 @@ namespace Shiro
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'len', expected 1");
 
-                    toke = list[1].Eval(this);
+                    toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
 
                     if (toke.IsParent)
                         return new Token(toke.Children.Count.ToString());
@@ -1689,7 +1689,7 @@ namespace Shiro
                         s1 = s1.TrimEnd('?');
                         if(Symbols.CanGetImplementer(s1) && list.Count == 2)
                         {
-                            return new Token(new Token("impl?"), list[1], new Token(s1)).Eval(this);
+                            return new Token(new Token("impl?"), list[1], new Token(s1)).Eval(this, atomic, skipRootObjectLambdas);
                         }
                         else
                         {

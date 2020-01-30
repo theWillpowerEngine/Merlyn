@@ -121,7 +121,7 @@ namespace Shiro
         public bool IsFunction => Params != null;
         public bool IsObject => IsParent && Children.Count > 0 && !string.IsNullOrEmpty(Children[0].Name);
         public bool IsQuotedList = false;
-        public bool IsLambdaWhichCanBeCalledWithParameters => IsFunction && (Params.Count == 0 || (Params.Count - Params.Count(p => p.DefaultValue != null) == 0));
+        public bool IsLambdaWhichCanBeCalledWithoutParameters => IsFunction && (Params.Count == 0 || (Params.Count - Params.Count(p => p.DefaultValue != null) == 0));
 
         public bool IsTrue {
             get
@@ -161,11 +161,11 @@ namespace Shiro
             return "nil";
         }
 
-        public Token Eval(Interpreter shiro, bool atomic = false)
+        public Token Eval(Interpreter shiro, bool atomic = false, bool skipRootObjectLambdas = false)
         {
             if (IsParent)
             {
-                var res = shiro.Eval(Children, atomic);
+                var res = shiro.Eval(Children, atomic, skipRootObjectLambdas);
                 return res;
             }                
                

@@ -145,7 +145,7 @@ namespace Shiro.Guts
                 if (val.Children[i].IsObject)
                     val.Children[i] = EvaluateObject(shiro, val.Children[i], atomic).SetName(pn);
                 else if (!val.Children[i].IsFunction)
-                    val.Children[i] = val.Children[i].Eval(shiro, atomic).SetName(pn);
+                    val.Children[i] = val.Children[i].Eval(shiro, atomic, true).SetName(pn);
             }
 
             return val;
