@@ -63,6 +63,7 @@
             this.compileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.formatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoDoMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.quickAutoLetMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.quickParenMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.showAutocompleteMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,6 +78,7 @@
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showResultMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.showRunTimeMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.registerWindowsExplorerContextMenuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -97,7 +99,6 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveStateTimer = new System.Windows.Forms.Timer(this.components);
             this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
-            this.quickAutoLetMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -399,6 +400,14 @@
             this.autoDoMenu.Text = "Surround With &Do";
             this.autoDoMenu.Click += new System.EventHandler(this.autoDoMenu_Click);
             // 
+            // quickAutoLetMenu
+            // 
+            this.quickAutoLetMenu.Name = "quickAutoLetMenu";
+            this.quickAutoLetMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+            this.quickAutoLetMenu.Size = new System.Drawing.Size(247, 22);
+            this.quickAutoLetMenu.Text = "Quick Auto&Let";
+            this.quickAutoLetMenu.Click += new System.EventHandler(this.quickAutoLetMenu_Click);
+            // 
             // quickParenMenu
             // 
             this.quickParenMenu.Name = "quickParenMenu";
@@ -502,6 +511,7 @@
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showResultMenu,
+            this.showRunTimeMenu,
             this.toolStripMenuItem5,
             this.registerWindowsExplorerContextMenuToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
@@ -515,6 +525,14 @@
             this.showResultMenu.Size = new System.Drawing.Size(291, 22);
             this.showResultMenu.Text = "&Show Result of Eval";
             this.showResultMenu.Click += new System.EventHandler(this.showResultMenu_Click);
+            // 
+            // showRunTimeMenu
+            // 
+            this.showRunTimeMenu.CheckOnClick = true;
+            this.showRunTimeMenu.Name = "showRunTimeMenu";
+            this.showRunTimeMenu.Size = new System.Drawing.Size(291, 22);
+            this.showRunTimeMenu.Text = "Show Run &Time";
+            this.showRunTimeMenu.Click += new System.EventHandler(this.showRunTimeMenu_Click);
             // 
             // toolStripMenuItem5
             // 
@@ -748,14 +766,6 @@
             this.saveProjectDialog.DefaultExt = "shr";
             this.saveProjectDialog.Filter = "Shiro Projects|*.shrp";
             // 
-            // quickAutoLetMenu
-            // 
-            this.quickAutoLetMenu.Name = "quickAutoLetMenu";
-            this.quickAutoLetMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.quickAutoLetMenu.Size = new System.Drawing.Size(247, 22);
-            this.quickAutoLetMenu.Text = "Quick Auto&Let";
-            this.quickAutoLetMenu.Click += new System.EventHandler(this.quickAutoLetMenu_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -861,6 +871,7 @@
         private System.Windows.Forms.ImageList treeImages;
         private System.Windows.Forms.ToolStripMenuItem addFolderMenu;
         private System.Windows.Forms.ToolStripMenuItem quickAutoLetMenu;
+        private System.Windows.Forms.ToolStripMenuItem showRunTimeMenu;
     }
 }
 

@@ -126,9 +126,10 @@
     (sod it (new no-ctor))
     (assert-eq 1 it.n "default CTOR on CTORless implementer works")
     
-    ;special params (default/predicate)
+    ;predicate-params
     (defn funky? (val) (= $val "funky"))
     (defn hard-to-call (n:num? s:str? l:list? f:fn? fnk:funky?) (+ 2 $n))
+    (sod hard-to-call2 (n:num? s:str? l:list? f:fn? fnk:funky?)->(+ 3 $n))
     (assert-eq 5 (hard-to-call 3 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 1")
     
     (assert-fails ()->(hard-to-call 3 'bob' '(1 2) ()->(+ 2 2) "not funky") "predicate params 2")
@@ -136,12 +137,22 @@
     (assert-fails ()->(hard-to-call 3 'bob' 'dan' ()->(+ 2 2) "funky") "predicate params 4")
     (assert-fails ()->(hard-to-call 3 123 '(1 2) ()->(+ 2 2) "funky") "predicate params 5")
     (assert-fails ()->(hard-to-call '(1 2 3) 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 6")
-    
     (assert-works ()->(hard-to-call 3 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 2")
-    
-    
-    
-    
+
+    (assert-eq 6 (hard-to-call2 3 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 1 (lambda)")
+    (assert-fails ()->(hard-to-call2 3 'bob' '(1 2) ()->(+ 2 2) "not funky") "predicate params 2 (lambda)")
+    (assert-fails ()->(hard-to-call2 3 'bob' '(1 2) 123 "funky") "predicate params 3 (lambda)")
+    (assert-fails ()->(hard-to-call2 3 'bob' 'dan' ()->(+ 2 2) "funky") "predicate params 4 (lambda)")
+    (assert-fails ()->(hard-to-call2 3 123 '(1 2) ()->(+ 2 2) "funky") "predicate params 5 (lambda)")
+    (assert-fails ()->(hard-to-call2 '(1 2 3) 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 6 (lambda)")
+    (assert-works ()->(hard-to-call2 3 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 2 (lambda)")
+
+    ;default params
+    (defn i-need-an-intern (s=Hello%sNurse n=123 null=) (interpolate "{s}-{n}-{null}"))
+    (assert-eq "Hello Nurse-123-nil" (i-need-an-intern) "default params 1")
+    (assert-eq "Dan-123-nil" (i-need-an-intern 'Dan') "default params 2")
+    (assert-eq "Dan-44-nil" (i-need-an-intern 'Dan' 44) "default params 3")
+    (assert-eq "Dan-44-bob" (i-need-an-intern 'Dan' 44 'bob') "default params 4")
         
     ;exceptions
     (assert-throws (=> () (do (sod dingleberry 123) (throw 'fuck off'))) 'basic throw/catch')
@@ -223,7 +234,6 @@
         (pub "Odd" 2)
         (atom (do (add-l 3) (pub "Odd" 4) (add-l 5))))
         
-    (nop)(nop)
     (assert-eq '(1 2 3 5 4) $l "atomic lists are atomic")    
 
     ;check reader shortcuts

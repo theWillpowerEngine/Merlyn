@@ -34,6 +34,7 @@ namespace Shiro.Sense
             var ts = new ThreadStart(() =>
             {
                 Token res;
+                var start = DateTime.Now;
                 try
                 {
                     lock (ShiroLock)
@@ -41,6 +42,9 @@ namespace Shiro.Sense
                         res = Shiro.Eval(code);
                         if (_showResult)
                             SafeWrite($"[Result]  {res.ToString()}{Environment.NewLine}");
+
+                        if (_showRuntime)
+                            SafeWrite($"[Run Duration]  {DateTime.Now.Subtract(start).Milliseconds} ms");
                     }
                     cb(res);
                 }
@@ -654,6 +658,10 @@ namespace Shiro.Sense
         {
             _showResult = showResultMenu.Checked;
         }
+        private void showRunTimeMenu_Click(object sender, EventArgs e)
+        {
+            _showRuntime = showRunTimeMenu.Checked;
+        }
 
         private void compileMenu_Click(object sender, EventArgs e)
         {
@@ -1109,7 +1117,7 @@ namespace Shiro.Sense
         private bool Inputting = false;
         private string Input = "";
 
-        protected bool _showResult = false;
+        protected bool _showResult = false, _showRuntime = false;
 
         public MainForm()
         {

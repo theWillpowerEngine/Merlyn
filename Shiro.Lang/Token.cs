@@ -189,17 +189,33 @@ namespace Shiro
             if (mustSkip > canSkip)
                 Interpreter.Error($"Not enough parameters passed to lambda '{ToString()}', expected at least {Params.Count - canSkip}, found {args.Length} instead");
 
+            var leftToSkip = new int[Params.Count];
+            var curSkip = 0;
+            for (var j = Params.Count - 1; j > -1; j--)
+            {
+                if (Params[j].HasDefault)
+                    curSkip += 1;
+
+                leftToSkip[j] = curSkip;
+            }
+
+            if (curSkip < mustSkip)
+                Interpreter.Error("Skippable parameter mismatch -- this is an internal error that should be impossible");
+
             try
             {
+                int k = 0;
                 foreach (var pn in Params)
                 {
-                    if (pn.HasDefault && mustSkip > 0)
+                    if (pn.HasDefault && mustSkip > 0 && mustSkip == leftToSkip[k])
                     {
                         pn.LetOrError(shiro, pn.DefaultValue.Clone(), letId);
                         mustSkip -= 1;
                     }
                     else
                         pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
+
+                    k += 1;
                 }
 
                 if (mustSkip != 0)
