@@ -315,23 +315,31 @@ namespace Shiro.Guts
                 if(mustSkip > canSkip)
                     Interpreter.Error($"Not enough parameters passed to function '{name}', expected at least {func.Params.Count - canSkip}, found {args.Length} instead");
 
-                foreach (var pn in func.Params)
+                try
                 {
-                    if (pn.HasDefault && mustSkip > 0)
+                    foreach (var pn in func.Params)
                     {
-                        pn.LetOrError(shiro, pn.DefaultValue.Clone(), letId);
-                        mustSkip -= 1;
+                        if (pn.HasDefault && mustSkip > 0)
+                        {
+                            pn.LetOrError(shiro, pn.DefaultValue.Clone(), letId);
+                            mustSkip -= 1;
+                        }
+                        else
+                            pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
                     }
-                    else
-                        pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
+
+                    if (mustSkip != 0)
+                        Interpreter.Error($"Couldn't match parameters passed to function '{name}' with the defaults provided.  This usually means you passed too few parameters, {mustSkip} more are needed");
+
+                    var retVal = func.Eval(shiro);
+                    ClearLetId(letId);
+                    return retVal;
                 }
-
-                if (mustSkip != 0)
-                    Interpreter.Error($"Couldn't match parameters passed to function '{name}' with the defaults provided.  This usually means you passed too few parameters, {mustSkip} more are needed");
-
-                var retVal = func.Eval(shiro);
-                ClearLetId(letId);
-                return retVal;
+                catch (Exception)
+                {
+                    ClearLetId(letId);
+                    throw;
+                }
             }
         }
 

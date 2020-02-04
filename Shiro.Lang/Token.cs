@@ -189,27 +189,27 @@ namespace Shiro
             if (mustSkip > canSkip)
                 Interpreter.Error($"Not enough parameters passed to lambda '{ToString()}', expected at least {Params.Count - canSkip}, found {args.Length} instead");
 
-            foreach (var pn in Params)
-            {
-                if (pn.HasDefault && mustSkip > 0)
-                {
-                    pn.LetOrError(shiro, pn.DefaultValue.Clone(), letId);
-                    mustSkip -= 1;
-                }
-                else
-                    pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
-            }
-
-            if (mustSkip != 0)
-                Interpreter.Error($"Couldn't match parameters passed to lambda '{ToString()}' with the defaults provided.  This usually means you passed too few parameters, {mustSkip} more are needed");
-
-            if (thisToke != null)
-                shiro.Symbols.Let("this", thisToke, letId);
-
-            shiro.Symbols.PushTardEnclosure(thisToke?.Enclosure ?? Enclosure);
-
             try
             {
+                foreach (var pn in Params)
+                {
+                    if (pn.HasDefault && mustSkip > 0)
+                    {
+                        pn.LetOrError(shiro, pn.DefaultValue.Clone(), letId);
+                        mustSkip -= 1;
+                    }
+                    else
+                        pn.LetOrError(shiro, args[i++].Eval(shiro), letId);
+                }
+
+                if (mustSkip != 0)
+                    Interpreter.Error($"Couldn't match parameters passed to lambda '{ToString()}' with the defaults provided.  This usually means you passed too few parameters, {mustSkip} more are needed");
+
+                if (thisToke != null)
+                    shiro.Symbols.Let("this", thisToke, letId);
+
+                shiro.Symbols.PushTardEnclosure(thisToke?.Enclosure ?? Enclosure);
+
                 var retVal = Eval(shiro);
                 return retVal;
             }

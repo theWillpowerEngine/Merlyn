@@ -2,13 +2,7 @@ TODO (docs)
 	
 TODO (tests)
 
-	new and different CTOR permutations (default, extra parms error, not enough parms nil-autofill)
-	
 	default parameters
-	predicate parameters (kind of already tested because we use them for shit, but let's actually test them)
-
-	inherit (SSL std library)
-
 
 TODO
 

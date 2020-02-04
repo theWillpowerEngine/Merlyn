@@ -407,14 +407,14 @@ namespace Shiro
 
                 case ".sod":
                     if (!list.ValidateParamCount(3, true))
-                        Error("Wrong number of parameters to keyword '.set', expected at least 3");
+                        Error("Wrong number of parameters to keyword '.sod', expected at least 3");
 
                     if (list[1].IsParent)
-                        Error("First argument to '.set' must be a name, not simply a list or inline object");
+                        Error("First argument to '.sod' must be a name, not simply a list or inline object");
 
                     name = list[1].Toke.ToString();
                     if (!Symbols.CanGet(name))
-                        Error("Can't find variable " + name + " for .set command");
+                        Error("Can't find variable " + name + " for .sod command");
 
                     toke = Symbols.Get(name);
 
@@ -882,6 +882,10 @@ namespace Shiro
                 case "list?":
                     if (!list.ValidateParamCount(1))
                         Error("Wrong number of parameters to keyword 'list?', expected 1");
+
+                    if (list[1].IsQuotedList)
+                        return Token.True;
+
                     toke = list[1].Eval(this, atomic, skipRootObjectLambdas);
                     if (toke.Children != null)
                         return Token.True;
@@ -1653,7 +1657,7 @@ namespace Shiro
                     _atomicEvaluation = true;
                     try
                     {
-                        toke = list[1].Eval(this, true);
+                        toke = list[1].Eval(this, true, skipRootObjectLambdas);
                     }
                     catch (Exception)
                     {

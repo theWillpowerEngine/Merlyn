@@ -110,6 +110,39 @@
 
     (assert-eq 4 ((=> (a b) (+ $a $b)) 2 2) "Lambda at the root")
     
+    ;CTORs
+    (impl ctor { n: 0, ctor: (v1 v2 v3)->(.sod this n (if (nil? $v1) 1 (if (nil? $v2) 2 (if (nil? $v3) 3 4))))})
+    (sod it (new ctor))
+    (assert-eq 1 it.n "all empty CTOR params")
+    (sod it (new ctor 1))
+    (assert-eq 2 it.n "some empty CTOR params 1")
+    (sod it (new ctor 1 2))
+    (assert-eq 3 it.n "some empty CTOR params 1")
+    (sod it (new ctor 1 2 3))
+    (assert-eq 4 it.n "full CTOR params")
+    (assert-fails ()->(sod it (new ctor 1 2 3 4)) "too many params to CTOR fails")
+    
+    (impl no-ctor {n:1})
+    (sod it (new no-ctor))
+    (assert-eq 1 it.n "default CTOR on CTORless implementer works")
+    
+    ;special params (default/predicate)
+    (defn funky? (val) (= $val "funky"))
+    (defn hard-to-call (n:num? s:str? l:list? f:fn? fnk:funky?) (+ 2 $n))
+    (assert-eq 5 (hard-to-call 3 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 1")
+    
+    (assert-fails ()->(hard-to-call 3 'bob' '(1 2) ()->(+ 2 2) "not funky") "predicate params 2")
+    (assert-fails ()->(hard-to-call 3 'bob' '(1 2) 123 "funky") "predicate params 3")
+    (assert-fails ()->(hard-to-call 3 'bob' 'dan' ()->(+ 2 2) "funky") "predicate params 4")
+    (assert-fails ()->(hard-to-call 3 123 '(1 2) ()->(+ 2 2) "funky") "predicate params 5")
+    (assert-fails ()->(hard-to-call '(1 2 3) 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 6")
+    
+    (assert-works ()->(hard-to-call 3 'bob' '(1 2) ()->(+ 2 2) "funky") "predicate params 2")
+    
+    
+    
+    
+        
     ;exceptions
     (assert-throws (=> () (do (sod dingleberry 123) (throw 'fuck off'))) 'basic throw/catch')
     (assert (def? dingleberry) 'basic throw/catch 2')
@@ -190,6 +223,7 @@
         (pub "Odd" 2)
         (atom (do (add-l 3) (pub "Odd" 4) (add-l 5))))
         
+    (nop)(nop)
     (assert-eq '(1 2 3 5 4) $l "atomic lists are atomic")    
 
     ;check reader shortcuts
