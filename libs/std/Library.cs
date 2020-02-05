@@ -45,12 +45,13 @@ namespace std
             }, "(sleep <ms to sleep>)");
 
 
-            //            shiro.Eval(@"(do (defn assert (test s:str?) (pnb (if (! $test) (str 'FAIL: ' $s '%n') '')))
-            //(defn assert-not (test s:str?) (pnb (if $test (str 'FAIL: ' $s '%n') '')))
-            //(defn assert-eq (t1 t2 s:str?) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}%n` '')))
-            //(defn assert-throws (f:fn? s:str?) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` '')))
-            //(defn assert-fails (f:fn? s:str?) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` '')))
-            //(defn assert-works (f:fn? s:str?) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` ''))))", false);
+            shiro.Eval(@"(defn prop (pv cb-or-queue=) ([val $pv cboq $cb-or-queue]
+                            (enclose (v=)->(do (
+                                (if (nil? $v) $val (do 
+			                        (sod val $v)
+			                        (if (str? $cboq) (pub $cboq $val))
+			                        (if (fn? $cboq) ($cboq $val))))
+                            )))))", false);
         }
     }
 }
