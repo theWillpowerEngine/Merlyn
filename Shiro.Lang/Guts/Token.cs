@@ -168,7 +168,7 @@ namespace Shiro
                 var res = shiro.Eval(Children, atomic, skipRootObjectLambdas);
                 return res;
             }                
-               
+            
             return this;
         }
 
@@ -201,7 +201,7 @@ namespace Shiro
 
             if (curSkip < mustSkip)
                 Interpreter.Error("Skippable parameter mismatch -- this is an internal error that should be impossible");
-
+            
             try
             {
                 int k = 0;

@@ -30,46 +30,15 @@ namespace Shiro
             else
                 Thread.Sleep(0);
 
-            /*   BEGIN Sperge:
-             * 
-             * Okay there are four possible conditions we need to handle when the first item in our list is itself a list. They are:
-             * 
-             *  1)  A racist wants us to think their list is Jewish, ie:
-             *              (((print 'hello world')))
-             *              
-             *  2)  We're calling lambda we build or load, but not an object lambda, ie:
-             *              ((=> (x y) (+ $x $y)) 2 2)
-             *              
-             *              (do 
-             *                  (sod lambda-name (=> (x y) (+ $x $y)))
-             *                  ($lambda-name 2 2))
-             *                           
-             * 3)  Object lambdas.  These are different because the '.' keyword attempts to auto-evaluate an object-lambda which can
-             *     be called without parameters if it is found at the root level of a list.  In this situation we want it to return the
-             *     value of the lambda, not attempt to evaluate it.  Note that this only applies to lambdas which could be called without
-             *     params, but we want all object lambdas to work basically the same way if possible.  ie (using prop from SSL):
-             *              (do 
-             *                  (sod o { name: (prop 'Dan' (v)->(print `name changed to {$v}`)), age: (prop 36) })
-             *                  (o.name 'Bob'))
-             *                  
-             * 4)  Sibling-Peered syntax error, ie:
-             *              (print 1)(print 2)
-             *              
-             *              ((print 1) 123)
-             *              
-             *              etc.
-             *              
-             *   END Sperge     */
-
             if (list[0].IsParent)
             {
-                //1)  A single Jewish list as written by a racist
+                //(((print "This is a dumb way to write shiro")))
                 if (list.Count == 1)
                     return list[0].Eval(this, atomic, skipRootObjectLambdas);
 
-                //2 or 3 -- We somehow get an in-memory lambda as the command (object lambda or <other>)
+                //(<in-memory lambda> ...)   ; can be variable, object-variable or 'other'
                 Token evalled = Token.Nil;
-                evalled = list[0].Eval(this, atomic, true);     //Evaluate the command list (without attempt to auto-eval object lambdas)
+                evalled = list[0].Eval(this, atomic, true);     //Evaluate the command list (without attempting to auto-eval object lambdas)
                 if (evalled.IsFunction)
                     list[0] = evalled;
                 else    //4)  Sadtrombone
