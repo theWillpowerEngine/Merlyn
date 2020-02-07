@@ -18,9 +18,9 @@ namespace Shiro.Guts
 
         private static readonly List<Token> CheckClosureScope = null;
 
-        private Stack<Token> TardEnclosures = new Stack<Token>();       //Stupid control freaks and their stupid private variables
+        private Stack<Token> EnclosureStack = new Stack<Token>(); 
 
-        public Token CurrentEnclosure => TardEnclosures.Count > 0 ? TardEnclosures.Peek() : null;
+        public Token CurrentEnclosure => EnclosureStack.Count > 0 ? EnclosureStack.Peek() : null;
 
         internal class LetOverride
         {
@@ -219,14 +219,14 @@ namespace Shiro.Guts
             }
         }
 
-        public Token PopTardEnclosure()
+        public Token UnEnclose()
         {
-            return TardEnclosures.Pop();
+            return EnclosureStack.Pop();
         }
 
-        public void PushTardEnclosure(Token tardEnclosure)
+        public void Enclose(Token tardEnclosure)
         {
-            TardEnclosures.Push(tardEnclosure);
+            EnclosureStack.Push(tardEnclosure);
         }
 
         public Token GetImplementer(string name)

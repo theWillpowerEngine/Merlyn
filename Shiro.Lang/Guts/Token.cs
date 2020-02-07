@@ -224,7 +224,7 @@ namespace Shiro
                 if (thisToke != null)
                     shiro.Symbols.Let("this", thisToke, letId);
 
-                shiro.Symbols.PushTardEnclosure(thisToke?.Enclosure ?? Enclosure);
+                shiro.Symbols.Enclose(thisToke?.Enclosure ?? Enclosure);
 
                 var retVal = Eval(shiro);
                 return retVal;
@@ -232,7 +232,7 @@ namespace Shiro
             finally
             {
                 shiro.Symbols.ClearLetId(letId);
-                Enclosure = shiro.Symbols.PopTardEnclosure();
+                Enclosure = shiro.Symbols.UnEnclose();
             }
         }
     }

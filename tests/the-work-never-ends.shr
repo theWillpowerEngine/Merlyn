@@ -1,0 +1,6 @@
+(do 
+    (sod loser (enclose {_p: 1} {getP: (=> (this._p)), incP: (=> (.sod this _p (+ this._p 1)))}))
+    ;(print loser._p)
+    (.sod loser _p 100)
+    (print loser.getP)
+)

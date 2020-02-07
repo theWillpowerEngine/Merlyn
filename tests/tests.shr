@@ -174,7 +174,7 @@
     
     (sod loser (enclose {_p: 1} {getP: (=> (this._p)), incP: (=> (.sod this _p (+ this._p 1)))}))
     (assert-fails (=> (print loser._p)) "enclosures hide reads")
-    (assert-fails (=> (sod loser _p 100)) "enclosures prevent writing")
+    (assert-fails (=> (.sod loser _p 100)) "enclosures prevent writing")
     (assert-eq 1 loser.getP "can set and get enclosed variables in appropriate lambdas 1")
     (loser.incP)
     (assert-eq 2 loser.getP "can set and get enclosed variables in appropriate lambdas 2")

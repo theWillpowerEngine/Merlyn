@@ -25,9 +25,9 @@ namespace test
             shiro.Eval(@"(do (defn assert (test s:str?) (pnb (if (! $test) (str 'FAIL: ' $s '%n') '')))
 (defn assert-not (test s:str?) (pnb (if $test (str 'FAIL: ' $s '%n') '')))
 (defn assert-eq (t1 t2 s:str?) (pnb (if (!= $t1 $t2) `FAIL ({$t1} != {$t2}): {$s}%n` '')))
-(defn assert-throws (f:fn? s:str?) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `Fail, didn't throw: {$s}` '')))
-(defn assert-fails (f:fn? s:str?) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `Fail, didn't throw: {$s}` '')))
-(defn assert-works (f:fn? s:str?) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `Failed, didn't work: {$s}` ''))))", false);
+(defn assert-throws (f:fn? s:str?) (pnb (if (!= 'dingleberry' (catch (f) 'dingleberry')) `FAIL, didn't throw: {$s}%n` '')))
+(defn assert-fails (f:fn? s:str?) (pnb (if (!= 'dingleberry' (try (f) 'dingleberry')) `FAIL, didn't throw: {$s}%n` '')))
+(defn assert-works (f:fn? s:str?) (pnb (if (= 'dingleberry' (try (f) 'dingleberry')) `FAIL, didn't work: {$s}%n` ''))))", false);
         }
 	}
 }
