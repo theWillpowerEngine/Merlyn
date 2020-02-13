@@ -37,7 +37,7 @@ namespace Shiro
                     return list[0].Eval(this, atomic, skipRootObjectLambdas);
 
                 //(<in-memory lambda> ...)   ; can be variable, object-variable or 'other'
-                Token evalled = list[0].Eval(this, atomic, true);     //Evaluate the command list (without attempt to auto-eval object lambdas)
+                var evalled = list[0].Eval(this, atomic, true);     //Evaluate the command list (without attempt to auto-eval object lambdas)
                 if (evalled.IsFunction)
                     list[0] = evalled;
                 else    //4)  Sadtrombone
