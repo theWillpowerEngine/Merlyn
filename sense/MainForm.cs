@@ -460,7 +460,6 @@ namespace Shiro.Sense
             }
         }
 
-        private string _previousTab = "new";
         private bool _suppressTabChanged = false;
         private void editorTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
