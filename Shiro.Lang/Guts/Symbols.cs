@@ -18,7 +18,8 @@ namespace Shiro.Guts
 
         private static readonly List<Token> CheckClosureScope = null;
 
-        private Stack<Token> EnclosureStack = new Stack<Token>(); 
+        private Stack<Token> EnclosureStack = new Stack<Token>();
+        private Stack<Token> ThisStack = new Stack<Token>();
 
         public Token CurrentEnclosure => EnclosureStack.Count > 0 ? EnclosureStack.Peek() : null;
 
