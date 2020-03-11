@@ -3,4 +3,6 @@
     ;(print loser._p)
     (.sod loser _p 100)
     (print loser.getP)
+    ;(loser.incP)
+    ;(print loser.getP)
 )

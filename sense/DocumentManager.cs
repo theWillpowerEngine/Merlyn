@@ -81,9 +81,10 @@ namespace Shiro.Sense
                 return;
 
             if (ActiveDocument != null)
+            {
                 Documents[ActiveDocument].Ref();
-
-            Documents[ActiveDocument].Content = Editor.Text;
+                Documents[ActiveDocument].Content = Editor.Text;
+            }
 
             Editor.Document = Documents[name].Document;
             Documents[name].UnRef();

@@ -375,6 +375,7 @@ namespace Shiro
                     return Symbols.Get(name);
 
                 case ".sod":
+                    bool areWeDereferencingThis = false;
                     if (!list.ValidateParamCount(3, true))
                         Error("Wrong number of parameters to keyword '.sod', expected at least 3");
 
@@ -386,6 +387,7 @@ namespace Shiro
                         Error("Can't find variable " + name + " for .sod command");
 
                     toke = Symbols.Get(name);
+                    areWeDereferencingThis = name == "this";
 
                     for (i = 2; i < list.Count - 1; i++)
                     {
@@ -393,6 +395,11 @@ namespace Shiro
                         if (t2.IsParent)
                             t2 = t2.Eval(this, atomic, skipRootObjectLambdas);
                         s1 = t2.ToString();
+
+                        if (!areWeDereferencingThis && Symbols.IsPropertyBlockedByEnclosure(this, toke, s1))
+                            Error($"Can't dereference {s1} off {toke.ToString()}, it is private and you're not accessing it off this");
+
+                        areWeDereferencingThis = false;
 
                         if (i < list.Count - 2)
                         {

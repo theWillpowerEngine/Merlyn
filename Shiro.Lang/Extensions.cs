@@ -114,6 +114,7 @@ namespace Shiro
         }
         public static bool SetProperty(this List<Token> tokes, Interpreter shiro, string name, Token val)
         {
+            //See if it exists at all
             if (!tokes.HasProperty(shiro, name))
                 return false;
 

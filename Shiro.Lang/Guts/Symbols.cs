@@ -436,5 +436,10 @@ namespace Shiro.Guts
 
             return retVal;
         }
+
+        internal bool IsPropertyBlockedByEnclosure(Interpreter interpreter, Token toke, string s1)
+        {
+            return toke?.Enclosure?.Children?.HasProperty(interpreter, s1) ?? false;
+        }
     }
 }
