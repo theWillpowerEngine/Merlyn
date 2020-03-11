@@ -35,7 +35,7 @@ namespace Shiro.Cons
 
             var files = new List<string>();
             var start = 1;
-            string path = "";
+            
             switch (args[0])
             {
                 case "install":
